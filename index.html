@@ -4311,27 +4311,28 @@
       const currentFrom = fromSel.value;
       const currentTo = toSel.value;
 
-      // Extract unique technician names only (no team)
-      const techNames = [];
-      const seen = new Set();
+      // Group technicians by team
+      const teams = {};
       dynamicTechnicians.forEach(t => {
-        const name = (t.name || t.fullName || t.displayName || '').trim();
-        if (name && !seen.has(name)) {
-          seen.add(name);
-          techNames.push(name);
-        }
+        const teamName = t.team || 'ทีมทั่วไป';
+        if (!teams[teamName]) teams[teamName] = [];
+        teams[teamName].push(t);
       });
-
-      // Sort alphabetically in Thai
-      techNames.sort((a, b) => a.localeCompare(b, 'th'));
 
       let optionsFrom = '<option value="">-- เลือกช่างผู้โอน (ต้นทาง) --</option>';
       let optionsTo = '<option value="">-- เลือกช่างผู้รับโอน (ปลายทาง) --</option>';
 
-      techNames.forEach(name => {
-        const val = escapeHtml(name);
-        optionsFrom += `<option value="${val}">${val}</option>`;
-        optionsTo += `<option value="${val}">${val}</option>`;
+      Object.keys(teams).forEach(teamName => {
+        optionsFrom += `<optgroup label="🏷️ ${escapeHtml(teamName)}">`;
+        optionsTo += `<optgroup label="🏷️ ${escapeHtml(teamName)}">`;
+        teams[teamName].forEach(t => {
+          const val = escapeHtml(t.name || t.fullName || t.id);
+          const label = escapeHtml(t.displayName || `${t.id} - ${t.name} (${t.team})`);
+          optionsFrom += `<option value="${val}">${label}</option>`;
+          optionsTo += `<option value="${val}">${label}</option>`;
+        });
+        optionsFrom += `</optgroup>`;
+        optionsTo += `</optgroup>`;
       });
 
       fromSel.innerHTML = optionsFrom;
@@ -4505,19 +4506,9 @@
 
     function openQuickTransferModal(sn, model, fromTechEncoded) {
       const fromTech = decodeURIComponent(fromTechEncoded || '').trim();
-      const techNames = [];
-      const seen = new Set();
-      dynamicTechnicians.forEach(t => {
-        const name = (t.name || t.fullName || t.displayName || '').trim();
-        if (name && name !== fromTech && !seen.has(name)) {
-          seen.add(name);
-          techNames.push(name);
-        }
-      });
-      techNames.sort((a, b) => a.localeCompare(b, 'th'));
-
-      const techOptions = techNames
-        .map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
+      const techOptions = dynamicTechnicians
+        .filter(t => t.name !== fromTech && t.displayName !== fromTech)
+        .map(t => `<option value="${escapeHtml(t.name || t.fullName || t.id)}">${escapeHtml(t.displayName || t.name)}</option>`)
         .join('');
 
       Swal.fire({
