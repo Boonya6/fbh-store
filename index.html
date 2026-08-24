@@ -809,7 +809,7 @@
             <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
               <button type="submit" id="submitBtn" class="flex-1 py-3.5 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-[0.99] text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition">
                 <i class="fa-solid fa-cloud-arrow-up text-base"></i>
-                <span id="submitBtnText">บันทึกข้อมูลเบิกอุปกรณ์ (ส่งเข้า Google Sheet)</span>
+                <span id="submitBtnText">บันทึกข้อมูลเบิกอุปกรณ์</span>
               </button>
             </div>
 
@@ -817,35 +817,9 @@
 
         </div>
 
-        <!-- Right Side: Quick Summary & Tips -->
+        <!-- Right Side: Tips Card Only -->
         <div class="lg:col-span-4 space-y-6">
           
-          <!-- Live Today Stats Card -->
-          <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-md border border-slate-800 relative overflow-hidden">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl"></div>
-            
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xs uppercase tracking-wider font-semibold text-slate-400">ยอดเบิกวันนี้ (Today)</h3>
-              <span id="todayDateStr" class="text-xs text-blue-300 font-medium"></span>
-            </div>
-
-            <div class="flex items-baseline gap-2 mb-4">
-              <span id="todayCountDisplay" class="text-4xl font-extrabold text-white">0</span>
-              <span class="text-sm text-slate-300">เครื่อง</span>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 pt-3 border-t border-slate-700/60 text-xs">
-              <div>
-                <span class="text-slate-400 block">งานติดตั้งใหม่</span>
-                <span id="todayNewCount" class="font-bold text-emerald-400">0 รายการ</span>
-              </div>
-              <div>
-                <span class="text-slate-400 block">ซ่อม / เปลี่ยน</span>
-                <span id="todayRepairCount" class="font-bold text-amber-400">0 รายการ</span>
-              </div>
-            </div>
-          </div>
-
           <!-- Quick Tips Card -->
           <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-3">
             <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -867,38 +841,6 @@
                 <span>ช่องใดที่ไม่ได้กรอก ระบบจะข้ามให้อัตโนมัติโดยไม่เกิดข้อผิดพลาด</span>
               </li>
             </ul>
-          </div>
-
-          <!-- Quick Google Sheet Direct Link -->
-          <div class="bg-blue-50/60 rounded-2xl p-4 border border-blue-100 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                <i class="fa-solid fa-table"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-bold text-slate-800">Google Sheet</h4>
-                <p class="text-[11px] text-slate-500">เปิดดูตารางข้อมูลแบบเต็ม</p>
-              </div>
-            </div>
-            <a href="https://docs.google.com/spreadsheets/d/1_nSY_1BOj9muJPQrHdMMdPlhisiwGuRoVZEcrG6KImk/edit?gid=43495007#gid=43495007" target="_blank" class="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-blue-600 shadow-sm transition">
-              เปิด <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
-            </a>
-          </div>
-
-          <!-- Quick Google Drive Folder: รูปเบิกอุปกรณ์ -->
-          <div class="bg-indigo-50/60 rounded-2xl p-4 border border-indigo-100 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm">
-                <i class="fa-brands fa-google-drive"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-bold text-slate-800">โฟลเดอร์รูปเบิกอุปกรณ์</h4>
-                <p class="text-[11px] text-slate-500">Google Drive: รูปเบิก</p>
-              </div>
-            </div>
-            <a href="https://drive.google.com/drive/folders/1VXmNvU4geQxEtjuLIeTBqQpU17g5V95Z" target="_blank" class="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-indigo-600 shadow-sm transition">
-              เปิด <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
-            </a>
           </div>
 
         </div>
@@ -1069,7 +1011,7 @@
             <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
               <button type="submit" id="soSubmitBtn" class="flex-1 py-3.5 px-6 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 active:scale-[0.99] text-white font-semibold rounded-xl shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 transition">
                 <i class="fa-solid fa-box-check text-base"></i>
-                <span id="soSubmitBtnText">บันทึกตัดสต็อกอุปกรณ์ (ส่งเข้า Google Sheet)</span>
+                <span id="soSubmitBtnText">บันทึกตัดสต็อกอุปกรณ์</span>
               </button>
             </div>
 
@@ -1077,69 +1019,20 @@
 
         </div>
 
-        <!-- Right Side: Quick Stats for Stock-out -->
+        <!-- Right Side: Tips Card Only -->
         <div class="lg:col-span-4 space-y-6">
-          <div class="bg-gradient-to-br from-amber-950 to-slate-900 text-white rounded-2xl p-6 shadow-md border border-amber-900/50 relative overflow-hidden">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl"></div>
-            
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xs uppercase tracking-wider font-semibold text-amber-300">ยอดตัดสต็อกรวม</h3>
-              <span class="text-xs text-amber-200/80 font-medium">อุปกรณ์ที่ใช้งานแล้ว</span>
-            </div>
-
-            <div class="flex items-baseline gap-2 mb-4">
-              <span id="stockOutTotalDisplay" class="text-4xl font-extrabold text-amber-400">0</span>
-              <span class="text-sm text-slate-300">เครื่อง</span>
-            </div>
-
-            <div class="pt-3 border-t border-slate-700/60 text-xs text-slate-300 space-y-1">
-              <div class="flex justify-between">
-                <span>1. Modem ที่ใช้ไป:</span>
-                <b id="soModemCount" class="text-white">0 เครื่อง</b>
-              </div>
-              <div class="flex justify-between">
-                <span>2. Mesh ที่ใช้ไป:</span>
-                <b id="soMeshCount" class="text-white">0 เครื่อง</b>
-              </div>
-              <div class="flex justify-between">
-                <span>3. TrueID/TV ที่ใช้ไป:</span>
-                <b id="soTvCount" class="text-white">0 เครื่อง</b>
-              </div>
-              <div class="flex justify-between">
-                <span>4. Camera ที่ใช้ไป:</span>
-                <b id="soCamCount" class="text-white">0 เครื่อง</b>
-              </div>
-              <div class="flex justify-between">
-                <span>5. SIM ที่ใช้ไป:</span>
-                <b id="soSimCount" class="text-white">0 ใบ</b>
-              </div>
-            </div>
-          </div>
-
-          <div class="bg-amber-50/70 rounded-2xl p-4 border border-amber-200 space-y-2">
-            <h4 class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-              <i class="fa-solid fa-circle-info text-amber-600"></i> การตัดสต็อกพร้อมกันหลายเครื่อง
+          
+          <!-- Quick Tips Card -->
+          <div class="bg-amber-50/70 rounded-2xl p-5 border border-amber-200 space-y-2.5">
+            <h4 class="text-sm font-bold text-amber-900 flex items-center gap-2">
+              <i class="fa-solid fa-lightbulb text-amber-600"></i>
+              <span>คำแนะนำการตัดสต็อกพร้อมกันหลายเครื่อง</span>
             </h4>
             <p class="text-xs text-slate-600 leading-relaxed">
               ในกรณีที่ติดตั้งให้ลูกค้าบ้านเดียวกันหลายจุด (เช่น ติดโมเด็ม 1 ตัว + กล่องทีวี 2 ตัว + กล้อง 2 ตัว) สามารถกรอก S/N และแนบรูปได้ครบสูงสุด 10 เครื่องในใบเดียวได้เลยครับ
             </p>
           </div>
 
-          <!-- Quick Google Drive Folder: รูปตัดสต็อก -->
-          <div class="bg-amber-50/80 rounded-2xl p-4 border border-amber-200 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-amber-600 text-white flex items-center justify-center shadow-sm">
-                <i class="fa-brands fa-google-drive"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-bold text-slate-800">โฟลเดอร์รูปตัดสต็อก</h4>
-                <p class="text-[11px] text-slate-500">Google Drive: รูปตัดสต็อก</p>
-              </div>
-            </div>
-            <a href="https://drive.google.com/drive/folders/1TkEBxvfmEDTW8NGx1fT7PzY7W7e7RevT" target="_blank" class="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-amber-700 shadow-sm transition">
-              เปิด <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
-            </a>
-          </div>
         </div>
 
       </div>
@@ -1281,7 +1174,7 @@
             <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
               <button type="submit" id="defSubmitBtn" class="flex-1 py-3.5 px-6 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 active:scale-[0.99] text-white font-semibold rounded-xl shadow-lg shadow-rose-500/25 flex items-center justify-center gap-2 transition">
                 <i class="fa-solid fa-cloud-arrow-up text-base"></i>
-                <span id="defSubmitBtnText">บันทึกข้อมูลคืนของเสีย (ส่งเข้า Google Sheet)</span>
+                <span id="defSubmitBtnText">บันทึกข้อมูลคืนของเสีย</span>
               </button>
             </div>
 
@@ -1289,29 +1182,9 @@
 
         </div>
 
-        <!-- Right Side: Quick Summary & Tips -->
+        <!-- Right Side: Tips Card Only -->
         <div class="lg:col-span-4 space-y-6">
           
-          <!-- Live Today Defective Stats Card -->
-          <div class="bg-gradient-to-br from-slate-900 to-rose-950 text-white rounded-2xl p-6 shadow-md border border-slate-800 relative overflow-hidden">
-            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl"></div>
-            
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-xs uppercase tracking-wider font-semibold text-slate-400">ยอดคืนของเสียวันนี้ (Today)</h3>
-              <span id="todayDefDateStr" class="text-xs text-rose-300 font-medium"></span>
-            </div>
-
-            <div class="flex items-baseline gap-2 mb-4">
-              <span id="todayDefCountDisplay" class="text-4xl font-extrabold text-white">0</span>
-              <span class="text-sm text-slate-300">เครื่อง</span>
-            </div>
-
-            <div class="pt-3 border-t border-slate-700/60 text-xs">
-              <span class="text-slate-400 block">สถานะรายการ:</span>
-              <span class="font-bold text-rose-400">ส่งมอบคืนสต็อกของเสีย</span>
-            </div>
-          </div>
-
           <!-- Quick Tips Card -->
           <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-3">
             <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -1319,7 +1192,7 @@
               <span>คำแนะนำการคืนของเสีย 10 ช่อง</span>
             </h3>
             
-            <ul class="text-xs text-slate-600 space-y-2">
+            <ul class="text-xs text-slate-600 space-y-2.5">
               <li class="flex items-start gap-2">
                 <i class="fa-solid fa-check text-rose-500 mt-0.5"></i>
                 <span>สามารถกดเพิ่มได้สูงสุด 10 ช่อง โดยแต่ละช่องมีปุ่มสแกน S/N และถ่ายรูปของเสียแยกกัน</span>
@@ -1333,38 +1206,6 @@
                 <span>ช่องใดที่ไม่ได้กรอก ระบบจะข้ามให้อัตโนมัติโดยไม่เกิดข้อผิดพลาด</span>
               </li>
             </ul>
-          </div>
-
-          <!-- Quick Google Sheet Direct Link -->
-          <div class="bg-rose-50/60 rounded-2xl p-4 border border-rose-100 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
-                <i class="fa-solid fa-table"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-bold text-slate-800">Google Sheet</h4>
-                <p class="text-[11px] text-slate-500">เปิดดูตารางข้อมูลแบบเต็ม</p>
-              </div>
-            </div>
-            <a href="https://docs.google.com/spreadsheets/d/1_nSY_1BOj9muJPQrHdMMdPlhisiwGuRoVZEcrG6KImk/edit?usp=sharing" target="_blank" class="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-rose-600 shadow-sm transition">
-              เปิด <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
-            </a>
-          </div>
-
-          <!-- Quick Google Drive Folder: รูปของเสีย -->
-          <div class="bg-rose-50/60 rounded-2xl p-4 border border-rose-100 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-sm">
-                <i class="fa-brands fa-google-drive"></i>
-              </div>
-              <div>
-                <h4 class="text-xs font-bold text-slate-800">โฟลเดอร์ Google Drive</h4>
-                <p class="text-[11px] text-slate-500">จัดเก็บรูปถ่ายของเสีย</p>
-              </div>
-            </div>
-            <a href="https://drive.google.com/drive/folders/1ZKPeMbzwo1NaNT3h8uoPPa3vfWNmkQTv?usp=drive_link" target="_blank" class="px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-rose-700 shadow-sm transition">
-              เปิด <i class="fa-solid fa-arrow-up-right-from-square ml-1 text-[10px]"></i>
-            </a>
           </div>
 
         </div>
@@ -3770,7 +3611,7 @@
       updateNextRowDisplay();
 
       submitBtn.disabled = false;
-      submitBtnText.textContent = 'บันทึกข้อมูลเบิกอุปกรณ์ (ส่งเข้า Google Sheet)';
+      submitBtnText.textContent = 'บันทึกข้อมูลเบิกอุปกรณ์';
 
       Swal.fire({
         icon: isGasSuccess ? 'success' : (gasUrl ? 'warning' : 'success'),
@@ -3961,7 +3802,7 @@
       updateDashboard();
 
       soSubmitBtn.disabled = false;
-      soSubmitBtnText.textContent = 'บันทึกตัดสต็อกอุปกรณ์ (ส่งเข้า Google Sheet)';
+      soSubmitBtnText.textContent = 'บันทึกตัดสต็อกอุปกรณ์';
 
       const summaryList = validItems.map(it => `• <b>${it.model}:</b> <span class="font-mono font-bold text-slate-800">${it.serialNumber}</span>`).join('<br>');
 
@@ -4108,7 +3949,7 @@
       updateNextRowDisplay();
 
       submitBtn.disabled = false;
-      submitBtnText.textContent = 'บันทึกข้อมูลคืนของเสีย (ส่งเข้า Google Sheet)';
+      submitBtnText.textContent = 'บันทึกข้อมูลคืนของเสีย';
 
       Swal.fire({
         icon: isGasSuccess ? 'success' : (gasUrl ? 'warning' : 'success'),
