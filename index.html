@@ -403,6 +403,11 @@
           <span>คืนของเสีย</span>
         </button>
 
+        <button onclick="switchTab('transfer')" id="tabBtn-transfer" class="tab-btn px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-arrow-right-arrow-left text-teal-400"></i>
+          <span>โอนย้ายอุปกรณ์</span>
+        </button>
+
         <button onclick="switchTab('history')" id="tabBtn-history" class="tab-btn px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition whitespace-nowrap">
           <i class="fa-solid fa-clock-rotate-left"></i>
           <span>ประวัติรายการ</span>
@@ -1214,6 +1219,161 @@
     </section>
 
     <!-- ======================================================== -->
+    <!-- TAB 4.5: โอนย้ายอุปกรณ์ข้ามช่าง (TRANSFER EQUIPMENT) -->
+    <!-- ======================================================== -->
+    <section id="tab-transfer" class="tab-content hidden space-y-6">
+      
+      <!-- Top Banner -->
+      <div class="bg-gradient-to-r from-teal-600 via-teal-700 to-emerald-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-teal-900/10 relative overflow-hidden">
+        <div class="absolute right-0 top-0 w-80 h-80 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-teal-200 mb-3 border border-white/10">
+            <i class="fa-solid fa-arrow-right-arrow-left"></i> โอนย้าย / สลับอุปกรณ์ข้ามช่าง
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">โอนย้ายอุปกรณ์ข้ามช่าง (Transfer)</h2>
+          <p class="text-teal-100 text-xs sm:text-sm mt-1 leading-relaxed">
+            โยกย้าย Serial Number (S/N) จากช่างคนเดิมไปยังช่างคนใหม่ พร้อมอัปเดตประวัติและข้อมูลคงค้างในระบบ Google Sheet อัตโนมัติ
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left: Transfer Form Card -->
+        <div class="lg:col-span-2 bg-white rounded-2xl p-5 sm:p-7 shadow-sm border border-slate-200/80 space-y-6">
+          
+          <form id="transferForm" onsubmit="handleSubmitTransfer(event)" class="space-y-5">
+            
+            <!-- Row 1: วันที่โอนย้าย -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+                  <i class="fa-regular fa-calendar mr-1 text-slate-400"></i> วันที่โอนย้ายอุปกรณ์ <span class="text-rose-500">*</span>
+                </label>
+                <input type="date" id="transferDate" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition">
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+                  <i class="fa-solid fa-user-tag mr-1 text-slate-400"></i> ผู้ทำรายการโอน
+                </label>
+                <input type="text" id="transferOperator" placeholder="เช่น สโตร์ / หัวหน้าทีม / ชื่อผู้ทำรายการ" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition">
+              </div>
+            </div>
+
+            <!-- Row 2: ช่างต้นทาง (ผู้โอน) -> ช่างปลายทาง (ผู้รับโอน) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-teal-50/50 p-4 rounded-2xl border border-teal-100">
+              <!-- ช่างต้นทาง -->
+              <div>
+                <label class="block text-xs font-bold text-teal-900 mb-1.5 flex items-center justify-between">
+                  <span><i class="fa-solid fa-user-minus text-rose-500 mr-1"></i> ช่างต้นทาง (ผู้ให้ยืม/ผู้โอน) <span class="text-rose-500">*</span></span>
+                  <span id="transferFromTechBadge" class="text-[10px] text-teal-700 bg-teal-100 px-2 py-0.5 rounded-full font-medium hidden">พบอุปกรณ์</span>
+                </label>
+                <select id="transferFromTechSelect" onchange="handleTransferFromTechChange()" required class="w-full px-3.5 py-2.5 rounded-xl border border-teal-200 bg-white text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500 transition">
+                  <option value="">-- เลือกช่างผู้โอน (ต้นทาง) --</option>
+                </select>
+              </div>
+
+              <!-- ช่างปลายทาง -->
+              <div>
+                <label class="block text-xs font-bold text-teal-900 mb-1.5">
+                  <i class="fa-solid fa-user-plus text-emerald-600 mr-1"></i> ช่างปลายทาง (ผู้รับยืม/ผู้รับโอน) <span class="text-rose-500">*</span>
+                </label>
+                <select id="transferToTechSelect" required class="w-full px-3.5 py-2.5 rounded-xl border border-teal-200 bg-white text-slate-800 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500 transition">
+                  <option value="">-- เลือกช่างผู้รับโอน (ปลายทาง) --</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Row 3: เลือกหรือระบุ Serial Number ที่ต้องการโอน -->
+            <div class="space-y-3">
+              <div class="flex items-center justify-between pb-1 border-b border-slate-100">
+                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <i class="fa-solid fa-barcode text-teal-600"></i>
+                  <span>Serial Number (S/N) ที่ต้องการโอน <span class="text-rose-500">*</span></span>
+                </label>
+                <span class="text-[11px] text-slate-400">สแกน, พิมพ์ หรือคลิกเลือกจากรายการคงค้าง</span>
+              </div>
+
+              <!-- Manual / Scan Input Box -->
+              <div class="flex gap-2">
+                <div class="relative flex-1">
+                  <input type="text" id="transferSnInput" placeholder="สแกน หรือพิมพ์ S/N ที่ต้องการโอน (คั่นด้วยจุลภาค , ถ้ามีหลายตัว)..." class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-xs sm:text-sm font-mono uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition">
+                  <i class="fa-solid fa-qrcode absolute left-3 top-3 text-slate-400 text-xs"></i>
+                </div>
+                <button type="button" onclick="openScannerModal('transferSnInput')" class="px-3.5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium text-xs flex items-center gap-1.5 shadow-sm transition whitespace-nowrap cursor-pointer">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>สแกน</span>
+                </button>
+              </div>
+
+              <!-- Visual Equipment Inventory Box of Selected Technician -->
+              <div id="transferInventoryContainer" class="hidden bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                    <i class="fa-solid fa-boxes-stacked text-teal-600"></i>
+                    <span>คลิกเลือกอุปกรณ์คงค้างของช่างต้นทาง:</span>
+                  </span>
+                  <span id="transferInventoryCount" class="text-[10px] bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-full">0 เครื่อง</span>
+                </div>
+                <div id="transferInventoryList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 4: หมายเหตุ -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+                <i class="fa-regular fa-comment-dots mr-1 text-slate-400"></i> หมายเหตุ / สาเหตุการโอนย้าย
+              </label>
+              <textarea id="transferRemarks" rows="2" placeholder="เช่น ยืมไปทำงานด่วนเลขสมาชิก 1234567, สลับเครื่อง, ยืมชั่วคราว..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition"></textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-2">
+              <button type="submit" id="transferSubmitBtn" class="w-full py-3 px-5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 active:scale-[0.99] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-teal-500/25 transition cursor-pointer">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                <span id="transferSubmitBtnText">บันทึกการโอนย้ายอุปกรณ์</span>
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+
+        <!-- Right: Tips Card -->
+        <div class="space-y-6">
+          <div class="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-2xl p-5 border border-teal-200/80 space-y-3">
+            <h3 class="text-sm font-bold text-teal-900 flex items-center gap-2">
+              <i class="fa-solid fa-circle-info text-teal-600"></i>
+              <span>คำแนะนำการโอนย้ายอุปกรณ์</span>
+            </h3>
+            <ul class="text-xs text-teal-800/90 space-y-2 leading-relaxed">
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check text-teal-600 mt-0.5"></i>
+                <span>เมื่อเลือก <b>ช่างต้นทาง</b> ระบบจะแสดงรายการอุปกรณ์ที่ช่างถือครองอยู่ให้คลิกเลือกได้ทันที</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check text-teal-600 mt-0.5"></i>
+                <span>หรือใช้ปุ่ม <b>สแกน</b> บาร์โค้ด S/N เพื่อโอนได้สะดวกรวดเร็ว</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check text-teal-600 mt-0.5"></i>
+                <span>เมื่อกดบันทึก ระบบจะโยกย้ายชื่อผู้ถือครองใน Google Sheet ไปเป็นช่างคนใหม่ พร้อมบันทึกประวัติการโอนย้ายไว้ 100%</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fa-solid fa-check text-teal-600 mt-0.5"></i>
+                <span>ช่างคนใหม่สามารถนำ S/N นั้นไปคีย์ <b>ตัดสต็อก</b> ในชื่อตนเองได้ทันที</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
     <!-- TAB 5: ประวัติการเบิก & ตัดสต็อก & คืนของเสีย (HISTORY & LOGS) -->
     <!-- ======================================================== -->
     <section id="tab-history" class="tab-content hidden space-y-6">
@@ -1463,6 +1623,14 @@
       <span class="text-[10px] tracking-tight">คืนของ</span>
     </button>
 
+    <!-- 4.5. Transfer Tab -->
+    <button onclick="switchTab('transfer')" id="tabBtnMob-transfer" class="mob-nav-btn flex flex-col items-center justify-center flex-1 py-1 px-0.5 text-slate-500 dark:text-slate-400 font-medium transition">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center text-base mb-0.5">
+        <i class="fa-solid fa-arrow-right-arrow-left text-teal-500"></i>
+      </div>
+      <span class="text-[10px] tracking-tight">โอนย้าย</span>
+    </button>
+
     <!-- 5. History Tab -->
     <button onclick="switchTab('history')" id="tabBtnMob-history" class="mob-nav-btn flex flex-col items-center justify-center flex-1 py-1 px-0.5 text-slate-500 dark:text-slate-400 font-medium transition relative">
       <div class="w-8 h-8 rounded-xl flex items-center justify-center text-base mb-0.5 relative">
@@ -1708,6 +1876,7 @@
               <th class="py-2.5 px-3">สถานะ Status Final</th>
               <th class="py-2.5 px-3 text-center">วันที่ / แถวในชีต</th>
               <th class="py-2.5 px-3 text-center">Aging (Day)</th>
+              <th class="py-2.5 px-3 text-center">จัดการ</th>
             </tr>
           </thead>
           <tbody id="unusedModalTableBody" class="divide-y divide-slate-200/70 dark:divide-slate-800 bg-white dark:bg-slate-900">
@@ -1994,6 +2163,9 @@
       if (countEl) countEl.textContent = `${dynamicTechnicians.length} ท่าน`;
       if (typeof populateTeamDropdownFilters === 'function') {
         populateTeamDropdownFilters();
+      }
+      if (typeof populateTransferTechDropdowns === 'function') {
+        populateTransferTechDropdowns();
       }
     }
 
@@ -2840,6 +3012,9 @@
         fetchEquipmentDashboard(true);
       } else if (tabId === 'requisition' || tabId === 'stockout' || tabId === 'defective') {
         fetchLatestRowFromSheet();
+      } else if (tabId === 'transfer') {
+        populateTransferTechDropdowns();
+        setTodayDate('transferDate');
       }
     }
 
@@ -4057,6 +4232,293 @@
       });
     }
 
+    // --- FORM 4: SUBMIT TRANSFER EQUIPMENT (โอนย้ายอุปกรณ์ข้ามช่าง) ---
+    function populateTransferTechDropdowns() {
+      const fromSel = document.getElementById('transferFromTechSelect');
+      const toSel = document.getElementById('transferToTechSelect');
+      if (!fromSel || !toSel) return;
+
+      const currentFrom = fromSel.value;
+      const currentTo = toSel.value;
+
+      let optionsHtml = '<option value="">-- เลือกชื่อช่าง / ผู้ทำรายการ --</option>';
+      dynamicTechnicians.forEach(t => {
+        const val = escapeHtml(t.name || t.fullName || t.id);
+        const label = escapeHtml(t.displayName || t.name);
+        optionsHtml += `<option value="${val}">${label}</option>`;
+      });
+
+      fromSel.innerHTML = optionsHtml;
+      toSel.innerHTML = optionsHtml;
+
+      if (currentFrom) fromSel.value = currentFrom;
+      if (currentTo) toSel.value = currentTo;
+    }
+
+    function handleTransferFromTechChange() {
+      const fromSel = document.getElementById('transferFromTechSelect');
+      const selectedTech = fromSel ? fromSel.value : '';
+      const invContainer = document.getElementById('transferInventoryContainer');
+      const invList = document.getElementById('transferInventoryList');
+      const invCountBadge = document.getElementById('transferInventoryCount');
+      const badge = document.getElementById('transferFromTechBadge');
+
+      if (!selectedTech || !invContainer || !invList) {
+        if (invContainer) invContainer.classList.add('hidden');
+        if (badge) badge.classList.add('hidden');
+        return;
+      }
+
+      // Find unused items for this technician from equipmentDashboardData or localHistory
+      let items = [];
+      if (equipmentDashboardData && equipmentDashboardData.techniciansList) {
+        const cleanTarget = selectedTech.toLowerCase();
+        const techObj = equipmentDashboardData.techniciansList.find(t => 
+          (t.name && t.name.toLowerCase() === cleanTarget) ||
+          (t.fullName && t.fullName.toLowerCase() === cleanTarget) ||
+          (t.id && String(t.id).toLowerCase() === cleanTarget)
+        );
+        if (techObj && Array.isArray(techObj.unusedItems)) {
+          items = techObj.unusedItems;
+        }
+      }
+
+      if (items.length > 0) {
+        if (invCountBadge) invCountBadge.textContent = `${items.length} เครื่อง`;
+        if (badge) {
+          badge.textContent = `พบ ${items.length} เครื่อง`;
+          badge.classList.remove('hidden');
+        }
+
+        invList.innerHTML = items.map((it, idx) => {
+          const sn = escapeHtml(it.sn || '');
+          const model = escapeHtml(it.model || it.catTitle || '');
+          return `
+            <label class="flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 hover:border-teal-400 cursor-pointer text-xs transition shadow-2xs">
+              <input type="checkbox" value="${sn}" data-model="${model}" class="transfer-item-checkbox rounded text-teal-600 focus:ring-teal-500 w-4 h-4 cursor-pointer">
+              <div class="flex-1 min-w-0">
+                <div class="font-mono font-bold text-slate-800 truncate">${sn}</div>
+                <div class="text-[10px] text-slate-500 truncate">${model}</div>
+              </div>
+            </label>
+          `;
+        }).join('');
+        invContainer.classList.remove('hidden');
+      } else {
+        if (badge) badge.classList.add('hidden');
+        invList.innerHTML = '<div class="col-span-2 text-center text-xs text-slate-400 py-3">ไม่พบรายการอุปกรณ์คงค้างของช่างท่านนี้ (สามารถพิมพ์หรือสแกน S/N ด้านบนได้)</div>';
+        invContainer.classList.remove('hidden');
+      }
+    }
+
+    async function handleSubmitTransfer(e) {
+      e.preventDefault();
+      const fromTech = document.getElementById('transferFromTechSelect').value;
+      const toTech = document.getElementById('transferToTechSelect').value;
+      const snInput = document.getElementById('transferSnInput').value.trim();
+      const remarks = document.getElementById('transferRemarks').value.trim();
+      const operator = document.getElementById('transferOperator')?.value.trim() || '';
+
+      if (!fromTech) {
+        Swal.fire('กรุณาเลือกช่างต้นทาง', 'โปรดเลือกช่างผู้โอน (ผู้ให้ยืม)', 'warning');
+        return;
+      }
+      if (!toTech) {
+        Swal.fire('กรุณาเลือกช่างปลายทาง', 'โปรดเลือกช่างผู้รับโอน (ผู้รับยืม)', 'warning');
+        return;
+      }
+      if (fromTech === toTech) {
+        Swal.fire('ช่างต้นทางและปลายทางซ้ำกัน', 'โปรดเลือกช่างคนละคนกัน', 'warning');
+        return;
+      }
+
+      // Collect selected SNs from checkboxes and text input
+      const selectedSns = [];
+      document.querySelectorAll('.transfer-item-checkbox:checked').forEach(cb => {
+        selectedSns.push({ serialNumber: cb.value, model: cb.dataset.model || '' });
+      });
+
+      if (snInput) {
+        snInput.split(',').forEach(raw => {
+          const s = raw.trim();
+          if (s && !selectedSns.some(it => it.serialNumber.toLowerCase() === s.toLowerCase())) {
+            selectedSns.push({ serialNumber: s, model: '' });
+          }
+        });
+      }
+
+      if (selectedSns.length === 0) {
+        Swal.fire('กรุณาระบุ Serial Number', 'โปรดพิมพ์ สแกน หรือเลือก S/N ที่ต้องการโอนอย่างน้อย 1 เครื่อง', 'warning');
+        return;
+      }
+
+      const combinedRemarks = operator ? `${remarks} (ผู้ทำรายการ: ${operator})` : remarks;
+
+      const submitBtn = document.getElementById('transferSubmitBtn');
+      const submitBtnText = document.getElementById('transferSubmitBtnText');
+      submitBtn.disabled = true;
+      submitBtnText.textContent = `กำลังโอนย้าย ${selectedSns.length} เครื่อง...`;
+
+      await executeTransferEquipment({
+        fromTech: fromTech,
+        toTech: toTech,
+        items: selectedSns,
+        remarks: combinedRemarks
+      });
+
+      submitBtn.disabled = false;
+      submitBtnText.textContent = 'บันทึกการโอนย้ายอุปกรณ์';
+
+      // Reset form
+      document.getElementById('transferForm').reset();
+      setTodayDate('transferDate');
+      const invContainer = document.getElementById('transferInventoryContainer');
+      if (invContainer) invContainer.classList.add('hidden');
+      const badge = document.getElementById('transferFromTechBadge');
+      if (badge) badge.classList.add('hidden');
+    }
+
+    function openQuickTransferModal(sn, model, fromTechEncoded) {
+      const fromTech = decodeURIComponent(fromTechEncoded || '');
+      const techOptions = dynamicTechnicians
+        .filter(t => t.name !== fromTech && t.displayName !== fromTech)
+        .map(t => `<option value="${escapeHtml(t.name || t.fullName || t.id)}">${escapeHtml(t.displayName || t.name)}</option>`)
+        .join('');
+
+      Swal.fire({
+        title: '<i class="fa-solid fa-arrow-right-arrow-left text-teal-600 mr-2"></i>โอนย้ายอุปกรณ์ข้ามช่าง',
+        html: `
+          <div class="text-left text-xs space-y-3 pt-2 text-slate-600 dark:text-slate-300">
+            <div class="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1 font-mono">
+              <div><b>Serial Number:</b> <span class="text-blue-600 dark:text-blue-400 font-bold text-sm">${escapeHtml(sn)}</span></div>
+              <div><b>รุ่น / ประเภท:</b> <span class="text-slate-800 dark:text-slate-200">${escapeHtml(model || '-')}</span></div>
+              <div><b>ผู้ถือครองปัจจุบัน:</b> <span class="text-rose-600 dark:text-rose-400 font-bold">${escapeHtml(fromTech || 'ไม่ระบุ')}</span></div>
+            </div>
+
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-200 mb-1">เลือกช่างผู้รับโอน (ช่างคนใหม่) <span class="text-rose-500">*</span></label>
+              <select id="quickTransferToTech" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 font-semibold focus:ring-2 focus:ring-teal-500">
+                <option value="">-- เลือกช่างผู้รับโอน --</option>
+                ${techOptions}
+              </select>
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-600 dark:text-slate-300 mb-1">หมายเหตุเพิ่มเติม (ถ้ามี)</label>
+              <input type="text" id="quickTransferRemarks" placeholder="เช่น ยืมไปติดตั้งงานด่วน, สลับเครื่อง..." class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+            </div>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa-solid fa-check mr-1"></i> ยืนยันการโอนย้าย',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#0d9488',
+        cancelButtonColor: '#64748b',
+        preConfirm: () => {
+          const toTech = document.getElementById('quickTransferToTech').value;
+          const remarks = document.getElementById('quickTransferRemarks').value.trim();
+          if (!toTech) {
+            Swal.showValidationMessage('กรุณาเลือกช่างผู้รับโอน');
+            return false;
+          }
+          return { toTech, remarks };
+        }
+      }).then(async (result) => {
+        if (result.isConfirmed && result.value) {
+          const { toTech, remarks } = result.value;
+          await executeTransferEquipment({
+            fromTech: fromTech,
+            toTech: toTech,
+            items: [{ serialNumber: sn, model: model }],
+            remarks: remarks
+          });
+        }
+      });
+    }
+
+    async function executeTransferEquipment(payload) {
+      Swal.fire({
+        title: 'กำลังบันทึกการโอนย้ายอุปกรณ์...',
+        text: 'กำลังอัปเดตข้อมูลผู้ถือครองใน Google Sheet',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      const gasUrl = getGasUrl();
+      const bodyPayload = {
+        action: 'transferEquipment',
+        fromTechnician: payload.fromTech,
+        toTechnician: payload.toTech,
+        remarks: payload.remarks || '',
+        items: payload.items || []
+      };
+
+      try {
+        let isSuccess = false;
+        let responseMsg = '';
+
+        if (gasUrl) {
+          const res = await fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(bodyPayload)
+          });
+          const json = await res.json();
+          if (json.status === 'success') {
+            isSuccess = true;
+            responseMsg = json.message || 'โอนย้ายสำเร็จ';
+          } else {
+            responseMsg = json.message || 'เกิดข้อผิดพลาดจาก Google Apps Script';
+          }
+        } else {
+          isSuccess = true;
+          responseMsg = 'บันทึกในระบบเรียบร้อยแล้ว';
+        }
+
+        if (isSuccess) {
+          Swal.fire({
+            icon: 'success',
+            title: 'โอนย้ายอุปกรณ์สำเร็จ!',
+            html: `
+              <div class="text-left text-xs text-slate-600 bg-teal-50 p-3.5 rounded-xl border border-teal-200 space-y-1.5 mt-2">
+                <div><b>จาก:</b> <span class="text-rose-600 font-bold">${escapeHtml(payload.fromTech || '-')}</span></div>
+                <div><b>ไปยัง:</b> <span class="text-teal-700 font-bold">${escapeHtml(payload.toTech || '-')}</span></div>
+                <div><b>จำนวน:</b> <span class="font-bold">${(payload.items || []).length} เครื่อง</span></div>
+                <div class="text-[11px] text-emerald-700 font-medium pt-1">✓ อัปเดตชื่อผู้ถือครองใน Google Sheet เรียบร้อยแล้ว</div>
+              </div>
+            `,
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: '#0d9488'
+          });
+
+          // Update local history if any matches
+          (payload.items || []).forEach(it => {
+            const snTarget = String(it.serialNumber || '').toLowerCase();
+            localHistory.forEach(rec => {
+              if (rec.serialNumber && rec.serialNumber.toLowerCase() === snTarget) {
+                rec.technician = payload.toTech;
+                rec.remarks = rec.remarks ? `${rec.remarks} | [โอนให้ ${payload.toTech}]` : `[โอนให้ ${payload.toTech}]`;
+              }
+            });
+          });
+          saveLocalHistory();
+
+          // Refresh dashboard data & unused modal
+          if (typeof fetchEquipmentDashboard === 'function') {
+            fetchEquipmentDashboard(true).then(() => {
+              if (document.getElementById('unusedItemsModal') && !document.getElementById('unusedItemsModal').classList.contains('hidden')) {
+                refreshUnusedModalData();
+              }
+            });
+          }
+        } else {
+          Swal.fire('เกิดข้อผิดพลาด', responseMsg, 'error');
+        }
+      } catch (err) {
+        Swal.fire('ข้อผิดพลาดการเชื่อมต่อ', err.message, 'error');
+      }
+    }
+
     function resetForm(formType) {
       if (formType === 'requisition') {
         document.getElementById('requisitionForm').reset();
@@ -5070,7 +5532,7 @@
         if (currentUnusedItemsList.length === 0) {
           tbody.innerHTML = `
             <tr>
-              <td colspan="7" class="py-10 px-4 text-center">
+              <td colspan="8" class="py-10 px-4 text-center">
                 <div class="max-w-md mx-auto bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-5 text-amber-800 dark:text-amber-200 text-xs text-left space-y-3 shadow-xs">
                   <div class="flex items-center gap-2 font-bold text-sm text-amber-900 dark:text-amber-100">
                     <i class="fa-solid fa-triangle-exclamation text-amber-500 text-base"></i> ยังไม่พบรายการ S/N รายเครื่องจาก Google Sheet
@@ -5090,7 +5552,7 @@
         } else {
           tbody.innerHTML = `
             <tr>
-              <td colspan="7" class="py-12 text-center text-slate-400">
+              <td colspan="8" class="py-12 text-center text-slate-400">
                 <i class="fa-solid fa-box-open text-3xl mb-2 text-slate-300 dark:text-slate-600 block"></i>
                 ไม่พบรายการอุปกรณ์คงค้างตามเงื่อนไขที่เลือก
               </td>
@@ -5107,6 +5569,7 @@
 
         const statusStyle = getStatusBadgeStyle(item.status);
         const cleanSn = String(item.sn || '').trim();
+        const techOwner = item.tech || currentUnusedTechName || '';
 
         // จัดการแสดงผล Aging (Day)
         let agingBadge = '<span class="text-slate-300 dark:text-slate-600 font-normal">-</span>';
@@ -5155,6 +5618,12 @@
             </td>
             <td class="py-3 px-3 text-center font-mono">
               ${agingBadge}
+            </td>
+            <td class="py-3 px-3 text-center">
+              <button type="button" onclick="openQuickTransferModal('${cleanSn}', '${escapeHtml(item.model || '')}', '${encodeURIComponent(techOwner)}')" class="inline-flex items-center gap-1 py-1 px-2.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 dark:hover:bg-teal-900 border border-teal-200 dark:border-teal-800 text-[11px] font-bold shadow-2xs hover:shadow-xs active:scale-95 transition cursor-pointer" title="โอนย้าย S/N นี้ให้ช่างคนอื่น">
+                <i class="fa-solid fa-arrow-right-arrow-left text-teal-600 dark:text-teal-400 text-[10px]"></i>
+                <span>โอน</span>
+              </button>
             </td>
           </tr>
         `;
