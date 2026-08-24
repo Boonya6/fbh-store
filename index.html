@@ -343,7 +343,7 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="font-bold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">FBH STORE</span>
-              <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">v2.5 (Auth)</span>
+              <span class="text-[10px] font-bold tracking-wider px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">LowerNorth V1.0</span>
             </div>
             <p class="text-xs text-slate-400 hidden sm:block">ระบบบันทึกการเบิกและตัดสต็อกอุปกรณ์</p>
           </div>
@@ -760,7 +760,7 @@
                 <option value="">-- กรุณาเลือกประเภทอุปกรณ์ --</option>
                 <option value="1. Modem/Mesh">1. Modem/Mesh</option>
                 <option value="2. Truevision/TrueID">2. Truevision/TrueID</option>
-                <option value="3. Camera">3. Camera</option>
+                <option value="3. Camera/IOT">3. Camera/IOT</option>
               </select>
             </div>
 
@@ -1811,19 +1811,20 @@
     const reqPhotos = {};
     const defPhotos = {};
 
-    // 5 Categories Configuration for Stock-Out (ตัดสต็อกอุปกรณ์)
+    // 6 Categories Configuration for Stock-Out (ตัดสต็อกอุปกรณ์)
     const SO_CATEGORIES = [
-      { key: 'modem', name: '1. Modem', title: '1. Serial Number Modem ที่ใช้งาน', icon: 'fa-solid fa-wifi', color: 'blue', badge: 'Modem', defaultSlots: 1, maxSlots: 2 },
-      { key: 'mesh', name: '2. Mesh', title: '2. Serial Number Mesh ที่ใช้งาน', icon: 'fa-solid fa-tower-broadcast', color: 'emerald', badge: 'Mesh', defaultSlots: 1, maxSlots: 3 },
-      { key: 'trueid', name: '3. Truevision/TrueID', title: '3. Serial Number Truevision/TrueID ที่ใช้งาน', icon: 'fa-solid fa-tv', color: 'rose', badge: 'TrueID/TV', defaultSlots: 1, maxSlots: 3 },
-      { key: 'camera', name: '4. Camera', title: '4. Serial Number Camera ที่ใช้งาน', icon: 'fa-solid fa-video', color: 'amber', badge: 'Camera', defaultSlots: 1, maxSlots: 4 },
-      { key: 'sim', name: '5. SIM', title: '5. Serial Number SIM ที่ใช้งาน', icon: 'fa-solid fa-sim-card', color: 'purple', badge: 'SIM Card', defaultSlots: 1, maxSlots: 3 }
+      { key: 'modem', name: '1. Modem', title: '1. Serial Number Modem ที่ใช้งาน', icon: 'fa-solid fa-wifi', color: 'blue', badge: 'Modem', defaultSlots: 1, maxSlots: 1 },
+      { key: 'mesh', name: '2. Mesh', title: '2. Serial Number Mesh ที่ใช้งาน', icon: 'fa-solid fa-tower-broadcast', color: 'emerald', badge: 'Mesh', defaultSlots: 1, maxSlots: 1 },
+      { key: 'trueid', name: '3. Truevision/TrueID', title: '3. Truevision/TrueID ที่ใช้งาน', icon: 'fa-solid fa-tv', color: 'rose', badge: 'TrueID/TV', defaultSlots: 1, maxSlots: 1 },
+      { key: 'camera', name: '4. Camera', title: '4. Serial Number Camera ที่ใช้งาน', icon: 'fa-solid fa-video', color: 'amber', badge: 'Camera', defaultSlots: 1, maxSlots: 2 },
+      { key: 'sim', name: '5. SIM', title: '5. Serial Number SIM ที่ใช้งาน', icon: 'fa-solid fa-sim-card', color: 'purple', badge: 'SIM Card', defaultSlots: 1, maxSlots: 1 },
+      { key: 'iot', name: '6. IOT', title: '6. Serial Number IOT ที่ใช้งาน', icon: 'fa-solid fa-microchip', color: 'teal', badge: 'IOT', defaultSlots: 1, maxSlots: 2 }
     ];
 
     const STORAGE_KEY_TECHNICIANS = 'fbh_stock_technicians_live';
     const STORAGE_KEY_EQUIPMENT_DASH = 'fbh_stock_equipment_dashboard_cache';
 
-    let soCategorySlots = { modem: 1, mesh: 1, trueid: 1, camera: 1, sim: 1 };
+    let soCategorySlots = { modem: 1, mesh: 1, trueid: 1, camera: 1, sim: 1, iot: 1 };
     let soCategoryPhotos = {};
 
     let html5QrScanner = null;
@@ -2477,7 +2478,8 @@
         emerald: { bg: 'bg-emerald-50/50', border: 'border-emerald-200', text: 'text-emerald-700', badgeBg: 'bg-emerald-100', btnBg: 'bg-emerald-600 hover:bg-emerald-700', ring: 'focus:ring-emerald-500' },
         rose: { bg: 'bg-rose-50/50', border: 'border-rose-200', text: 'text-rose-700', badgeBg: 'bg-rose-100', btnBg: 'bg-rose-600 hover:bg-rose-700', ring: 'focus:ring-rose-500' },
         amber: { bg: 'bg-amber-50/50', border: 'border-amber-200', text: 'text-amber-700', badgeBg: 'bg-amber-100', btnBg: 'bg-amber-600 hover:bg-amber-700', ring: 'focus:ring-amber-500' },
-        purple: { bg: 'bg-purple-50/50', border: 'border-purple-200', text: 'text-purple-700', badgeBg: 'bg-purple-100', btnBg: 'bg-purple-600 hover:bg-purple-700', ring: 'focus:ring-purple-500' }
+        purple: { bg: 'bg-purple-50/50', border: 'border-purple-200', text: 'text-purple-700', badgeBg: 'bg-purple-100', btnBg: 'bg-purple-600 hover:bg-purple-700', ring: 'focus:ring-purple-500' },
+        teal: { bg: 'bg-teal-50/50', border: 'border-teal-200', text: 'text-teal-700', badgeBg: 'bg-teal-100', btnBg: 'bg-teal-600 hover:bg-teal-700', ring: 'focus:ring-teal-500' }
       };
 
       let html = '';
@@ -2485,8 +2487,93 @@
       SO_CATEGORIES.forEach((cat) => {
         const theme = colorMap[cat.color] || colorMap.blue;
         const isModem = cat.key === 'modem';
-        const photoKey = `${cat.key}_1`;
-        const photoSrc = soCategoryPhotos[photoKey];
+        const maxSlots = cat.maxSlots || 1;
+        const activeSlotCount = soCategorySlots[cat.key] || 1;
+
+        let slotsHtml = '';
+        for (let s = 1; s <= maxSlots; s++) {
+          const isExtraSlot = s > 1;
+          const photoKey = `${cat.key}_${s}`;
+          const photoSrc = soCategoryPhotos[photoKey];
+          const isSlotHidden = isExtraSlot && activeSlotCount < s;
+
+          slotsHtml += `
+            <div id="so_${cat.key}_slot_card_${s}" class="${isSlotHidden ? 'hidden' : ''} bg-white p-3.5 rounded-xl border ${isExtraSlot ? 'border-amber-300 shadow-xs' : 'border-slate-200'} space-y-2.5 ${isExtraSlot ? 'mt-3' : ''} transition">
+              
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                  <i class="fa-solid fa-barcode text-slate-400"></i>
+                  <span>Serial Number (S/N) ของ ${cat.badge} ${maxSlots > 1 ? `<span class="text-amber-700 font-bold">(เครื่องที่ ${s})</span>` : ''} ${isModem && s === 1 ? '<span class="text-rose-500">*</span>' : ''}</span>
+                </label>
+                ${isExtraSlot ? `
+                  <button type="button" onclick="removeSoCategorySlot('${cat.key}', ${s})" class="text-xs text-rose-500 hover:text-rose-700 flex items-center gap-1 font-medium transition cursor-pointer">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>ลบช่องนี้</span>
+                  </button>
+                ` : ''}
+              </div>
+
+              <!-- S/N Input and Scan Button -->
+              <div class="flex gap-2">
+                <div class="relative flex-1">
+                  <input type="text" id="so_${cat.key}_sn_${s}" ${isModem && s === 1 ? 'required' : ''} placeholder="${isModem ? 'สแกน หรือพิมพ์ S/N ของ Modem (บังคับ)...' : 'สแกน หรือพิมพ์ S/N ของ ' + cat.badge + (maxSlots > 1 ? ' (เครื่องที่ ' + s + ')...' : ' (ถ้ามี)...')}" class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border ${isModem && s === 1 ? 'border-amber-300 bg-amber-50/20 font-semibold' : 'border-slate-200 bg-slate-50/40'} text-slate-800 text-xs sm:text-sm font-mono uppercase tracking-wider focus:outline-none focus:ring-2 ${theme.ring} focus:bg-white transition">
+                  <i class="fa-solid fa-qrcode absolute left-3 top-3 text-slate-400 text-xs"></i>
+                </div>
+                <button type="button" onclick="openScannerModal('so_${cat.key}_sn_${s}')" class="px-3.5 py-2.5 ${theme.btnBg} text-white rounded-xl font-medium text-xs flex items-center gap-1.5 shadow-sm transition whitespace-nowrap cursor-pointer">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>สแกน</span>
+                </button>
+              </div>
+
+              <!-- Photo Capture & Preview -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-center pt-2 border-t border-slate-100">
+                <div class="flex gap-2">
+                  <button type="button" onclick="openLiveCameraModal('stockout', '${cat.key}', ${s})" class="flex-1 py-2 px-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm shadow-blue-500/20 transition text-center cursor-pointer">
+                    <i class="fa-solid fa-camera text-cyan-200"></i>
+                    <span>เปิดกล้องสด</span>
+                  </button>
+                  <label class="flex-1 cursor-pointer py-2 px-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 font-medium text-xs flex items-center justify-center gap-1.5 shadow-sm transition text-center">
+                    <i class="fa-regular fa-image text-slate-500"></i>
+                    <span>เลือกไฟล์</span>
+                    <input type="file" accept="image/*" onchange="handleSoCategoryImageSelected(event, '${cat.key}', ${s})" class="hidden">
+                  </label>
+                </div>
+
+                <!-- Thumbnail Box -->
+                <div id="so_${cat.key}_preview_box_${s}" class="relative h-12 border border-slate-200 rounded-lg bg-slate-50/50 flex items-center justify-center overflow-hidden">
+                  <div id="so_${cat.key}_placeholder_${s}" class="${photoSrc ? 'hidden' : 'block'} text-[11px] text-slate-400 text-center">
+                    <i class="fa-regular fa-image text-slate-300 mr-1"></i> ยังไม่มีรูป
+                  </div>
+                  <div id="so_${cat.key}_img_wrap_${s}" class="${photoSrc ? 'block' : 'hidden'} w-full h-full relative group">
+                    <img id="so_${cat.key}_thumb_${s}" src="${photoSrc || ''}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                      <button type="button" onclick="viewSoCategoryPhoto('${cat.key}', ${s})" class="p-1 bg-white rounded-full text-slate-800 text-[10px] cursor-pointer" title="ดูรูปขนาดเต็ม">
+                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                      </button>
+                      <button type="button" onclick="clearSoCategoryPhoto('${cat.key}', ${s})" class="p-1 bg-rose-600 rounded-full text-white text-[10px] cursor-pointer" title="ลบรูป">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          `;
+        }
+
+        let addBtnHtml = '';
+        if (maxSlots > 1) {
+          const isMaxReached = activeSlotCount >= maxSlots;
+          addBtnHtml = `
+            <div id="so_${cat.key}_add_btn_container" class="pt-1">
+              <button type="button" id="so_${cat.key}_add_btn" onclick="addSoCategorySlot('${cat.key}')" class="${isMaxReached ? 'hidden' : ''} w-full py-2.5 px-4 rounded-xl border-2 border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50/50 text-blue-600 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer">
+                <i class="fa-solid fa-plus-circle text-base"></i>
+                <span id="so_${cat.key}_add_btn_text">+ เพิ่มเครื่องถัดไป (เครื่องที่ 2)</span>
+              </button>
+            </div>
+          `;
+        }
 
         html += `
           <div class="rounded-2xl border ${theme.border} ${theme.bg} p-4 sm:p-5 space-y-3 shadow-sm transition">
@@ -2502,73 +2589,65 @@
                     ${cat.title} ${isModem ? '<span class="text-rose-600 text-xs font-extrabold">* (บังคับ)</span>' : ''}
                   </h4>
                   <span class="inline-block text-[11px] font-semibold ${theme.text} ${theme.badgeBg} px-2 py-0.5 rounded-full mt-0.5">
-                    ${cat.badge} ${isModem ? '• จำเป็นต้องระบุ' : '• เลือกกรอกตามจริง'}
+                    ${cat.badge} ${isModem ? '• จำเป็นต้องระบุ' : (maxSlots > 1 ? `• กรอกได้สูงสุด ${maxSlots} เครื่อง` : '• เลือกกรอกตามจริง')}
                   </span>
                 </div>
               </div>
             </div>
 
-            <!-- Slot Card -->
-            <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5">
-              
-              <div class="flex items-center justify-between">
-                <label class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                  <i class="fa-solid fa-barcode text-slate-400"></i>
-                  <span>Serial Number (S/N) ของ ${cat.badge} ${isModem ? '<span class="text-rose-500">*</span>' : ''}</span>
-                </label>
-              </div>
-
-              <!-- S/N Input and Scan Button -->
-              <div class="flex gap-2">
-                <div class="relative flex-1">
-                  <input type="text" id="so_${cat.key}_sn_1" ${isModem ? 'required' : ''} placeholder="${isModem ? 'สแกน หรือพิมพ์ S/N ของ Modem (บังคับ)...' : 'สแกน หรือพิมพ์ S/N ของ ' + cat.badge + ' (ถ้ามี)...'}" class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border ${isModem ? 'border-amber-300 bg-amber-50/20 font-semibold' : 'border-slate-200 bg-slate-50/40'} text-slate-800 text-xs sm:text-sm font-mono uppercase tracking-wider focus:outline-none focus:ring-2 ${theme.ring} focus:bg-white transition">
-                  <i class="fa-solid fa-qrcode absolute left-3 top-3 text-slate-400 text-xs"></i>
-                </div>
-                <button type="button" onclick="openScannerModal('so_${cat.key}_sn_1')" class="px-3.5 py-2.5 ${theme.btnBg} text-white rounded-xl font-medium text-xs flex items-center gap-1.5 shadow-sm transition whitespace-nowrap">
-                  <i class="fa-solid fa-camera"></i>
-                  <span>สแกน</span>
-                </button>
-              </div>
-
-              <!-- Photo Capture & Preview -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-center pt-2 border-t border-slate-100">
-                <div class="flex gap-2">
-                  <button type="button" onclick="openLiveCameraModal('stockout', '${cat.key}')" class="flex-1 py-2 px-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm shadow-blue-500/20 transition text-center">
-                    <i class="fa-solid fa-camera text-cyan-200"></i>
-                    <span>เปิดกล้องสด</span>
-                  </button>
-                  <label class="flex-1 cursor-pointer py-2 px-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 font-medium text-xs flex items-center justify-center gap-1.5 shadow-sm transition text-center">
-                    <i class="fa-regular fa-image text-slate-500"></i>
-                    <span>เลือกไฟล์</span>
-                    <input type="file" accept="image/*" onchange="handleSoCategoryImageSelected(event, '${cat.key}', 1)" class="hidden">
-                  </label>
-                </div>
-
-                <!-- Thumbnail Box -->
-                <div id="so_${cat.key}_preview_box_1" class="relative h-12 border border-slate-200 rounded-lg bg-slate-50/50 flex items-center justify-center overflow-hidden">
-                  <div id="so_${cat.key}_placeholder_1" class="${photoSrc ? 'hidden' : 'block'} text-[11px] text-slate-400 text-center">
-                    <i class="fa-regular fa-image text-slate-300 mr-1"></i> ยังไม่มีรูป
-                  </div>
-                  <div id="so_${cat.key}_img_wrap_1" class="${photoSrc ? 'block' : 'hidden'} w-full h-full relative group">
-                    <img id="so_${cat.key}_thumb_1" src="${photoSrc || ''}" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-                      <button type="button" onclick="viewSoCategoryPhoto('${cat.key}', 1)" class="p-1 bg-white rounded-full text-slate-800 text-[10px]" title="ดูรูปขนาดเต็ม">
-                        <i class="fa-solid fa-magnifying-glass-plus"></i>
-                      </button>
-                      <button type="button" onclick="clearSoCategoryPhoto('${cat.key}', 1)" class="p-1 bg-rose-600 rounded-full text-white text-[10px]" title="ลบรูป">
-                        <i class="fa-solid fa-trash"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
+            <!-- Slots Container -->
+            <div class="space-y-3">
+              ${slotsHtml}
             </div>
+
+            <!-- Add Slot Button for Category -->
+            ${addBtnHtml}
+
           </div>
         `;
       });
 
       container.innerHTML = html;
+    }
+
+    function addSoCategorySlot(catKey) {
+      const cat = SO_CATEGORIES.find(c => c.key === catKey);
+      const max = (cat && cat.maxSlots) ? cat.maxSlots : 2;
+      const current = soCategorySlots[catKey] || 1;
+      const next = current + 1;
+      if (next <= max) {
+        soCategorySlots[catKey] = next;
+        const card = document.getElementById(`so_${catKey}_slot_card_${next}`);
+        if (card) card.classList.remove('hidden');
+        updateSoCategoryAddBtn(catKey);
+        const input = document.getElementById(`so_${catKey}_sn_${next}`);
+        if (input) input.focus();
+      }
+    }
+
+    function removeSoCategorySlot(catKey, slotIndex) {
+      const input = document.getElementById(`so_${catKey}_sn_${slotIndex}`);
+      if (input) input.value = '';
+      clearSoCategoryPhoto(catKey, slotIndex);
+      const card = document.getElementById(`so_${catKey}_slot_card_${slotIndex}`);
+      if (card) card.classList.add('hidden');
+      soCategorySlots[catKey] = Math.max(1, slotIndex - 1);
+      updateSoCategoryAddBtn(catKey);
+    }
+
+    function updateSoCategoryAddBtn(catKey) {
+      const cat = SO_CATEGORIES.find(c => c.key === catKey);
+      const max = (cat && cat.maxSlots) ? cat.maxSlots : 2;
+      const current = soCategorySlots[catKey] || 1;
+      const btn = document.getElementById(`so_${catKey}_add_btn`);
+      const btnText = document.getElementById(`so_${catKey}_add_btn_text`);
+      if (!btn || !btnText) return;
+      if (current >= max) {
+        btn.classList.add('hidden');
+      } else {
+        btn.classList.remove('hidden');
+        btnText.textContent = `+ เพิ่มเครื่องถัดไป (เครื่องที่ ${current + 1})`;
+      }
     }
 
     async function handleSoCategoryImageSelected(event, catKey, slotIndex = 1) {
@@ -2580,7 +2659,7 @@
 
       Swal.fire({
         title: 'กำลังบีบอัดรูปภาพ...',
-        text: `กำลังประมวลผลรูปของ ${catTitle}`,
+        text: `กำลังประมวลผลรูปของ ${catTitle} (เครื่องที่ #${slotIndex})`,
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
       });
@@ -2802,12 +2881,14 @@
     let liveCameraFacing = 'environment';
     let liveCameraTargetType = ''; // 'req', 'def', or 'stockout'
     let liveCameraTargetKey = null; // slot number 1-10 or category key
+    let liveCameraTargetSlot = 1;
     let liveCameraCapturedBase64 = '';
     let liveCameraTorchActive = false;
 
-    async function openLiveCameraModal(targetType, targetKey) {
+    async function openLiveCameraModal(targetType, targetKey, targetSlot = 1) {
       liveCameraTargetType = targetType;
       liveCameraTargetKey = targetKey;
+      liveCameraTargetSlot = targetSlot;
       liveCameraCapturedBase64 = '';
       liveCameraTorchActive = false;
 
@@ -2816,7 +2897,8 @@
       else if (targetType === 'def') title = `ถ่ายภาพคืนของเสีย (เครื่องที่ ${targetKey})`;
       else if (targetType === 'stockout') {
         const cat = SO_CATEGORIES.find(c => c.key === targetKey);
-        title = `ถ่ายภาพตัดสต็อก (${cat ? cat.name : targetKey})`;
+        const slotSuffix = (targetSlot > 1) ? ` เครื่องที่ ${targetSlot}` : '';
+        title = `ถ่ายภาพตัดสต็อก (${cat ? cat.name : targetKey}${slotSuffix})`;
       }
       
       const titleEl = document.getElementById('liveCameraTitle');
@@ -3083,9 +3165,10 @@
         defPhotos[liveCameraTargetKey] = compressed;
         updateSlotThumbnail('def', liveCameraTargetKey, compressed);
       } else if (liveCameraTargetType === 'stockout') {
-        const photoKey = `${liveCameraTargetKey}_1`;
+        const slotIdx = liveCameraTargetSlot || 1;
+        const photoKey = `${liveCameraTargetKey}_${slotIdx}`;
         soCategoryPhotos[photoKey] = compressed;
-        updateSoCategoryThumbnail(liveCameraTargetKey, 1, compressed);
+        updateSoCategoryThumbnail(liveCameraTargetKey, slotIdx, compressed);
       }
 
       closeLiveCameraModal();
@@ -3502,7 +3585,7 @@
       const jobType = document.getElementById('jobType').value;
       const model = document.getElementById('modelSelect').value;
       if (!model) {
-        Swal.fire('กรุณาเลือกประเภทอุปกรณ์', 'โปรดเลือก 1.Modem/Mesh, 2.Truevision/TrueID หรือ 3.Camera', 'warning');
+        Swal.fire('กรุณาเลือกประเภทอุปกรณ์', 'โปรดเลือก 1.Modem/Mesh, 2.Truevision/TrueID หรือ 3.Camera/IOT', 'warning');
         return;
       }
 
@@ -3702,19 +3785,22 @@
         return;
       }
 
-      // 3. รวบรวมข้อมูลอุปกรณ์ที่ใช้งานทั้งหมด
+      // 3. รวบรวมข้อมูลอุปกรณ์ที่ใช้งานทั้งหมด (รองรับหลายเครื่อง เช่น Camera สูงสุด 2 เครื่อง)
       const validItems = [];
       SO_CATEGORIES.forEach(cat => {
-        const input = document.getElementById(`so_${cat.key}_sn_1`);
-        const snVal = input ? input.value.trim() : '';
-        if (snVal) {
-          validItems.push({
-            categoryKey: cat.key,
-            slotIndex: 1,
-            model: cat.name, // e.g. "1. Modem", "2. Mesh", "3. Truevision/TrueID", "4. Camera", "5. SIM"
-            serialNumber: snVal,
-            imageBase64: soCategoryPhotos[`${cat.key}_1`] || ''
-          });
+        const max = cat.maxSlots || 1;
+        for (let s = 1; s <= max; s++) {
+          const input = document.getElementById(`so_${cat.key}_sn_${s}`);
+          const snVal = input ? input.value.trim() : '';
+          if (snVal) {
+            validItems.push({
+              categoryKey: cat.key,
+              slotIndex: s,
+              model: (max > 1 && s > 1) ? `${cat.name} (เครื่องที่ ${s})` : cat.name,
+              serialNumber: snVal,
+              imageBase64: soCategoryPhotos[`${cat.key}_${s}`] || ''
+            });
+          }
         }
       });
 
@@ -3995,6 +4081,7 @@
         if (badge) badge.classList.add('hidden');
         const errorMsg = document.getElementById('dropwireErrorMsg');
         if (errorMsg) errorMsg.classList.add('hidden');
+        soCategorySlots = { modem: 1, mesh: 1, trueid: 1, camera: 1, sim: 1, iot: 1 };
         soCategoryPhotos = {};
         renderStockOutCategories();
         if (currentUser) applyLoggedInUser(currentUser);
@@ -4739,7 +4826,7 @@
         const isUnused = isUnusedStatus(status);
 
         let catKey = 'modemMesh';
-        if (rawModel.includes('camera') || rawModel.includes('cctv') || rawModel.includes('กล้อง')) {
+        if (rawModel.includes('camera') || rawModel.includes('cctv') || rawModel.includes('กล้อง') || rawModel.includes('iot')) {
           catKey = 'camera';
         } else if (rawModel.includes('truevision') || rawModel.includes('trueid') || rawModel.includes('tv') || rawModel.includes('tvscc')) {
           catKey = 'tvscc';
