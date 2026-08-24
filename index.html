@@ -1285,40 +1285,50 @@
               </div>
             </div>
 
-            <!-- Row 3: เลือกหรือระบุ Serial Number ที่ต้องการโอน -->
-            <div class="space-y-3">
-              <div class="flex items-center justify-between pb-1 border-b border-slate-100">
-                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <i class="fa-solid fa-barcode text-teal-600"></i>
-                  <span>Serial Number (S/N) ที่ต้องการโอน <span class="text-rose-500">*</span></span>
-                </label>
-                <span class="text-[11px] text-slate-400">สแกน, พิมพ์ หรือคลิกเลือกจากรายการคงค้าง</span>
-              </div>
-
-              <!-- Manual / Scan Input Box -->
-              <div class="flex gap-2">
-                <div class="relative flex-1">
-                  <input type="text" id="transferSnInput" placeholder="สแกน หรือพิมพ์ S/N ที่ต้องการโอน (คั่นด้วยจุลภาค , ถ้ามีหลายตัว)..." class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-slate-800 text-xs sm:text-sm font-mono uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition">
-                  <i class="fa-solid fa-qrcode absolute left-3 top-3 text-slate-400 text-xs"></i>
+            <!-- ======================================================== -->
+            <!-- 10 SLOTS: รายการ Serial Number และรูปภาพ (สูงสุด 10 เครื่อง) -->
+            <!-- ======================================================== -->
+            <div class="space-y-4 pt-2">
+              <div class="flex items-center justify-between pb-2 border-b border-teal-200/80">
+                <div>
+                  <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-barcode text-teal-600"></i>
+                    <span>รายการ Serial Number และรูปภาพ (สูงสุด 10 เครื่อง)</span>
+                  </h3>
+                  <p class="text-xs text-slate-500">กรอก S/N พร้อมถ่ายรูปแยกแต่ละเครื่องได้ตามจำนวนจริง</p>
                 </div>
-                <button type="button" onclick="openScannerModal('transferSnInput')" class="px-3.5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-medium text-xs flex items-center gap-1.5 shadow-sm transition whitespace-nowrap cursor-pointer">
-                  <i class="fa-solid fa-camera"></i>
-                  <span>สแกน</span>
+
+                <!-- Quick Open 10 Slots Button -->
+                <button type="button" onclick="showAllSlots('trans')" class="text-xs text-teal-700 hover:text-teal-900 font-semibold px-2.5 py-1 rounded-lg bg-teal-50 border border-teal-200 transition cursor-pointer">
+                  <i class="fa-solid fa-layer-group mr-1"></i> เปิดครบ 10 ช่อง
                 </button>
               </div>
 
-              <!-- Visual Equipment Inventory Box of Selected Technician -->
-              <div id="transferInventoryContainer" class="hidden bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+              <!-- Visual Equipment Inventory Box of Selected Technician (Click to auto-fill slot) -->
+              <div id="transferInventoryContainer" class="hidden bg-teal-50/50 p-3.5 rounded-2xl border border-teal-200 space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <span class="text-xs font-bold text-teal-900 flex items-center gap-1.5">
                     <i class="fa-solid fa-boxes-stacked text-teal-600"></i>
-                    <span>คลิกเลือกอุปกรณ์คงค้างของช่างต้นทาง:</span>
+                    <span>คลิกเพื่อเลือกอุปกรณ์คงค้างของช่างต้นทาง (ใส่ลงช่องให้อัตโนมัติ):</span>
                   </span>
                   <span id="transferInventoryCount" class="text-[10px] bg-teal-100 text-teal-800 font-bold px-2 py-0.5 rounded-full">0 เครื่อง</span>
                 </div>
                 <div id="transferInventoryList" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto p-1">
                   <!-- Rendered dynamically -->
                 </div>
+              </div>
+
+              <!-- Slots Container for Transfer -->
+              <div id="transSlotsContainer" class="space-y-4">
+                <!-- Dynamically rendered by JS (1 to 10 slots) -->
+              </div>
+
+              <!-- Add Slot Button -->
+              <div class="pt-1">
+                <button type="button" id="transAddSlotBtn" onclick="addSlot('trans')" class="w-full py-2.5 px-4 rounded-xl border-2 border-dashed border-teal-300 hover:border-teal-500 hover:bg-teal-50/50 text-teal-700 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer">
+                  <i class="fa-solid fa-plus-circle text-base"></i>
+                  <span id="transAddSlotBtnText">+ เพิ่มเครื่องถัดไป (เครื่องที่ 2)</span>
+                </button>
               </div>
             </div>
 
@@ -1937,8 +1947,18 @@
     </div>
   </div>
 
-  <!-- ================= APPLICATION JAVASCRIPT ================= -->
   <script>
+    // HTML Escape Helper Function
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     // URL เริ่มต้นของ Google Apps Script Web App (พร้อมใช้งานทันทีโดยไม่ต้องตั้งค่าใหม่)
     const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbzygyMhWP4owCuvD4xHXav3wWE3T8HGY64K8h6K6zzrmSX70J70WNqtgXu0_-syz4rQ/exec";
 
@@ -1974,11 +1994,13 @@
     const MAX_SLOTS = 10;
     let reqVisibleSlots = 1;
     let defVisibleSlots = 1;
+    let transVisibleSlots = 1;
     let soVisibleSlots = 1;
 
-    // Photos data by slot (1 to 10 for Requisition & Defective Return)
+    // Photos data by slot (1 to 10 for Requisition, Defective Return & Transfer)
     const reqPhotos = {};
     const defPhotos = {};
+    const transPhotos = {};
 
     // 6 Categories Configuration for Stock-Out (ตัดสต็อกอุปกรณ์)
     const SO_CATEGORIES = [
@@ -2072,9 +2094,16 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Render Initial Slots Immediately (Requisition, Defective Return, Transfer & Stock-Out)
+      renderSlots('req');
+      renderSlots('def');
+      renderSlots('trans');
+      renderStockOutCategories();
+
       initTheme();
       loadSettings();
       loadCachedTechnicians();
+      populateTransferTechDropdowns();
       loadCachedEquipmentDashboard();
       checkAuthStatus();
       setTodayDate('reqDate');
@@ -2083,11 +2112,6 @@
       
       // Default to Dashboard Tab (หน้าแรก: สถิติ & สรุป)
       switchTab('dashboard');
-
-      // Render Initial Slots (Requisition, Defective Return & Stock-Out)
-      renderSlots('req');
-      renderSlots('def');
-      renderStockOutCategories();
 
       loadHistory();
       updateStatusBadge();
@@ -2426,17 +2450,21 @@
       });
     }
 
-    // --- 10 SLOTS RENDERING ENGINE (สำหรับเบิกอุปกรณ์ & คืนของเสีย) ---
+    // --- 10 SLOTS RENDERING ENGINE (สำหรับเบิกอุปกรณ์, คืนของเสีย และโอนย้ายอุปกรณ์) ---
     function renderSlots(type) {
-      if (type !== 'req' && type !== 'def') return;
+      if (type !== 'req' && type !== 'def' && type !== 'trans') return;
       const isReq = type === 'req';
-      const container = document.getElementById(isReq ? 'reqSlotsContainer' : 'defSlotsContainer');
+      const isDef = type === 'def';
+      const isTrans = type === 'trans';
+
+      const container = document.getElementById(isReq ? 'reqSlotsContainer' : (isDef ? 'defSlotsContainer' : 'transSlotsContainer'));
       if (!container) return;
-      const visibleCount = isReq ? reqVisibleSlots : defVisibleSlots;
-      const photosObj = isReq ? reqPhotos : defPhotos;
-      const themeColor = isReq ? 'blue' : 'rose';
-      const prefix = isReq ? 'req' : 'def';
-      const titlePrefix = isReq ? 'เครื่องที่' : 'ของเสียเครื่องที่';
+
+      const visibleCount = isReq ? Math.max(1, reqVisibleSlots || 1) : (isDef ? Math.max(1, defVisibleSlots || 1) : Math.max(1, transVisibleSlots || 1));
+      const photosObj = isReq ? reqPhotos : (isDef ? defPhotos : transPhotos);
+      const themeColor = isReq ? 'blue' : (isDef ? 'rose' : 'teal');
+      const prefix = isReq ? 'req' : (isDef ? 'def' : 'trans');
+      const titlePrefix = isReq ? 'เครื่องที่' : (isDef ? 'ของเสียเครื่องที่' : 'เครื่องที่');
 
       let html = '';
       for (let i = 1; i <= MAX_SLOTS; i++) {
@@ -2457,7 +2485,7 @@
               </div>
               
               ${i > 1 ? `
-                <button type="button" onclick="removeSlot('${prefix}', ${i})" class="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1">
+                <button type="button" onclick="removeSlot('${prefix}', ${i})" class="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1 cursor-pointer">
                   <i class="fa-solid fa-trash-can"></i> ลบช่องนี้
                 </button>
               ` : ''}
@@ -2469,7 +2497,7 @@
                 <input type="text" id="${prefix}_sn_${i}" placeholder="สแกน หรือพิมพ์ S/N ${titlePrefix} ${i}..." ${isRequired ? 'required' : ''} class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 text-xs sm:text-sm font-mono uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-${themeColor}-500 shadow-sm transition">
                 <i class="fa-solid fa-qrcode absolute left-3 top-3 text-slate-400 text-xs"></i>
               </div>
-              <button type="button" onclick="openScannerModal('${prefix}_sn_${i}')" class="px-3.5 py-2.5 bg-${themeColor}-600 hover:bg-${themeColor}-700 text-white rounded-xl font-medium text-xs flex items-center gap-1.5 shadow-sm transition whitespace-nowrap">
+              <button type="button" onclick="openScannerModal('${prefix}_sn_${i}')" class="px-3.5 py-2.5 bg-${themeColor}-600 hover:bg-${themeColor}-700 text-white rounded-xl font-medium text-xs flex items-center gap-1.5 shadow-sm transition whitespace-nowrap cursor-pointer">
                 <i class="fa-solid fa-camera"></i>
                 <span>สแกน</span>
               </button>
@@ -2478,7 +2506,7 @@
             <!-- Photo Upload for this Slot -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center pt-1 border-t border-slate-200/60">
               <div class="flex gap-2">
-                <button type="button" onclick="openLiveCameraModal('${prefix}', ${i})" class="flex-1 py-2.5 px-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm shadow-blue-500/20 transition text-center">
+                <button type="button" onclick="openLiveCameraModal('${prefix}', ${i})" class="flex-1 py-2.5 px-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm shadow-blue-500/20 transition text-center cursor-pointer">
                   <i class="fa-solid fa-camera text-cyan-200"></i>
                   <span>เปิดกล้องสด</span>
                 </button>
@@ -2529,6 +2557,12 @@
           document.getElementById(`def_slot_card_${defVisibleSlots}`).classList.remove('hidden');
           updateAddSlotButton('def');
         }
+      } else if (type === 'trans') {
+        if (transVisibleSlots < MAX_SLOTS) {
+          transVisibleSlots++;
+          document.getElementById(`trans_slot_card_${transVisibleSlots}`).classList.remove('hidden');
+          updateAddSlotButton('trans');
+        }
       }
     }
 
@@ -2545,6 +2579,12 @@
           document.getElementById(`def_slot_card_${i}`).classList.remove('hidden');
         }
         updateAddSlotButton('def');
+      } else if (type === 'trans') {
+        transVisibleSlots = MAX_SLOTS;
+        for (let i = 1; i <= MAX_SLOTS; i++) {
+          document.getElementById(`trans_slot_card_${i}`).classList.remove('hidden');
+        }
+        updateAddSlotButton('trans');
       }
     }
 
@@ -2563,6 +2603,13 @@
         document.getElementById(`def_slot_card_${slotIndex}`).classList.add('hidden');
         if (defVisibleSlots > 1 && slotIndex === defVisibleSlots) defVisibleSlots--;
         updateAddSlotButton('def');
+      } else if (type === 'trans') {
+        const input = document.getElementById(`trans_sn_${slotIndex}`);
+        if (input) input.value = '';
+        clearSlotPhoto('trans', slotIndex);
+        document.getElementById(`trans_slot_card_${slotIndex}`).classList.add('hidden');
+        if (transVisibleSlots > 1 && slotIndex === transVisibleSlots) transVisibleSlots--;
+        updateAddSlotButton('trans');
       }
     }
 
@@ -2582,6 +2629,17 @@
         const visibleCount = defVisibleSlots;
         const btn = document.getElementById('defAddSlotBtn');
         const btnText = document.getElementById('defAddSlotBtnText');
+        if (!btn || !btnText) return;
+        if (visibleCount >= MAX_SLOTS) {
+          btn.classList.add('hidden');
+        } else {
+          btn.classList.remove('hidden');
+          btnText.textContent = `+ เพิ่มเครื่องถัดไป (เครื่องที่ ${visibleCount + 1})`;
+        }
+      } else if (type === 'trans') {
+        const visibleCount = transVisibleSlots;
+        const btn = document.getElementById('transAddSlotBtn');
+        const btnText = document.getElementById('transAddSlotBtnText');
         if (!btn || !btnText) return;
         if (visibleCount >= MAX_SLOTS) {
           btn.classList.add('hidden');
@@ -2874,13 +2932,12 @@
       document.getElementById('imageModal').classList.remove('hidden');
     }
 
-    // --- REQUISITION & DEFECTIVE RETURN SLOT PHOTO HANDLING ---
+    // --- REQUISITION, DEFECTIVE RETURN & TRANSFER SLOT PHOTO HANDLING ---
     async function handleSlotImageSelected(event, type, slotIndex) {
       const file = event.target.files[0];
       if (!file) return;
 
-      const isReq = type === 'req';
-      const prefix = isReq ? 'req' : 'def';
+      const prefix = type;
 
       Swal.fire({
         title: 'กำลังบีบอัดรูปภาพ...',
@@ -2891,11 +2948,9 @@
 
       try {
         const compressedBase64 = await compressImage(file, 1280, 0.75);
-        if (isReq) {
-          reqPhotos[slotIndex] = compressedBase64;
-        } else {
-          defPhotos[slotIndex] = compressedBase64;
-        }
+        if (type === 'req') reqPhotos[slotIndex] = compressedBase64;
+        else if (type === 'def') defPhotos[slotIndex] = compressedBase64;
+        else if (type === 'trans') transPhotos[slotIndex] = compressedBase64;
 
         const thumb = document.getElementById(`${prefix}_thumb_${slotIndex}`);
         if (thumb) thumb.src = compressedBase64;
@@ -2911,13 +2966,10 @@
     }
 
     function clearSlotPhoto(type, slotIndex) {
-      const isReq = type === 'req';
-      const prefix = isReq ? 'req' : 'def';
-      if (isReq) {
-        delete reqPhotos[slotIndex];
-      } else {
-        delete defPhotos[slotIndex];
-      }
+      const prefix = type;
+      if (type === 'req') delete reqPhotos[slotIndex];
+      else if (type === 'def') delete defPhotos[slotIndex];
+      else if (type === 'trans') delete transPhotos[slotIndex];
 
       const thumb = document.getElementById(`${prefix}_thumb_${slotIndex}`);
       if (thumb) thumb.src = '';
@@ -2928,8 +2980,10 @@
     }
 
     function viewSlotPhoto(type, slotIndex) {
-      const isReq = type === 'req';
-      const photoSrc = isReq ? reqPhotos[slotIndex] : defPhotos[slotIndex];
+      let photoSrc = '';
+      if (type === 'req') photoSrc = reqPhotos[slotIndex];
+      else if (type === 'def') photoSrc = defPhotos[slotIndex];
+      else if (type === 'trans') photoSrc = transPhotos[slotIndex];
       if (!photoSrc) return;
       document.getElementById('modalImagePreview').src = photoSrc;
       document.getElementById('imageModal').classList.remove('hidden');
@@ -3010,9 +3064,21 @@
         renderHistoryTable();
       } else if (tabId === 'dashboard') {
         fetchEquipmentDashboard(true);
-      } else if (tabId === 'requisition' || tabId === 'stockout' || tabId === 'defective') {
+      } else if (tabId === 'requisition') {
+        const c = document.getElementById('reqSlotsContainer');
+        if (!c || c.children.length === 0) renderSlots('req');
+        fetchLatestRowFromSheet();
+      } else if (tabId === 'defective') {
+        const c = document.getElementById('defSlotsContainer');
+        if (!c || c.children.length === 0) renderSlots('def');
+        fetchLatestRowFromSheet();
+      } else if (tabId === 'stockout') {
+        const c = document.getElementById('soCategoriesContainer');
+        if (!c || c.children.length === 0) renderStockOutCategories();
         fetchLatestRowFromSheet();
       } else if (tabId === 'transfer') {
+        const c = document.getElementById('transSlotsContainer');
+        if (!c || c.children.length === 0) renderSlots('trans');
         populateTransferTechDropdowns();
         setTodayDate('transferDate');
       }
@@ -3070,6 +3136,7 @@
       let title = 'ถ่ายภาพอุปกรณ์';
       if (targetType === 'req') title = `ถ่ายภาพเบิกอุปกรณ์ (เครื่องที่ ${targetKey})`;
       else if (targetType === 'def') title = `ถ่ายภาพคืนของเสีย (เครื่องที่ ${targetKey})`;
+      else if (targetType === 'trans') title = `ถ่ายภาพโอนย้ายอุปกรณ์ (เครื่องที่ ${targetKey})`;
       else if (targetType === 'stockout') {
         const cat = SO_CATEGORIES.find(c => c.key === targetKey);
         const slotSuffix = (targetSlot > 1) ? ` เครื่องที่ ${targetSlot}` : '';
@@ -3339,6 +3406,9 @@
       } else if (liveCameraTargetType === 'def') {
         defPhotos[liveCameraTargetKey] = compressed;
         updateSlotThumbnail('def', liveCameraTargetKey, compressed);
+      } else if (liveCameraTargetType === 'trans') {
+        transPhotos[liveCameraTargetKey] = compressed;
+        updateSlotThumbnail('trans', liveCameraTargetKey, compressed);
       } else if (liveCameraTargetType === 'stockout') {
         const slotIdx = liveCameraTargetSlot || 1;
         const photoKey = `${liveCameraTargetKey}_${slotIdx}`;
@@ -4241,15 +4311,31 @@
       const currentFrom = fromSel.value;
       const currentTo = toSel.value;
 
-      let optionsHtml = '<option value="">-- เลือกชื่อช่าง / ผู้ทำรายการ --</option>';
+      // Extract unique technician names only (no team)
+      const techNames = [];
+      const seen = new Set();
       dynamicTechnicians.forEach(t => {
-        const val = escapeHtml(t.name || t.fullName || t.id);
-        const label = escapeHtml(t.displayName || t.name);
-        optionsHtml += `<option value="${val}">${label}</option>`;
+        const name = (t.name || t.fullName || t.displayName || '').trim();
+        if (name && !seen.has(name)) {
+          seen.add(name);
+          techNames.push(name);
+        }
       });
 
-      fromSel.innerHTML = optionsHtml;
-      toSel.innerHTML = optionsHtml;
+      // Sort alphabetically in Thai
+      techNames.sort((a, b) => a.localeCompare(b, 'th'));
+
+      let optionsFrom = '<option value="">-- เลือกช่างผู้โอน (ต้นทาง) --</option>';
+      let optionsTo = '<option value="">-- เลือกช่างผู้รับโอน (ปลายทาง) --</option>';
+
+      techNames.forEach(name => {
+        const val = escapeHtml(name);
+        optionsFrom += `<option value="${val}">${val}</option>`;
+        optionsTo += `<option value="${val}">${val}</option>`;
+      });
+
+      fromSel.innerHTML = optionsFrom;
+      toSel.innerHTML = optionsTo;
 
       if (currentFrom) fromSel.value = currentFrom;
       if (currentTo) toSel.value = currentTo;
@@ -4272,11 +4358,12 @@
       // Find unused items for this technician from equipmentDashboardData or localHistory
       let items = [];
       if (equipmentDashboardData && equipmentDashboardData.techniciansList) {
-        const cleanTarget = selectedTech.toLowerCase();
+        const cleanTarget = selectedTech.toLowerCase().trim();
         const techObj = equipmentDashboardData.techniciansList.find(t => 
-          (t.name && t.name.toLowerCase() === cleanTarget) ||
-          (t.fullName && t.fullName.toLowerCase() === cleanTarget) ||
-          (t.id && String(t.id).toLowerCase() === cleanTarget)
+          (t.name && t.name.toLowerCase().trim() === cleanTarget) ||
+          (t.fullName && t.fullName.toLowerCase().trim() === cleanTarget) ||
+          (t.displayName && t.displayName.toLowerCase().trim().includes(cleanTarget)) ||
+          (t.id && String(t.id).toLowerCase().trim() === cleanTarget)
         );
         if (techObj && Array.isArray(techObj.unusedItems)) {
           items = techObj.unusedItems;
@@ -4294,20 +4381,65 @@
           const sn = escapeHtml(it.sn || '');
           const model = escapeHtml(it.model || it.catTitle || '');
           return `
-            <label class="flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 hover:border-teal-400 cursor-pointer text-xs transition shadow-2xs">
-              <input type="checkbox" value="${sn}" data-model="${model}" class="transfer-item-checkbox rounded text-teal-600 focus:ring-teal-500 w-4 h-4 cursor-pointer">
-              <div class="flex-1 min-w-0">
-                <div class="font-mono font-bold text-slate-800 truncate">${sn}</div>
+            <div onclick="fillTransferSlotFromInventory('${sn}', '${model}')" class="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 cursor-pointer text-xs transition shadow-2xs group">
+              <div class="flex-1 min-w-0 pr-2">
+                <div class="font-mono font-bold text-slate-800 group-hover:text-teal-700 truncate">${sn}</div>
                 <div class="text-[10px] text-slate-500 truncate">${model}</div>
               </div>
-            </label>
+              <button type="button" class="px-2 py-1 rounded-lg bg-teal-50 group-hover:bg-teal-600 text-teal-700 group-hover:text-white font-bold text-[10px] border border-teal-200 transition whitespace-nowrap">
+                + ใส่ช่อง
+              </button>
+            </div>
           `;
         }).join('');
         invContainer.classList.remove('hidden');
       } else {
         if (badge) badge.classList.add('hidden');
-        invList.innerHTML = '<div class="col-span-2 text-center text-xs text-slate-400 py-3">ไม่พบรายการอุปกรณ์คงค้างของช่างท่านนี้ (สามารถพิมพ์หรือสแกน S/N ด้านบนได้)</div>';
+        invList.innerHTML = '<div class="col-span-2 text-center text-xs text-slate-400 py-3">ไม่พบรายการอุปกรณ์คงค้างของช่างท่านนี้ (สามารถกรอกหรือสแกน S/N ในช่องด้านล่างได้)</div>';
         invContainer.classList.remove('hidden');
+      }
+    }
+
+    function fillTransferSlotFromInventory(sn, model) {
+      // Check if this SN is already filled in any slot
+      for (let i = 1; i <= transVisibleSlots; i++) {
+        const inp = document.getElementById(`trans_sn_${i}`);
+        if (inp && inp.value.trim().toLowerCase() === sn.toLowerCase()) {
+          Swal.fire('มี S/N นี้อยู่ในช่องแล้ว', `Serial Number ${sn} อยู่ในช่องเครื่องที่ #${i} เรียบร้อยแล้ว`, 'info');
+          inp.focus();
+          return;
+        }
+      }
+
+      // Find first empty visible slot
+      let targetSlot = -1;
+      for (let i = 1; i <= transVisibleSlots; i++) {
+        const inp = document.getElementById(`trans_sn_${i}`);
+        if (inp && !inp.value.trim()) {
+          targetSlot = i;
+          break;
+        }
+      }
+
+      // If all visible slots are full, auto-open next slot
+      if (targetSlot === -1 && transVisibleSlots < MAX_SLOTS) {
+        addSlot('trans');
+        targetSlot = transVisibleSlots;
+      }
+
+      if (targetSlot === -1) {
+        targetSlot = 1; // Fallback
+      }
+
+      const targetInput = document.getElementById(`trans_sn_${targetSlot}`);
+      if (targetInput) {
+        targetInput.value = sn;
+        targetInput.focus();
+        targetInput.classList.add('ring-2', 'ring-teal-500');
+        setTimeout(() => targetInput.classList.remove('ring-2', 'ring-teal-500'), 1200);
+
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+        Toast.fire({ icon: 'success', title: `ใส่ S/N ลงเครื่องที่ #${targetSlot} แล้ว` });
       }
     }
 
@@ -4315,7 +4447,6 @@
       e.preventDefault();
       const fromTech = document.getElementById('transferFromTechSelect').value;
       const toTech = document.getElementById('transferToTechSelect').value;
-      const snInput = document.getElementById('transferSnInput').value.trim();
       const remarks = document.getElementById('transferRemarks').value.trim();
       const operator = document.getElementById('transferOperator')?.value.trim() || '';
 
@@ -4332,23 +4463,22 @@
         return;
       }
 
-      // Collect selected SNs from checkboxes and text input
-      const selectedSns = [];
-      document.querySelectorAll('.transfer-item-checkbox:checked').forEach(cb => {
-        selectedSns.push({ serialNumber: cb.value, model: cb.dataset.model || '' });
-      });
-
-      if (snInput) {
-        snInput.split(',').forEach(raw => {
-          const s = raw.trim();
-          if (s && !selectedSns.some(it => it.serialNumber.toLowerCase() === s.toLowerCase())) {
-            selectedSns.push({ serialNumber: s, model: '' });
-          }
-        });
+      // Collect all filled items from slots (1 to 10)
+      const validItems = [];
+      for (let i = 1; i <= MAX_SLOTS; i++) {
+        const input = document.getElementById(`trans_sn_${i}`);
+        const snVal = input ? input.value.trim() : '';
+        if (snVal) {
+          validItems.push({
+            slotIndex: i,
+            serialNumber: snVal,
+            imageBase64: transPhotos[i] || ''
+          });
+        }
       }
 
-      if (selectedSns.length === 0) {
-        Swal.fire('กรุณาระบุ Serial Number', 'โปรดพิมพ์ สแกน หรือเลือก S/N ที่ต้องการโอนอย่างน้อย 1 เครื่อง', 'warning');
+      if (validItems.length === 0) {
+        Swal.fire('กรุณาระบุ Serial Number', 'โปรดกรอก หรือสแกน S/N ที่ต้องการโอนอย่างน้อย 1 เครื่อง', 'warning');
         return;
       }
 
@@ -4357,12 +4487,12 @@
       const submitBtn = document.getElementById('transferSubmitBtn');
       const submitBtnText = document.getElementById('transferSubmitBtnText');
       submitBtn.disabled = true;
-      submitBtnText.textContent = `กำลังโอนย้าย ${selectedSns.length} เครื่อง...`;
+      submitBtnText.textContent = `กำลังโอนย้าย ${validItems.length} เครื่อง...`;
 
       await executeTransferEquipment({
         fromTech: fromTech,
         toTech: toTech,
-        items: selectedSns,
+        items: validItems,
         remarks: combinedRemarks
       });
 
@@ -4370,19 +4500,24 @@
       submitBtnText.textContent = 'บันทึกการโอนย้ายอุปกรณ์';
 
       // Reset form
-      document.getElementById('transferForm').reset();
-      setTodayDate('transferDate');
-      const invContainer = document.getElementById('transferInventoryContainer');
-      if (invContainer) invContainer.classList.add('hidden');
-      const badge = document.getElementById('transferFromTechBadge');
-      if (badge) badge.classList.add('hidden');
+      resetForm('transfer');
     }
 
     function openQuickTransferModal(sn, model, fromTechEncoded) {
-      const fromTech = decodeURIComponent(fromTechEncoded || '');
-      const techOptions = dynamicTechnicians
-        .filter(t => t.name !== fromTech && t.displayName !== fromTech)
-        .map(t => `<option value="${escapeHtml(t.name || t.fullName || t.id)}">${escapeHtml(t.displayName || t.name)}</option>`)
+      const fromTech = decodeURIComponent(fromTechEncoded || '').trim();
+      const techNames = [];
+      const seen = new Set();
+      dynamicTechnicians.forEach(t => {
+        const name = (t.name || t.fullName || t.displayName || '').trim();
+        if (name && name !== fromTech && !seen.has(name)) {
+          seen.add(name);
+          techNames.push(name);
+        }
+      });
+      techNames.sort((a, b) => a.localeCompare(b, 'th'));
+
+      const techOptions = techNames
+        .map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
         .join('');
 
       Swal.fire({
@@ -4547,6 +4682,16 @@
         soCategoryPhotos = {};
         renderStockOutCategories();
         if (currentUser) applyLoggedInUser(currentUser);
+      } else if (formType === 'transfer') {
+        document.getElementById('transferForm').reset();
+        setTodayDate('transferDate');
+        for (let i = 1; i <= MAX_SLOTS; i++) clearSlotPhoto('trans', i);
+        transVisibleSlots = 1;
+        renderSlots('trans');
+        const invContainer = document.getElementById('transferInventoryContainer');
+        if (invContainer) invContainer.classList.add('hidden');
+        const badge = document.getElementById('transferFromTechBadge');
+        if (badge) badge.classList.add('hidden');
       }
     }
 
