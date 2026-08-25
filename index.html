@@ -4485,12 +4485,52 @@
 
       const combinedRemarks = operator ? `${remarks} (ผู้ทำรายการ: ${operator})` : remarks;
 
+      // Fast Client-side Pre-check against loaded dashboard data
+      if (equipmentDashboardData && Array.isArray(equipmentDashboardData.techniciansList)) {
+        const cleanFrom = fromTech.toLowerCase().trim();
+        const mismatchItems = [];
+        validItems.forEach(it => {
+          const sn = it.serialNumber.toLowerCase().trim();
+          let holdingTech = null;
+          equipmentDashboardData.techniciansList.forEach(t => {
+            if (t.unusedItems && t.unusedItems.some(item => String(item.sn || '').toLowerCase().trim() === sn)) {
+              holdingTech = t.name || t.fullName || t.id;
+            }
+          });
+          if (holdingTech && holdingTech.toLowerCase().trim() !== cleanFrom) {
+            mismatchItems.push(`• S/N "${it.serialNumber}": ในระบบแสดงเป็นของช่าง "${holdingTech}" (ไม่ตรงกับช่างต้นทาง "${fromTech}")`);
+          }
+        });
+
+        if (mismatchItems.length > 0) {
+          const confirmed = await Swal.fire({
+            icon: 'warning',
+            title: 'คำเตือน: ข้อมูลอาจไม่ตรงกัน',
+            html: `
+              <div class="text-left text-xs text-amber-900 bg-amber-50 p-3.5 rounded-xl border border-amber-200 mt-2 space-y-1.5 font-sans">
+                <p class="font-bold">ระบบตรวจพบว่าอุปกรณ์อาจไม่ใช่ของช่างต้นทาง:</p>
+                ${mismatchItems.map(m => `<div class="text-rose-700">${escapeHtml(m)}</div>`).join('')}
+                <p class="pt-2 text-[11px] text-slate-500 font-medium">ต้องการส่งให้ระบบตรวจสอบกับ Google Sheet โดยตรงต่อหรือไม่?</p>
+              </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'ส่งตรวจสอบกับ Sheet',
+            cancelButtonText: 'กลับไปแก้ไข',
+            confirmButtonColor: '#0d9488',
+            cancelButtonColor: '#64748b'
+          });
+          if (!confirmed.isConfirmed) {
+            return;
+          }
+        }
+      }
+
       const submitBtn = document.getElementById('transferSubmitBtn');
       const submitBtnText = document.getElementById('transferSubmitBtnText');
       submitBtn.disabled = true;
       submitBtnText.textContent = `กำลังโอนย้าย ${validItems.length} เครื่อง...`;
 
-      await executeTransferEquipment({
+      const success = await executeTransferEquipment({
         fromTech: fromTech,
         toTech: toTech,
         items: validItems,
@@ -4500,8 +4540,10 @@
       submitBtn.disabled = false;
       submitBtnText.textContent = 'บันทึกการโอนย้ายอุปกรณ์';
 
-      // Reset form
-      resetForm('transfer');
+      if (success) {
+        // Reset form on success
+        resetForm('transfer');
+      }
     }
 
     function openQuickTransferModal(sn, model, fromTechEncoded) {
@@ -4565,7 +4607,7 @@
     async function executeTransferEquipment(payload) {
       Swal.fire({
         title: 'กำลังบันทึกการโอนย้ายอุปกรณ์...',
-        text: 'กำลังอัปเดตข้อมูลผู้ถือครองใน Google Sheet',
+        text: 'กำลังตรวจสอบและอัปเดตข้อมูลผู้ถือครองใน Google Sheet',
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
       });
@@ -4606,24 +4648,29 @@
             icon: 'success',
             title: 'โอนย้ายอุปกรณ์สำเร็จ!',
             html: `
-              <div class="text-left text-xs text-slate-600 bg-teal-50 p-3.5 rounded-xl border border-teal-200 space-y-1.5 mt-2">
+              <div class="text-left text-xs text-slate-600 dark:text-slate-300 bg-teal-50 dark:bg-teal-950/40 p-3.5 rounded-xl border border-teal-200 dark:border-teal-800 space-y-1.5 mt-2">
                 <div><b>จาก:</b> <span class="text-rose-600 font-bold">${escapeHtml(payload.fromTech || '-')}</span></div>
-                <div><b>ไปยัง:</b> <span class="text-teal-700 font-bold">${escapeHtml(payload.toTech || '-')}</span></div>
+                <div><b>ไปยัง:</b> <span class="text-teal-700 dark:text-teal-400 font-bold">${escapeHtml(payload.toTech || '-')}</span></div>
                 <div><b>จำนวน:</b> <span class="font-bold">${(payload.items || []).length} เครื่อง</span></div>
-                <div class="text-[11px] text-emerald-700 font-medium pt-1">✓ อัปเดตชื่อผู้ถือครองใน Google Sheet เรียบร้อยแล้ว</div>
+                <div class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium pt-1">✓ อัปเดตชื่อผู้ถือครองใน Google Sheet เรียบร้อยแล้ว</div>
               </div>
             `,
             confirmButtonText: 'ตกลง',
             confirmButtonColor: '#0d9488'
           });
 
-          // Update local history if any matches
+          // Update local history safely (cast serialNumber to String)
           (payload.items || []).forEach(it => {
-            const snTarget = String(it.serialNumber || '').toLowerCase();
+            const snTarget = String(it.serialNumber || it.sn || '').toLowerCase().trim();
+            if (!snTarget) return;
             localHistory.forEach(rec => {
-              if (rec.serialNumber && rec.serialNumber.toLowerCase() === snTarget) {
+              const recSn = String(rec.serialNumber || rec['Serial Number (S/N)'] || '').toLowerCase().trim();
+              if (recSn && recSn === snTarget) {
                 rec.technician = payload.toTech;
-                rec.remarks = rec.remarks ? `${rec.remarks} | [โอนให้ ${payload.toTech}]` : `[โอนให้ ${payload.toTech}]`;
+                rec['ชื่อผู้เบิก / ช่าง'] = payload.toTech;
+                const currentRemark = String(rec.remarks || rec['หมายเหตุ'] || '');
+                const note = `[โอนให้ ${payload.toTech}]`;
+                rec.remarks = currentRemark ? `${currentRemark} | ${note}` : note;
               }
             });
           });
@@ -4637,11 +4684,25 @@
               }
             });
           }
+          return true;
         } else {
-          Swal.fire('เกิดข้อผิดพลาด', responseMsg, 'error');
+          const formattedMsg = escapeHtml(responseMsg).replace(/\n/g, '<br>');
+          Swal.fire({
+            icon: 'warning',
+            title: 'ตรวจสอบข้อมูลไม่ผ่าน',
+            html: `
+              <div class="text-left text-xs text-rose-800 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 p-3.5 rounded-xl border border-rose-200 dark:border-rose-800 mt-2 font-sans leading-relaxed space-y-1">
+                ${formattedMsg}
+              </div>
+            `,
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: '#e11d48'
+          });
+          return false;
         }
       } catch (err) {
         Swal.fire('ข้อผิดพลาดการเชื่อมต่อ', err.message, 'error');
+        return false;
       }
     }
 
