@@ -1400,10 +1400,11 @@
         <!-- Filter & Actions -->
         <div class="flex items-center gap-2 flex-wrap">
           <select id="logTypeFilter" onchange="filterHistory()" class="px-3 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-slate-800 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="ALL">📋 แสดงทุกรายการ (เบิก / ตัดสต็อก / คืนของเสีย)</option>
+            <option value="ALL">📋 แสดงทุกรายการ (เบิก / ตัดสต็อก / คืนของเสีย / โอนย้าย)</option>
             <option value="REQUISITION">📝 เฉพาะรายการเบิกอุปกรณ์</option>
             <option value="STOCK_OUT">📦 เฉพาะรายการตัดสต็อก</option>
             <option value="DEFECTIVE">🔄 เฉพาะรายการคืนของเสีย</option>
+            <option value="TRANSFER">🔀 เฉพาะรายการโอนย้ายอุปกรณ์</option>
           </select>
 
           <!-- Sync from Cloud Button -->
@@ -2519,33 +2520,39 @@
             </div>
 
             <!-- Photo Upload for this Slot -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center pt-1 border-t border-slate-200/60">
-              <div class="flex gap-2">
-                <button type="button" onclick="openLiveCameraModal('${prefix}', ${i})" class="flex-1 py-2.5 px-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm shadow-blue-500/20 transition text-center cursor-pointer">
-                  <i class="fa-solid fa-camera text-cyan-200"></i>
-                  <span>เปิดกล้องสด</span>
-                </button>
-                <label class="flex-1 cursor-pointer py-2.5 px-2.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-medium text-xs flex items-center justify-center gap-1.5 shadow-sm transition text-center">
-                  <i class="fa-regular fa-image text-${themeColor}-500"></i>
-                  <span>เลือกไฟล์</span>
-                  <input type="file" accept="image/*" onchange="handleSlotImageSelected(event, '${prefix}', ${i})" class="hidden">
-                </label>
+            <div class="space-y-1.5 pt-1 border-t border-slate-200/60">
+              <div class="flex items-center justify-between text-[11px] font-semibold text-slate-600">
+                <span><i class="fa-solid fa-camera mr-1 text-slate-400"></i> รูปถ่ายยืนยันอุปกรณ์ <span class="text-rose-500 font-bold">* บังคับแนบรูป</span></span>
+                <span class="text-[10px] text-slate-400">กล้องสด / ไฟล์รูป</span>
               </div>
-
-              <!-- Thumbnail Preview -->
-              <div id="${prefix}_preview_box_${i}" class="relative h-14 border border-slate-200 rounded-xl bg-white flex items-center justify-center overflow-hidden">
-                <div id="${prefix}_placeholder_${i}" class="${photoSrc ? 'hidden' : 'block'} text-[11px] text-slate-400 text-center">
-                  <i class="fa-regular fa-image text-slate-300 mr-1"></i> ยังไม่มีรูป
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                <div class="flex gap-2">
+                  <button type="button" onclick="openLiveCameraModal('${prefix}', ${i})" class="flex-1 py-2.5 px-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm shadow-blue-500/20 transition text-center cursor-pointer">
+                    <i class="fa-solid fa-camera text-cyan-200"></i>
+                    <span>เปิดกล้องสด</span>
+                  </button>
+                  <label class="flex-1 cursor-pointer py-2.5 px-2.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-medium text-xs flex items-center justify-center gap-1.5 shadow-sm transition text-center">
+                    <i class="fa-regular fa-image text-${themeColor}-500"></i>
+                    <span>เลือกไฟล์</span>
+                    <input type="file" accept="image/*" onchange="handleSlotImageSelected(event, '${prefix}', ${i})" class="hidden">
+                  </label>
                 </div>
-                <div id="${prefix}_img_wrap_${i}" class="${photoSrc ? 'block' : 'hidden'} w-full h-full relative group">
-                  <img id="${prefix}_thumb_${i}" src="${photoSrc || ''}" class="w-full h-full object-cover">
-                  <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-                    <button type="button" onclick="viewSlotPhoto('${prefix}', ${i})" class="p-1 bg-white rounded-full text-slate-800 text-[10px]">
-                      <i class="fa-solid fa-magnifying-glass-plus"></i>
-                    </button>
-                    <button type="button" onclick="clearSlotPhoto('${prefix}', ${i})" class="p-1 bg-rose-600 rounded-full text-white text-[10px]">
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
+
+                <!-- Thumbnail Preview -->
+                <div id="${prefix}_preview_box_${i}" class="relative h-14 border border-slate-200 rounded-xl bg-white flex items-center justify-center overflow-hidden">
+                  <div id="${prefix}_placeholder_${i}" class="${photoSrc ? 'hidden' : 'block'} text-[11px] text-rose-500 font-medium text-center">
+                    <i class="fa-solid fa-circle-exclamation mr-1 text-rose-400"></i> ยังไม่ได้แนบรูป *
+                  </div>
+                  <div id="${prefix}_img_wrap_${i}" class="${photoSrc ? 'block' : 'hidden'} w-full h-full relative group">
+                    <img id="${prefix}_thumb_${i}" src="${photoSrc || ''}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                      <button type="button" onclick="viewSlotPhoto('${prefix}', ${i})" class="p-1 bg-white rounded-full text-slate-800 text-[10px]">
+                        <i class="fa-solid fa-magnifying-glass-plus"></i>
+                      </button>
+                      <button type="button" onclick="clearSlotPhoto('${prefix}', ${i})" class="p-1 bg-rose-600 rounded-full text-white text-[10px]">
+                        <i class="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2771,33 +2778,39 @@
               </div>
 
               <!-- Photo Capture & Preview -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-center pt-2 border-t border-slate-100">
-                <div class="flex gap-2">
-                  <button type="button" onclick="openLiveCameraModal('stockout', '${cat.key}', ${s})" class="flex-1 py-2 px-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm shadow-blue-500/20 transition text-center cursor-pointer">
-                    <i class="fa-solid fa-camera text-cyan-200"></i>
-                    <span>เปิดกล้องสด</span>
-                  </button>
-                  <label class="flex-1 cursor-pointer py-2 px-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 font-medium text-xs flex items-center justify-center gap-1.5 shadow-sm transition text-center">
-                    <i class="fa-regular fa-image text-slate-500"></i>
-                    <span>เลือกไฟล์</span>
-                    <input type="file" accept="image/*" onchange="handleSoCategoryImageSelected(event, '${cat.key}', ${s})" class="hidden">
-                  </label>
+              <div class="space-y-1.5 pt-2 border-t border-slate-100">
+                <div class="flex items-center justify-between text-[11px] font-semibold text-slate-600">
+                  <span><i class="fa-solid fa-camera mr-1 text-slate-400"></i> รูปถ่ายยืนยันอุปกรณ์ <span class="text-rose-500 font-bold">* บังคับแนบรูป</span></span>
+                  <span class="text-[10px] text-slate-400">กล้องสด / ไฟล์รูป</span>
                 </div>
-
-                <!-- Thumbnail Box -->
-                <div id="so_${cat.key}_preview_box_${s}" class="relative h-12 border border-slate-200 rounded-lg bg-slate-50/50 flex items-center justify-center overflow-hidden">
-                  <div id="so_${cat.key}_placeholder_${s}" class="${photoSrc ? 'hidden' : 'block'} text-[11px] text-slate-400 text-center">
-                    <i class="fa-regular fa-image text-slate-300 mr-1"></i> ยังไม่มีรูป
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-center">
+                  <div class="flex gap-2">
+                    <button type="button" onclick="openLiveCameraModal('stockout', '${cat.key}', ${s})" class="flex-1 py-2 px-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-sm shadow-blue-500/20 transition text-center cursor-pointer">
+                      <i class="fa-solid fa-camera text-cyan-200"></i>
+                      <span>เปิดกล้องสด</span>
+                    </button>
+                    <label class="flex-1 cursor-pointer py-2 px-2.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 font-medium text-xs flex items-center justify-center gap-1.5 shadow-sm transition text-center">
+                      <i class="fa-regular fa-image text-slate-500"></i>
+                      <span>เลือกไฟล์</span>
+                      <input type="file" accept="image/*" onchange="handleSoCategoryImageSelected(event, '${cat.key}', ${s})" class="hidden">
+                    </label>
                   </div>
-                  <div id="so_${cat.key}_img_wrap_${s}" class="${photoSrc ? 'block' : 'hidden'} w-full h-full relative group">
-                    <img id="so_${cat.key}_thumb_${s}" src="${photoSrc || ''}" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
-                      <button type="button" onclick="viewSoCategoryPhoto('${cat.key}', ${s})" class="p-1 bg-white rounded-full text-slate-800 text-[10px] cursor-pointer" title="ดูรูปขนาดเต็ม">
-                        <i class="fa-solid fa-magnifying-glass-plus"></i>
-                      </button>
-                      <button type="button" onclick="clearSoCategoryPhoto('${cat.key}', ${s})" class="p-1 bg-rose-600 rounded-full text-white text-[10px] cursor-pointer" title="ลบรูป">
-                        <i class="fa-solid fa-trash"></i>
-                      </button>
+
+                  <!-- Thumbnail Box -->
+                  <div id="so_${cat.key}_preview_box_${s}" class="relative h-12 border border-slate-200 rounded-lg bg-slate-50/50 flex items-center justify-center overflow-hidden">
+                    <div id="so_${cat.key}_placeholder_${s}" class="${photoSrc ? 'hidden' : 'block'} text-[11px] text-rose-500 font-medium text-center">
+                      <i class="fa-solid fa-circle-exclamation mr-1 text-rose-400"></i> ยังไม่ได้แนบรูป *
+                    </div>
+                    <div id="so_${cat.key}_img_wrap_${s}" class="${photoSrc ? 'block' : 'hidden'} w-full h-full relative group">
+                      <img id="so_${cat.key}_thumb_${s}" src="${photoSrc || ''}" class="w-full h-full object-cover">
+                      <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                        <button type="button" onclick="viewSoCategoryPhoto('${cat.key}', ${s})" class="p-1 bg-white rounded-full text-slate-800 text-[10px] cursor-pointer" title="ดูรูปขนาดเต็ม">
+                          <i class="fa-solid fa-magnifying-glass-plus"></i>
+                        </button>
+                        <button type="button" onclick="clearSoCategoryPhoto('${cat.key}', ${s})" class="p-1 bg-rose-600 rounded-full text-white text-[10px] cursor-pointer" title="ลบรูป">
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3870,6 +3883,26 @@
         return;
       }
 
+      // ตรวจสอบว่าทุกช่องที่มีการระบุ S/N ต้องมีรูปถ่ายยืนยันด้วยเสมอ
+      const missingPhotos = validItems.filter(item => !item.imageBase64);
+      if (missingPhotos.length > 0) {
+        const slotNums = missingPhotos.map(m => `• เครื่องที่ #${m.slotIndex} (S/N: <b>${escapeHtml(m.serialNumber)}</b>)`).join('<br>');
+        Swal.fire({
+          icon: 'warning',
+          title: 'กรุณาถ่ายรูปภาพประกอบอุปกรณ์',
+          html: `
+            <div class="text-left text-xs text-rose-800 bg-rose-50 p-3.5 rounded-xl border border-rose-200 mt-2 space-y-1.5 font-sans">
+              <p class="font-bold">ระบบบังคับให้แนบรูปถ่ายยืนยันทุกเครื่องที่ระบุ S/N:</p>
+              <div class="pl-2 leading-relaxed">${slotNums}</div>
+              <p class="pt-1 text-[11px] text-slate-500 font-medium">โปรดเปิดกล้องสดหรือเลือกไฟล์รูปสำหรับเครื่องดังกล่าว</p>
+            </div>
+          `,
+          confirmButtonText: 'รับทราบ',
+          confirmButtonColor: '#e11d48'
+        });
+        return;
+      }
+
       const submitBtn = document.getElementById('submitBtn');
       const submitBtnText = document.getElementById('submitBtnText');
       submitBtn.disabled = true;
@@ -4064,6 +4097,26 @@
         }
       });
 
+      // ตรวจสอบว่าทุกรายการที่มีการระบุ S/N ต้องมีรูปถ่ายยืนยันด้วยเสมอ
+      const missingPhotos = validItems.filter(item => !item.imageBase64);
+      if (missingPhotos.length > 0) {
+        const itemNames = missingPhotos.map(m => `• ${escapeHtml(m.model)} (S/N: <b>${escapeHtml(m.serialNumber)}</b>)`).join('<br>');
+        Swal.fire({
+          icon: 'warning',
+          title: 'กรุณาถ่ายรูปภาพประกอบอุปกรณ์',
+          html: `
+            <div class="text-left text-xs text-rose-800 bg-rose-50 p-3.5 rounded-xl border border-rose-200 mt-2 space-y-1.5 font-sans">
+              <p class="font-bold">ระบบบังคับให้แนบรูปถ่ายยืนยันทุกอุปกรณ์ที่ระบุ S/N:</p>
+              <div class="pl-2 leading-relaxed">${itemNames}</div>
+              <p class="pt-1 text-[11px] text-slate-500 font-medium">โปรดเปิดกล้องสดหรือเลือกไฟล์รูปสำหรับรายการดังกล่าว</p>
+            </div>
+          `,
+          confirmButtonText: 'รับทราบ',
+          confirmButtonColor: '#e11d48'
+        });
+        return;
+      }
+
       const soSubmitBtn = document.getElementById('soSubmitBtn');
       const soSubmitBtnText = document.getElementById('soSubmitBtnText');
       soSubmitBtn.disabled = true;
@@ -4211,6 +4264,26 @@
         return;
       }
 
+      // ตรวจสอบว่าทุกช่องที่มีการระบุ S/N ต้องมีรูปถ่ายยืนยันด้วยเสมอ
+      const missingPhotos = validItems.filter(item => !item.imageBase64);
+      if (missingPhotos.length > 0) {
+        const slotNums = missingPhotos.map(m => `• ของเสียเครื่องที่ #${m.slotIndex} (S/N: <b>${escapeHtml(m.serialNumber)}</b>)`).join('<br>');
+        Swal.fire({
+          icon: 'warning',
+          title: 'กรุณาถ่ายรูปภาพประกอบของเสีย',
+          html: `
+            <div class="text-left text-xs text-rose-800 bg-rose-50 p-3.5 rounded-xl border border-rose-200 mt-2 space-y-1.5 font-sans">
+              <p class="font-bold">ระบบบังคับให้แนบรูปถ่ายยืนยันทุกเครื่องของเสียที่ระบุ S/N:</p>
+              <div class="pl-2 leading-relaxed">${slotNums}</div>
+              <p class="pt-1 text-[11px] text-slate-500 font-medium">โปรดเปิดกล้องสดหรือเลือกไฟล์รูปสำหรับเครื่องดังกล่าว</p>
+            </div>
+          `,
+          confirmButtonText: 'รับทราบ',
+          confirmButtonColor: '#e11d48'
+        });
+        return;
+      }
+
       const submitBtn = document.getElementById('defSubmitBtn');
       const submitBtnText = document.getElementById('defSubmitBtnText');
       submitBtn.disabled = true;
@@ -4352,21 +4425,29 @@
       // เรียงลำดับตามชื่อช่างแบบเดียวกับตารางสรุปอุปกรณ์
       techList.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }));
 
-      let optionsFrom = `<option value="">-- เลือกช่างผู้โอน (ต้นทาง) -- (${techList.length} ท่าน)</option>`;
+      // กรองไม่ให้แสดง OFFICE PCB ในฝั่งช่างต้นทาง (ผู้ให้ยืม/ผู้โอน)
+      const fromTechs = techList.filter(t => !String(t.name || '').toLowerCase().replace(/\s+/g, '').includes('officepcb'));
+
+      let optionsFrom = `<option value="">-- เลือกช่างผู้โอน (ต้นทาง) -- (${fromTechs.length} ท่าน)</option>`;
       let optionsTo = `<option value="">-- เลือกช่างผู้รับโอน (ปลายทาง) -- (${techList.length} ท่าน)</option>`;
 
       techList.forEach(t => {
         const val = escapeHtml(t.name);
         const label = escapeHtml(t.displayName);
-        optionsFrom += `<option value="${val}">${label}</option>`;
+        const isOffice = String(t.name || '').toLowerCase().replace(/\s+/g, '').includes('officepcb');
+        if (!isOffice) {
+          optionsFrom += `<option value="${val}">${label}</option>`;
+        }
         optionsTo += `<option value="${val}">${label}</option>`;
       });
 
       fromSel.innerHTML = optionsFrom;
       toSel.innerHTML = optionsTo;
 
-      if (currentFrom && techList.some(t => t.name === currentFrom)) {
+      if (currentFrom && fromTechs.some(t => t.name === currentFrom)) {
         fromSel.value = currentFrom;
+      } else {
+        fromSel.value = '';
       }
       if (currentTo && techList.some(t => t.name === currentTo)) {
         toSel.value = currentTo;
@@ -4512,6 +4593,26 @@
 
       if (validItems.length === 0) {
         Swal.fire('กรุณาระบุ Serial Number', 'โปรดกรอก หรือสแกน S/N ที่ต้องการโอนอย่างน้อย 1 เครื่อง', 'warning');
+        return;
+      }
+
+      // ตรวจสอบว่าทุกช่องที่มีการระบุ S/N ต้องมีรูปถ่ายยืนยันด้วยเสมอ
+      const missingPhotos = validItems.filter(item => !item.imageBase64);
+      if (missingPhotos.length > 0) {
+        const slotNums = missingPhotos.map(m => `• เครื่องที่ #${m.slotIndex} (S/N: <b>${escapeHtml(m.serialNumber)}</b>)`).join('<br>');
+        Swal.fire({
+          icon: 'warning',
+          title: 'กรุณาถ่ายรูปภาพประกอบอุปกรณ์',
+          html: `
+            <div class="text-left text-xs text-rose-800 bg-rose-50 p-3.5 rounded-xl border border-rose-200 mt-2 space-y-1.5 font-sans">
+              <p class="font-bold">ระบบบังคับให้แนบรูปถ่ายยืนยันทุกเครื่องที่ต้องการโอนย้าย:</p>
+              <div class="pl-2 leading-relaxed">${slotNums}</div>
+              <p class="pt-1 text-[11px] text-slate-500 font-medium">โปรดเปิดกล้องสดหรือเลือกไฟล์รูปสำหรับเครื่องดังกล่าว</p>
+            </div>
+          `,
+          confirmButtonText: 'รับทราบ',
+          confirmButtonColor: '#e11d48'
+        });
         return;
       }
 
@@ -4888,12 +4989,15 @@
         const imgUrl = item.imageUrl || item.imageBase64;
         const isStockOut = item.recordType === 'STOCK_OUT';
         const isDefective = item.recordType === 'DEFECTIVE';
+        const isTransfer = item.recordType === 'TRANSFER';
         
         let typeBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800"><i class="fa-solid fa-file-circle-plus text-[10px]"></i> เบิกของ</span>';
         if (isStockOut) {
           typeBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-800"><i class="fa-solid fa-box-open text-[10px]"></i> ตัดสต็อก</span>';
         } else if (isDefective) {
           typeBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-800"><i class="fa-solid fa-arrow-rotate-left text-[10px]"></i> คืนของเสีย</span>';
+        } else if (isTransfer) {
+          typeBadge = '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-teal-100 text-teal-800"><i class="fa-solid fa-arrow-right-arrow-left text-[10px]"></i> โอนย้าย</span>';
         }
 
         let idDisplay = `<span class="font-semibold text-blue-600">แถว ${item.rowId || item['ลำดับแถว (Row ID)'] || (index + 2)}</span>`;
@@ -4901,29 +5005,47 @@
           idDisplay = `<span class="font-bold text-amber-700 font-mono">${item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || item.rowId || '-'}</span>`;
         } else if (isDefective) {
           idDisplay = `<span class="font-semibold text-rose-600">แถว ${item.rowId || item['ลำดับแถว (Row ID)'] || (index + 2)}</span>`;
+        } else if (isTransfer) {
+          idDisplay = `<span class="font-semibold text-teal-700">แถว ${item.rowId || item['ลำดับแถว (Row ID)'] || item['ลำดับ (Row ID)'] || (index + 2)}</span>`;
         }
 
+        let techDisplay = escapeHtml(item.technician || item['ชื่อผู้เบิก / ช่าง'] || item['ชื่อผู้ตัดสต็อก / ช่าง'] || item['ชื่อผู้คืน / ช่าง'] || '-');
+        if (isTransfer) {
+          const fromT = item['ช่างผู้โอน (เดิม)'] || item.fromTech || '';
+          const toT = item['ช่างผู้รับโอน (ใหม่)'] || item.toTech || item.technician || '';
+          if (fromT && toT) {
+            techDisplay = `<span class="text-rose-600 font-semibold">${escapeHtml(fromT)}</span> <i class="fa-solid fa-arrow-right text-[10px] text-slate-400 mx-0.5"></i> <span class="text-teal-700 font-semibold">${escapeHtml(toT)}</span>`;
+          } else {
+            techDisplay = escapeHtml(toT || fromT || '-');
+          }
+        }
+
+        const dateDisplay = item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || item['วันเวลาที่โอน'] || '-';
+        const jobTypeDisplay = item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || (isTransfer ? 'โอนย้ายอุปกรณ์' : '-');
+        const modelDisplay = item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || item['รุ่น / ประเภทอุปกรณ์'] || '-';
+        const snDisplay = item.serialNumber || item['Serial Number (S/N)'] || '-';
+
         return `
-          <tr class="hover:bg-slate-50/80 transition ${isStockOut ? 'bg-amber-50/20' : (isDefective ? 'bg-rose-50/20' : '')}">
+          <tr class="hover:bg-slate-50/80 transition ${isStockOut ? 'bg-amber-50/20' : (isDefective ? 'bg-rose-50/20' : (isTransfer ? 'bg-teal-50/20' : ''))}">
             <td class="px-4 py-3 whitespace-nowrap">${typeBadge}</td>
-            <td class="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">${item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || '-'}</td>
+            <td class="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">${dateDisplay}</td>
             <td class="px-4 py-3 text-xs whitespace-nowrap">${idDisplay}</td>
-            <td class="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">${item.technician || item['ชื่อผู้เบิก / ช่าง'] || item['ชื่อผู้ตัดสต็อก / ช่าง'] || item['ชื่อผู้คืน / ช่าง'] || '-'}</td>
-            <td class="px-4 py-3 text-xs text-slate-600 whitespace-nowrap">${item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || '-'}</td>
-            <td class="px-4 py-3 text-xs font-semibold text-slate-800 whitespace-nowrap">${item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || '-'}</td>
-            <td class="px-4 py-3 text-xs font-mono font-bold text-slate-900 uppercase whitespace-nowrap">${item.serialNumber || item['Serial Number (S/N)'] || '-'}</td>
+            <td class="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">${techDisplay}</td>
+            <td class="px-4 py-3 text-xs text-slate-600 whitespace-nowrap">${escapeHtml(jobTypeDisplay)}</td>
+            <td class="px-4 py-3 text-xs font-semibold text-slate-800 whitespace-nowrap">${escapeHtml(modelDisplay)}</td>
+            <td class="px-4 py-3 text-xs font-mono font-bold text-slate-900 uppercase whitespace-nowrap">${escapeHtml(snDisplay)}</td>
             <td class="px-4 py-3 text-center">
               ${hasImg ? `
-                <button onclick="viewImageInModal('${imgUrl}')" class="p-1 text-blue-600 hover:text-blue-800 transition" title="ดูรูปภาพ">
+                <button onclick="viewImageInModal('${imgUrl}')" class="p-1 text-blue-600 hover:text-blue-800 transition cursor-pointer" title="ดูรูปภาพ">
                   <i class="fa-solid fa-image text-base"></i>
                 </button>
               ` : '<span class="text-slate-300 text-xs">-</span>'}
             </td>
             <td class="px-4 py-3 text-center whitespace-nowrap">
-              <button onclick="printSlip(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="p-1.5 text-slate-500 hover:text-slate-800 text-xs mr-1" title="พิมพ์ใบ">
+              <button onclick="printSlip(${JSON.stringify(item).replace(/"/g, '&quot;')})" class="p-1.5 text-slate-500 hover:text-slate-800 text-xs mr-1 cursor-pointer" title="พิมพ์ใบ">
                 <i class="fa-solid fa-print"></i>
               </button>
-              <button onclick="deleteLocalRecord('${item.id || index}')" class="p-1.5 text-slate-400 hover:text-rose-600 text-xs" title="ลบรายการ">
+              <button onclick="deleteLocalRecord('${item.id || index}')" class="p-1.5 text-slate-400 hover:text-rose-600 text-xs cursor-pointer" title="ลบรายการ">
                 <i class="fa-solid fa-trash"></i>
               </button>
             </td>
@@ -4980,24 +5102,40 @@
     }
 
     function filterHistory() {
-      const q = document.getElementById('searchQuery').value.toLowerCase().trim();
-      const logType = document.getElementById('logTypeFilter').value;
+      const qInput = document.getElementById('searchQuery');
+      const q = qInput ? String(qInput.value || '').toLowerCase().trim() : '';
+      const logTypeEl = document.getElementById('logTypeFilter');
+      const logType = logTypeEl ? logTypeEl.value : 'ALL';
 
       const filtered = localHistory.filter(item => {
         const isStockOut = item.recordType === 'STOCK_OUT';
         const isDefective = item.recordType === 'DEFECTIVE';
-        const sn = (item.serialNumber || item['Serial Number (S/N)'] || '').toLowerCase();
-        const sub = (item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || '').toLowerCase();
-        const tech = (item.technician || item['ชื่อผู้เบิก / ช่าง'] || item['ชื่อผู้ตัดสต็อก / ช่าง'] || item['ชื่อผู้คืน / ช่าง'] || '').toLowerCase();
-        const row = String(item.rowId || item['ลำดับแถว (Row ID)'] || '').toLowerCase();
-        const model = (item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || '').toLowerCase();
+        const isTransfer = item.recordType === 'TRANSFER';
 
-        const matchQuery = !q || sn.includes(q) || sub.includes(q) || tech.includes(q) || row.includes(q) || model.includes(q);
+        const sn = String(item.serialNumber || item['Serial Number (S/N)'] || '').toLowerCase();
+        const sub = String(item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || '').toLowerCase();
+        const tech = String(item.technician || item['ชื่อผู้เบิก / ช่าง'] || item['ชื่อผู้ตัดสต็อก / ช่าง'] || item['ชื่อผู้คืน / ช่าง'] || item['ช่างผู้โอน (เดิม)'] || item['ช่างผู้รับโอน (ใหม่)'] || '').toLowerCase();
+        const row = String(item.rowId || item['ลำดับแถว (Row ID)'] || item['ลำดับ (Row ID)'] || '').toLowerCase();
+        const model = String(item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || item['รุ่น / ประเภทอุปกรณ์'] || '').toLowerCase();
+        const jobType = String(item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || '').toLowerCase();
+        const remarks = String(item.remarks || item['หมายเหตุ'] || item['หมายเหตุ / สาเหตุการคืน'] || item['ผู้ทำรายการ / หมายเหตุ'] || '').toLowerCase();
+        const date = String(item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || item['วันเวลาที่โอน'] || '').toLowerCase();
+
+        const matchQuery = !q || 
+                           sn.includes(q) || 
+                           sub.includes(q) || 
+                           tech.includes(q) || 
+                           row.includes(q) || 
+                           model.includes(q) || 
+                           jobType.includes(q) || 
+                           remarks.includes(q) || 
+                           date.includes(q);
         
         let matchType = true;
-        if (logType === 'REQUISITION') matchType = (!isStockOut && !isDefective);
+        if (logType === 'REQUISITION') matchType = (!isStockOut && !isDefective && !isTransfer);
         if (logType === 'STOCK_OUT') matchType = isStockOut;
         if (logType === 'DEFECTIVE') matchType = isDefective;
+        if (logType === 'TRANSFER') matchType = isTransfer;
 
         return matchQuery && matchType;
       });
