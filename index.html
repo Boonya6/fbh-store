@@ -1959,6 +1959,21 @@
         .replace(/'/g, '&#039;');
     }
 
+    // Extract Clean Technician Name (ตัดรหัสและทีมออก)
+    function extractCleanTechName(techStr) {
+      if (!techStr) return '';
+      let s = String(techStr).trim();
+      if (s.includes(' - ')) {
+        const parts = s.split(' - ');
+        s = parts.slice(1).join(' - ').trim();
+      }
+      if (s.includes('(') && s.endsWith(')')) {
+        s = s.substring(0, s.lastIndexOf('(')).trim();
+      }
+      s = s.replace(/^(Install|Repair)?\s*Team\s*\d+\s*/i, '').trim();
+      return s;
+    }
+
     // URL เริ่มต้นของ Google Apps Script Web App (พร้อมใช้งานทันทีโดยไม่ต้องตั้งค่าใหม่)
     const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbzygyMhWP4owCuvD4xHXav3wWE3T8HGY64K8h6K6zzrmSX70J70WNqtgXu0_-syz4rQ/exec";
 
@@ -4311,35 +4326,51 @@
       const currentFrom = fromSel.value;
       const currentTo = toSel.value;
 
-      // Group technicians by team
-      const teams = {};
-      dynamicTechnicians.forEach(t => {
-        const teamName = t.team || 'ทีมทั่วไป';
-        if (!teams[teamName]) teams[teamName] = [];
-        teams[teamName].push(t);
-      });
-
-      let optionsFrom = '<option value="">-- เลือกช่างผู้โอน (ต้นทาง) --</option>';
-      let optionsTo = '<option value="">-- เลือกช่างผู้รับโอน (ปลายทาง) --</option>';
-
-      Object.keys(teams).forEach(teamName => {
-        optionsFrom += `<optgroup label="🏷️ ${escapeHtml(teamName)}">`;
-        optionsTo += `<optgroup label="🏷️ ${escapeHtml(teamName)}">`;
-        teams[teamName].forEach(t => {
-          const val = escapeHtml(t.name || t.fullName || t.id);
-          const label = escapeHtml(t.displayName || `${t.id} - ${t.name} (${t.team})`);
-          optionsFrom += `<option value="${val}">${label}</option>`;
-          optionsTo += `<option value="${val}">${label}</option>`;
+      // ใช้ข้อมูลชุดเดียวกันกับ "ตารางสรุปอุปกรณ์คงค้าง รายช่าง" (Dashboard Table)
+      let techList = [];
+      if (equipmentDashboardData && Array.isArray(equipmentDashboardData.techniciansList) && equipmentDashboardData.techniciansList.length > 0) {
+        techList = equipmentDashboardData.techniciansList.map(t => {
+          const unusedCount = t.totalUnused ?? t.total ?? 0;
+          const countBadge = unusedCount > 0 ? `(คงค้าง ${unusedCount} เครื่อง)` : `(0 เครื่อง)`;
+          return {
+            name: t.name,
+            count: unusedCount,
+            displayName: `${t.name} ${countBadge}`
+          };
         });
-        optionsFrom += `</optgroup>`;
-        optionsTo += `</optgroup>`;
+      } else if (dynamicTechnicians && dynamicTechnicians.length > 0) {
+        techList = dynamicTechnicians.map(t => {
+          const fullName = t.team ? `${t.team} ${t.name}` : t.name;
+          return {
+            name: fullName,
+            count: 0,
+            displayName: fullName
+          };
+        });
+      }
+
+      // เรียงลำดับตามชื่อช่างแบบเดียวกับตารางสรุปอุปกรณ์
+      techList.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }));
+
+      let optionsFrom = `<option value="">-- เลือกช่างผู้โอน (ต้นทาง) -- (${techList.length} ท่าน)</option>`;
+      let optionsTo = `<option value="">-- เลือกช่างผู้รับโอน (ปลายทาง) -- (${techList.length} ท่าน)</option>`;
+
+      techList.forEach(t => {
+        const val = escapeHtml(t.name);
+        const label = escapeHtml(t.displayName);
+        optionsFrom += `<option value="${val}">${label}</option>`;
+        optionsTo += `<option value="${val}">${label}</option>`;
       });
 
       fromSel.innerHTML = optionsFrom;
       toSel.innerHTML = optionsTo;
 
-      if (currentFrom) fromSel.value = currentFrom;
-      if (currentTo) toSel.value = currentTo;
+      if (currentFrom && techList.some(t => t.name === currentFrom)) {
+        fromSel.value = currentFrom;
+      }
+      if (currentTo && techList.some(t => t.name === currentTo)) {
+        toSel.value = currentTo;
+      }
     }
 
     function handleTransferFromTechChange() {
@@ -4364,7 +4395,8 @@
           (t.name && t.name.toLowerCase().trim() === cleanTarget) ||
           (t.fullName && t.fullName.toLowerCase().trim() === cleanTarget) ||
           (t.displayName && t.displayName.toLowerCase().trim().includes(cleanTarget)) ||
-          (t.id && String(t.id).toLowerCase().trim() === cleanTarget)
+          (t.id && String(t.id).toLowerCase().trim() === cleanTarget) ||
+          (extractCleanTechName(t.name).toLowerCase() === extractCleanTechName(selectedTech).toLowerCase())
         );
         if (techObj && Array.isArray(techObj.unusedItems)) {
           items = techObj.unusedItems;
@@ -4548,9 +4580,33 @@
 
     function openQuickTransferModal(sn, model, fromTechEncoded) {
       const fromTech = decodeURIComponent(fromTechEncoded || '').trim();
-      const techOptions = dynamicTechnicians
-        .filter(t => t.name !== fromTech && t.displayName !== fromTech)
-        .map(t => `<option value="${escapeHtml(t.name || t.fullName || t.id)}">${escapeHtml(t.displayName || t.name)}</option>`)
+
+      // Use the exact same technician list as in Dashboard summary table
+      let techList = [];
+      if (equipmentDashboardData && Array.isArray(equipmentDashboardData.techniciansList) && equipmentDashboardData.techniciansList.length > 0) {
+        techList = equipmentDashboardData.techniciansList
+          .filter(t => t.name !== fromTech && extractCleanTechName(t.name) !== extractCleanTechName(fromTech))
+          .map(t => {
+            const unusedCount = t.totalUnused ?? t.total ?? 0;
+            const countBadge = unusedCount > 0 ? `(คงค้าง ${unusedCount} เครื่อง)` : `(0 เครื่อง)`;
+            return {
+              name: t.name,
+              displayName: `${t.name} ${countBadge}`
+            };
+          });
+      } else if (dynamicTechnicians && dynamicTechnicians.length > 0) {
+        techList = dynamicTechnicians
+          .map(t => {
+            const fullName = t.team ? `${t.team} ${t.name}` : t.name;
+            return { name: fullName, displayName: fullName };
+          })
+          .filter(t => t.name !== fromTech && extractCleanTechName(t.name) !== extractCleanTechName(fromTech));
+      }
+
+      techList.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { numeric: true }));
+
+      const techOptions = techList
+        .map(t => `<option value="${escapeHtml(t.name)}">${escapeHtml(t.displayName)}</option>`)
         .join('');
 
       Swal.fire({
@@ -5182,8 +5238,9 @@
       renderCategoryStatusList('tvsccStatusList', tvsccData.statusCounts, tvsccData.total, 'rose');
       renderCategoryStatusList('cameraStatusList', cameraData.statusCounts, cameraData.total, 'amber');
 
-      // 3. Populate Technician Dropdown Filter
+      // 3. Populate Technician Dropdown Filter & Transfer Dropdowns
       populateTechDropdownFilters();
+      populateTransferTechDropdowns();
 
       // 4. Render Detailed Technician Table (นับเฉพาะยังไม่ถูกใช้งาน)
       renderTechSummaryTable();
