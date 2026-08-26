@@ -1419,19 +1419,6 @@
             <span>ซิงค์ลิงก์รูป Drive</span>
           </button>
 
-          <!-- Open Transaction record Store Sheet -->
-          <a href="https://docs.google.com/spreadsheets/d/1mN8ApQJ4EVgqKFHuhWObHEsyoK4NEaviDKjB3WO3Ir8/edit?pli=1&gid=0#gid=0" target="_blank" class="px-3.5 py-2.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition" title="เปิดดู Google Sheet บันทึกประวัติรายการ (Transaction record Store)">
-            <i class="fa-solid fa-table text-teal-600"></i>
-            <span>Sheet ประวัติรายการ</span>
-            <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-teal-500"></i>
-          </a>
-
-          <!-- Sync to New History Sheet Button -->
-          <button onclick="syncAllHistoryToNewSheet()" id="syncHistoryBtn" title="นำเข้าประวัติเดิมทั้งหมดเข้าสู่ Google Sheet ประวัติรายการ (Transaction record Store)" class="px-3.5 py-2.5 rounded-xl bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 text-xs sm:text-sm font-semibold flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-cloud-arrow-up text-violet-600"></i>
-            <span>ซิงค์เข้า Sheet ประวัติ</span>
-          </button>
-
           <!-- Export Excel Button -->
           <button onclick="exportToExcel()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-sm transition">
             <i class="fa-solid fa-file-excel"></i>
@@ -1582,45 +1569,6 @@
               <div class="flex-1 min-w-0">
                 <div class="text-xs font-bold text-teal-900 truncate">4. รูปโอนย้ายอุปกรณ์</div>
                 <div class="text-[10px] text-teal-600 font-mono truncate">1XzEoO...lQs</div>
-              </div>
-              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-teal-400 group-hover:text-teal-700"></i>
-            </a>
-          </div>
-        </div>
-
-        <!-- Google Spreadsheets Info Card -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-4">
-          <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
-            <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-lg">
-              <i class="fa-solid fa-table-cells-large"></i>
-            </div>
-            <div>
-              <h3 class="text-sm font-bold text-slate-800">Google Spreadsheets ที่เชื่อมต่อในระบบ</h3>
-              <p class="text-xs text-slate-500">ระบบเชื่อมโยงข้อมูลสต็อกและจัดเก็บประวัติรายการลง Google Sheets แยกกันอย่างเป็นสัดส่วน</p>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <!-- 1. สต็อกหลัก -->
-            <a href="https://docs.google.com/spreadsheets/d/1_nSY_1BOj9muJPQrHdMMdPlhisiwGuRoVZEcrG6KImk/edit" target="_blank" class="p-4 rounded-xl border border-blue-200 bg-blue-50/40 hover:bg-blue-100/60 transition flex items-center gap-3 group">
-              <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-sm group-hover:scale-105 transition">
-                <i class="fa-solid fa-boxes-stacked"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-xs font-bold text-blue-950">1. Google Sheet สต็อกอุปกรณ์หลัก</div>
-                <p class="text-[11px] text-slate-500 truncate">แผ่นงานเบิก, ตัดสต็อก, คืนของเสีย, สรุปคงเหลือรายช่าง</p>
-              </div>
-              <i class="fa-solid fa-arrow-up-right-from-square text-xs text-blue-400 group-hover:text-blue-700"></i>
-            </a>
-
-            <!-- 2. ประวัติรายการ -->
-            <a href="https://docs.google.com/spreadsheets/d/1mN8ApQJ4EVgqKFHuhWObHEsyoK4NEaviDKjB3WO3Ir8/edit?pli=1&gid=0#gid=0" target="_blank" class="p-4 rounded-xl border border-teal-200 bg-teal-50/40 hover:bg-teal-100/60 transition flex items-center gap-3 group">
-              <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold text-base shadow-sm group-hover:scale-105 transition">
-                <i class="fa-solid fa-clipboard-list"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-xs font-bold text-teal-950">2. Google Sheet ประวัติรายการ (Transaction record Store)</div>
-                <p class="text-[11px] text-teal-700 truncate">บันทึกธุรกรรมหน้าประวัติรายการทั้งหมด (เบิก/ตัด/คืน/โอน)</p>
               </div>
               <i class="fa-solid fa-arrow-up-right-from-square text-xs text-teal-400 group-hover:text-teal-700"></i>
             </a>
@@ -5291,66 +5239,49 @@
                    rowObj['imageUrl'] || '';
           };
 
-          if (json.historyData && json.historyData.length > 0) {
-            localHistory = json.historyData.map(row => ({
-              ...row,
-              recordType: row.recordType || 'REQUISITION',
-              syncedToSheet: true,
-              rowId: row.rowId || row['ลำดับแถว (Row ID)'] || row._rowIndex,
-              subscriberNo: row.subscriberNo || row['เลขสมาชิก / แถว'],
-              requisitionDate: row.requisitionDate || row['วันเวลาที่ทำรายการ'],
-              technician: row.technician || row['ผู้เบิก / ช่าง'],
-              jobType: row.jobType || row['ประเภทงาน'],
-              model: row.model || row['ประเภทอุปกรณ์'],
-              serialNumber: row.serialNumber || row['Serial Number (S/N)'],
-              remarks: row.remarks || row['หมายเหตุ'],
-              imageUrl: getImgUrl(row)
-            }));
-          } else {
-            const reqRows = (json.data || []).map(row => ({
-              ...row,
-              recordType: 'REQUISITION',
-              syncedToSheet: true,
-              rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
-              requisitionDate: row['วันที่เบิก'],
-              technician: row['ชื่อผู้เบิก / ช่าง'],
-              jobType: row['ประเภทงาน'],
-              model: row['ประเภทอุปกรณ์'] || row['ประเภท / รุ่นอุปกรณ์'],
-              serialNumber: row['Serial Number (S/N)'],
-              remarks: row['หมายเหตุ'],
-              imageUrl: getImgUrl(row)
-            }));
+          const reqRows = (json.data || []).map(row => ({
+            ...row,
+            recordType: 'REQUISITION',
+            syncedToSheet: true,
+            rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
+            requisitionDate: row['วันที่เบิก'],
+            technician: row['ชื่อผู้เบิก / ช่าง'],
+            jobType: row['ประเภทงาน'],
+            model: row['ประเภทอุปกรณ์'] || row['ประเภท / รุ่นอุปกรณ์'],
+            serialNumber: row['Serial Number (S/N)'],
+            remarks: row['หมายเหตุ'],
+            imageUrl: getImgUrl(row)
+          }));
 
-            const soRows = (json.stockOutData || []).map(row => ({
-              ...row,
-              recordType: 'STOCK_OUT',
-              syncedToSheet: true,
-              subscriberNo: row['เลขสมาชิกที่ใช้งาน'],
-              requisitionDate: row['วันที่ตัดสต็อก'],
-              technician: row['ชื่อผู้ตัดสต็อก / ช่าง'],
-              jobType: row['ประเภทงาน'],
-              model: row['ประเภทอุปกรณ์'],
-              serialNumber: row['Serial Number (S/N)'],
-              remarks: row['หมายเหตุ'],
-              imageUrl: getImgUrl(row)
-            }));
+          const soRows = (json.stockOutData || []).map(row => ({
+            ...row,
+            recordType: 'STOCK_OUT',
+            syncedToSheet: true,
+            subscriberNo: row['เลขสมาชิกที่ใช้งาน'],
+            requisitionDate: row['วันที่ตัดสต็อก'],
+            technician: row['ชื่อผู้ตัดสต็อก / ช่าง'],
+            jobType: row['ประเภทงาน'],
+            model: row['ประเภทอุปกรณ์'],
+            serialNumber: row['Serial Number (S/N)'],
+            remarks: row['หมายเหตุ'],
+            imageUrl: getImgUrl(row)
+          }));
 
-            const defRows = (json.defectiveData || []).map(row => ({
-              ...row,
-              recordType: 'DEFECTIVE',
-              syncedToSheet: true,
-              rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
-              requisitionDate: row['วันที่คืนของเสีย'] || row['วันที่บันทึก'],
-              technician: row['ชื่อผู้คืน / ช่าง'],
-              jobType: row['ประเภทงาน / สาเหตุการคืน'] || row['ประเภทงาน'],
-              model: row['ประเภทอุปกรณ์'],
-              serialNumber: row['Serial Number (S/N)'],
-              remarks: row['หมายเหตุ'],
-              imageUrl: getImgUrl(row)
-            }));
+          const defRows = (json.defectiveData || []).map(row => ({
+            ...row,
+            recordType: 'DEFECTIVE',
+            syncedToSheet: true,
+            rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
+            requisitionDate: row['วันที่คืนของเสีย'] || row['วันที่บันทึก'],
+            technician: row['ชื่อผู้คืน / ช่าง'],
+            jobType: row['ประเภทงาน / สาเหตุการคืน'] || row['ประเภทงาน'],
+            model: row['ประเภทอุปกรณ์'],
+            serialNumber: row['Serial Number (S/N)'],
+            remarks: row['หมายเหตุ'],
+            imageUrl: getImgUrl(row)
+          }));
 
-            localHistory = [...soRows, ...defRows, ...reqRows];
-          }
+          localHistory = [...soRows, ...defRows, ...reqRows];
           saveLocalHistory();
           updateDashboard();
           updateNextRowDisplay();
@@ -6385,57 +6316,6 @@
         Swal.fire('ข้อผิดพลาด', err.message, 'error');
       } finally {
         if (syncDriveBtn) syncDriveBtn.disabled = false;
-      }
-    }
-
-    async function syncAllHistoryToNewSheet() {
-      const gasUrl = getGasUrl();
-      if (!gasUrl) {
-        Swal.fire('ยังไม่ได้เชื่อมต่อ Google Apps Script', 'กรุณาระบุ URL ในแท็บ "ตั้งค่า" ก่อนครับ', 'warning');
-        return;
-      }
-
-      const btn = document.getElementById('syncHistoryBtn');
-      if (btn) {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังซิงค์...';
-      }
-
-      try {
-        const res = await fetch(`${gasUrl}?action=syncAllHistoryToNewSheet`);
-        const data = await res.json();
-        if (data.status === 'success') {
-          const detail = data.result || {};
-          Swal.fire({
-            icon: 'success',
-            title: 'ซิงค์ประวัติรายการสำเร็จ! 🎉',
-            html: `
-              <div class="text-xs text-slate-600 text-left space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2">
-                <p class="font-semibold text-emerald-600">✓ ข้อมูลประวัติเดิมถูกนำเข้าไปยัง Google Sheet "Transaction record Store" เรียบร้อยแล้ว</p>
-                <ul class="list-disc list-inside space-y-1 pt-1 text-slate-700">
-                  <li>นำเข้าข้อมูลใหม่: <b>+${detail.addedCount || 0} รายการ</b></li>
-                  <li>จำนวนประวัติทั้งหมดใน Sheet: <b>${detail.totalRows || 0} รายการ</b></li>
-                </ul>
-                <div class="pt-2">
-                  <a href="https://docs.google.com/spreadsheets/d/1mN8ApQJ4EVgqKFHuhWObHEsyoK4NEaviDKjB3WO3Ir8/edit?pli=1&gid=0#gid=0" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium text-xs">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> เปิดดู Google Sheet ประวัติรายการ
-                  </a>
-                </div>
-              </div>
-            `,
-            confirmButtonColor: '#0d9488'
-          });
-          fetchHistoryFromSheet(true);
-        } else {
-          throw new Error(data.message || 'เกิดข้อผิดพลาดในการซิงค์ข้อมูล');
-        }
-      } catch (err) {
-        Swal.fire('ข้อผิดพลาด', err.message, 'error');
-      } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-violet-600"></i> <span>ซิงค์เข้า Sheet ประวัติ</span>';
-        }
       }
     }
 
