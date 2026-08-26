@@ -1993,6 +1993,7 @@
         <div class="flex justify-between"><b id="slipIdLabel">ลำดับแถว (Row ID):</b> <span id="slipRowId"></span></div>
         <div class="flex justify-between"><b>วันที่:</b> <span id="slipDate"></span></div>
         <div class="flex justify-between"><b>ชื่อผู้ทำรายการ / ช่าง:</b> <span id="slipTech"></span></div>
+        <div class="flex justify-between"><b>ทีม / สังกัด:</b> <span id="slipTeam"></span></div>
         <div class="flex justify-between"><b>ประเภทงาน:</b> <span id="slipType"></span></div>
         <div class="flex justify-between"><b>ประเภทอุปกรณ์:</b> <span id="slipModel"></span></div>
         <div class="flex justify-between"><b>Serial Number:</b> <span id="slipSn" class="font-mono font-bold"></span></div>
@@ -2036,6 +2037,39 @@
       }
       s = s.replace(/^(Install|Repair)?\s*Team\s*\d+\s*/i, '').trim();
       return s;
+    }
+
+    // ค้นหาข้อมูลทีมของช่าง (เช่น วัฒนา สร้อยคำ -> Install Team 7 วัฒนา สร้อยคำ)
+    function getTechTeam(techStr) {
+      if (!techStr) return '';
+      const clean = extractCleanTechName(techStr).toLowerCase().trim();
+      const raw = String(techStr).toLowerCase().trim();
+
+      if (dynamicTechnicians && dynamicTechnicians.length > 0) {
+        const found = dynamicTechnicians.find(t => {
+          const tClean = extractCleanTechName(t.name || '').toLowerCase().trim();
+          const tRaw = String(t.name || '').toLowerCase().trim();
+          const tId = String(t.id || '').toLowerCase().trim();
+          return (clean && (tClean === clean || tClean.includes(clean) || clean.includes(tClean))) ||
+                 (tId && raw.includes(tId)) ||
+                 (t.team && raw.includes(t.team.toLowerCase().trim()));
+        });
+        if (found && found.team) return found.team;
+      }
+
+      if (equipmentDashboardData && Array.isArray(equipmentDashboardData.techniciansList)) {
+        const found = equipmentDashboardData.techniciansList.find(t => {
+          const tClean = extractCleanTechName(t.name || '').toLowerCase().trim();
+          return clean && (tClean === clean || tClean.includes(clean) || clean.includes(tClean));
+        });
+        if (found && found.team) return found.team;
+      }
+
+      // Fallback: ดึงคำนำหน้าทีมถ้ามีระบุในข้อความ
+      const m = String(techStr).match(/((?:Install|Repair)?\s*Team\s*\d+[^\(\[\-\,]*(?:[^\(\[\-\,]*))/i);
+      if (m) return m[1].trim();
+
+      return '';
     }
 
     // URL เริ่มต้นของ Google Apps Script Web App (พร้อมใช้งานทันทีโดยไม่ต้องตั้งค่าใหม่)
@@ -3979,10 +4013,12 @@
       });
 
       const gasUrl = getGasUrl();
+      const techTeam = getTechTeam(tech);
       const batchPayload = {
         action: 'saveRequisitionBatch',
         requisitionDate: reqDate,
         technician: tech,
+        team: techTeam,
         jobType: jobType,
         model: model,
         remarks: remarks,
@@ -3998,6 +4034,7 @@
           recordType: 'REQUISITION',
           requisitionDate: reqDate,
           technician: tech,
+          team: techTeam,
           jobType: jobType,
           model: model,
           serialNumber: item.serialNumber,
@@ -4193,11 +4230,13 @@
       });
 
       const gasUrl = getGasUrl();
+      const techTeam = getTechTeam(tech);
       const batchPayload = {
         action: 'saveStockOutBatch',
         usageDate: usageDate,
         subscriberNo: subscriberNo,
         technician: tech,
+        team: techTeam,
         jobType: jobType,
         remarks: remarks,
         dropwireStart: dropwireStart,
@@ -4214,6 +4253,7 @@
           requisitionDate: usageDate,
           subscriberNo: subscriberNo,
           technician: tech,
+          team: techTeam,
           jobType: jobType,
           model: item.model,
           serialNumber: item.serialNumber,
@@ -4360,10 +4400,12 @@
       });
 
       const gasUrl = getGasUrl();
+      const techTeam = getTechTeam(tech);
       const batchPayload = {
         action: 'saveDefectiveBatch',
         defectiveDate: defDate,
         technician: tech,
+        team: techTeam,
         jobType: jobType,
         model: '',
         remarks: remarks,
@@ -4379,6 +4421,7 @@
           recordType: 'DEFECTIVE',
           requisitionDate: defDate,
           technician: tech,
+          team: techTeam,
           jobType: jobType,
           model: '-',
           serialNumber: item.serialNumber,
@@ -4833,10 +4876,14 @@
       });
 
       const gasUrl = getGasUrl();
+      const fromTeam = getTechTeam(payload.fromTech);
+      const toTeam = getTechTeam(payload.toTech);
       const bodyPayload = {
         action: 'transferEquipment',
         fromTechnician: payload.fromTech,
+        fromTechnicianTeam: fromTeam,
         toTechnician: payload.toTech,
+        toTechnicianTeam: toTeam,
         remarks: payload.remarks || '',
         items: payload.items || []
       };
@@ -4869,10 +4916,10 @@
             title: 'โอนย้ายอุปกรณ์สำเร็จ!',
             html: `
               <div class="text-left text-xs text-slate-600 dark:text-slate-300 bg-teal-50 dark:bg-teal-950/40 p-3.5 rounded-xl border border-teal-200 dark:border-teal-800 space-y-1.5 mt-2">
-                <div><b>จาก:</b> <span class="text-rose-600 font-bold">${escapeHtml(payload.fromTech || '-')}</span></div>
-                <div><b>ไปยัง:</b> <span class="text-teal-700 dark:text-teal-400 font-bold">${escapeHtml(payload.toTech || '-')}</span></div>
+                <div><b>จาก:</b> <span class="text-rose-600 font-bold">${escapeHtml(payload.fromTech || '-')}</span> ${fromTeam ? `<span class="text-[11px] text-slate-500 font-normal">(${escapeHtml(fromTeam)})</span>` : ''}</div>
+                <div><b>ไปยัง:</b> <span class="text-teal-700 dark:text-teal-400 font-bold">${escapeHtml(payload.toTech || '-')}</span> ${toTeam ? `<span class="text-[11px] text-slate-500 font-normal">(${escapeHtml(toTeam)})</span>` : ''}</div>
                 <div><b>จำนวน:</b> <span class="font-bold">${(payload.items || []).length} เครื่อง</span></div>
-                <div class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium pt-1">✓ อัปเดตชื่อผู้ถือครองใน Google Sheet เรียบร้อยแล้ว</div>
+                <div class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium pt-1">✓ อัปเดตชื่อผู้ถือครองและทีมใน Google Sheet เรียบร้อยแล้ว</div>
               </div>
             `,
             confirmButtonText: 'ตกลง',
@@ -4889,6 +4936,10 @@
                 if (recSn && recSn === snTarget) {
                   rec.technician = payload.toTech;
                   rec['ชื่อผู้เบิก / ช่าง'] = payload.toTech;
+                  if (toTeam) {
+                    rec.team = toTeam;
+                    rec['ทีม'] = toTeam;
+                  }
                   const currentRemark = String(rec.remarks || rec['หมายเหตุ'] || '');
                   const note = `[โอนให้ ${payload.toTech}]`;
                   rec.remarks = currentRemark ? `${currentRemark} | ${note}` : note;
@@ -4904,8 +4955,11 @@
               rowId: '-',
               requisitionDate: nowStr,
               fromTech: payload.fromTech,
+              fromTeam: fromTeam,
               toTech: payload.toTech,
+              toTeam: toTeam,
               technician: payload.toTech,
+              team: (fromTeam && toTeam) ? `${fromTeam} -> ${toTeam}` : (toTeam || fromTeam || ''),
               jobType: 'โอนย้ายอุปกรณ์',
               model: it.model || '-',
               serialNumber: it.serialNumber || it.sn || '-',
@@ -5011,6 +5065,9 @@
       document.getElementById('slipRowId').textContent = (isStockOut ? (item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || item.rowId) : (item.rowId || item['ลำดับแถว (Row ID)'])) || '-';
       document.getElementById('slipDate').textContent = item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || item['วันเวลาที่โอน'] || '-';
       document.getElementById('slipTech').textContent = techName;
+      const teamVal = item.team || item['ทีม'] || item['ทีมช่าง'] || (item.fromTeam && item.toTeam ? `${item.fromTeam} -> ${item.toTeam}` : '') || getTechTeam(item.technician) || '-';
+      const slipTeamEl = document.getElementById('slipTeam');
+      if (slipTeamEl) slipTeamEl.textContent = teamVal;
       document.getElementById('slipType').textContent = item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || (isTransfer ? 'โอนย้ายอุปกรณ์' : '-');
       document.getElementById('slipModel').textContent = item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || '-';
       document.getElementById('slipSn').textContent = item.serialNumber || item['Serial Number (S/N)'] || '-';
@@ -5112,6 +5169,8 @@
           }
         }
 
+        const teamText = item.team || item['ทีม'] || item['ทีมช่าง'] || (item.fromTeam && item.toTeam ? `${item.fromTeam} -> ${item.toTeam}` : '') || getTechTeam(item.technician) || '';
+
         const dateDisplay = item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || item['วันเวลาที่โอน'] || '-';
         const jobTypeDisplay = item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || (isTransfer ? 'โอนย้ายอุปกรณ์' : '-');
         const modelDisplay = item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || item['รุ่น / ประเภทอุปกรณ์'] || '-';
@@ -5122,7 +5181,10 @@
             <td class="px-4 py-3 whitespace-nowrap">${typeBadge}</td>
             <td class="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">${dateDisplay}</td>
             <td class="px-4 py-3 text-xs whitespace-nowrap">${idDisplay}</td>
-            <td class="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">${techDisplay}</td>
+            <td class="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">
+              <div>${techDisplay}</div>
+              ${teamText ? `<div class="text-[10px] text-slate-500 font-normal truncate max-w-[220px]" title="${escapeHtml(teamText)}"><i class="fa-solid fa-users text-[9px] mr-1 text-slate-400"></i>${escapeHtml(teamText)}</div>` : ''}
+            </td>
             <td class="px-4 py-3 text-xs text-slate-600 whitespace-nowrap">${escapeHtml(jobTypeDisplay)}</td>
             <td class="px-4 py-3 text-xs font-semibold text-slate-800 whitespace-nowrap">${escapeHtml(modelDisplay)}</td>
             <td class="px-4 py-3 text-xs font-mono font-bold text-slate-900 uppercase whitespace-nowrap">${escapeHtml(snDisplay)}</td>
@@ -5207,6 +5269,7 @@
         const sn = String(item.serialNumber || item['Serial Number (S/N)'] || '').toLowerCase();
         const sub = String(item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || '').toLowerCase();
         const tech = String(item.technician || item['ชื่อผู้เบิก / ช่าง'] || item['ชื่อผู้ตัดสต็อก / ช่าง'] || item['ชื่อผู้คืน / ช่าง'] || item['ช่างผู้โอน (เดิม)'] || item['ช่างผู้รับโอน (ใหม่)'] || '').toLowerCase();
+        const team = String(item.team || item['ทีม'] || item['ทีมช่าง'] || (item.fromTeam && item.toTeam ? `${item.fromTeam} ${item.toTeam}` : '') || '').toLowerCase();
         const row = String(item.rowId || item['ลำดับแถว (Row ID)'] || item['ลำดับ (Row ID)'] || '').toLowerCase();
         const model = String(item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || item['รุ่น / ประเภทอุปกรณ์'] || '').toLowerCase();
         const jobType = String(item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || '').toLowerCase();
@@ -5217,6 +5280,7 @@
                            sn.includes(q) || 
                            sub.includes(q) || 
                            tech.includes(q) || 
+                           team.includes(q) || 
                            row.includes(q) || 
                            model.includes(q) || 
                            jobType.includes(q) || 
@@ -5268,63 +5332,89 @@
                    rowObj['imageUrl'] || '';
           };
 
-          const reqRows = (json.data || []).map(row => ({
-            ...row,
-            recordType: 'REQUISITION',
-            syncedToSheet: true,
-            rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
-            requisitionDate: row['วันที่เบิก'],
-            technician: row['ชื่อผู้เบิก / ช่าง'],
-            jobType: row['ประเภทงาน'],
-            model: row['ประเภทอุปกรณ์'] || row['ประเภท / รุ่นอุปกรณ์'],
-            serialNumber: row['Serial Number (S/N)'],
-            remarks: row['หมายเหตุ'],
-            imageUrl: getImgUrl(row)
-          }));
+          const getRowTeam = (row, techName) => {
+            return row['ทีม'] || row['ทีมช่าง'] || row['สังกัด'] || row['ทีม / สังกัด'] || getTechTeam(techName) || '';
+          };
 
-          const soRows = (json.stockOutData || []).map(row => ({
-            ...row,
-            recordType: 'STOCK_OUT',
-            syncedToSheet: true,
-            subscriberNo: row['เลขสมาชิกที่ใช้งาน'],
-            requisitionDate: row['วันที่ตัดสต็อก'],
-            technician: row['ชื่อผู้ตัดสต็อก / ช่าง'],
-            jobType: row['ประเภทงาน'],
-            model: row['ประเภทอุปกรณ์'],
-            serialNumber: row['Serial Number (S/N)'],
-            remarks: row['หมายเหตุ'],
-            imageUrl: getImgUrl(row)
-          }));
+          const reqRows = (json.data || []).map(row => {
+            const tech = row['ชื่อผู้เบิก / ช่าง'];
+            return {
+              ...row,
+              recordType: 'REQUISITION',
+              syncedToSheet: true,
+              rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
+              requisitionDate: row['วันที่เบิก'],
+              technician: tech,
+              team: getRowTeam(row, tech),
+              jobType: row['ประเภทงาน'],
+              model: row['ประเภทอุปกรณ์'] || row['ประเภท / รุ่นอุปกรณ์'],
+              serialNumber: row['Serial Number (S/N)'],
+              remarks: row['หมายเหตุ'],
+              imageUrl: getImgUrl(row)
+            };
+          });
 
-          const defRows = (json.defectiveData || []).map(row => ({
-            ...row,
-            recordType: 'DEFECTIVE',
-            syncedToSheet: true,
-            rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
-            requisitionDate: row['วันที่คืนของเสีย'] || row['วันที่บันทึก'],
-            technician: row['ชื่อผู้คืน / ช่าง'],
-            jobType: row['ประเภทงาน / สาเหตุการคืน'] || row['ประเภทงาน'],
-            model: row['ประเภทอุปกรณ์'],
-            serialNumber: row['Serial Number (S/N)'],
-            remarks: row['หมายเหตุ'],
-            imageUrl: getImgUrl(row)
-          }));
+          const soRows = (json.stockOutData || []).map(row => {
+            const tech = row['ชื่อผู้ตัดสต็อก / ช่าง'];
+            return {
+              ...row,
+              recordType: 'STOCK_OUT',
+              syncedToSheet: true,
+              subscriberNo: row['เลขสมาชิกที่ใช้งาน'],
+              requisitionDate: row['วันที่ตัดสต็อก'],
+              technician: tech,
+              team: getRowTeam(row, tech),
+              jobType: row['ประเภทงาน'],
+              model: row['ประเภทอุปกรณ์'],
+              serialNumber: row['Serial Number (S/N)'],
+              remarks: row['หมายเหตุ'],
+              imageUrl: getImgUrl(row)
+            };
+          });
 
-          const transRows = (json.transferData || []).map(row => ({
-            ...row,
-            recordType: 'TRANSFER',
-            syncedToSheet: true,
-            rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
-            requisitionDate: row['วันเวลาที่โอน'] || row['วันที่โอน'] || row['วันที่บันทึก'],
-            fromTech: row['ช่างผู้โอน (เดิม)'],
-            toTech: row['ช่างผู้รับโอน (ใหม่)'],
-            technician: row['ช่างผู้รับโอน (ใหม่)'],
-            jobType: 'โอนย้ายอุปกรณ์',
-            model: row['ประเภทอุปกรณ์'] || row['ประเภท / รุ่นอุปกรณ์'] || '-',
-            serialNumber: row['Serial Number (S/N)'],
-            remarks: row['ผู้ทำรายการ / หมายเหตุ'] || row['หมายเหตุ'],
-            imageUrl: getImgUrl(row)
-          }));
+          const defRows = (json.defectiveData || []).map(row => {
+            const tech = row['ชื่อผู้คืน / ช่าง'];
+            return {
+              ...row,
+              recordType: 'DEFECTIVE',
+              syncedToSheet: true,
+              rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
+              requisitionDate: row['วันที่คืนของเสีย'] || row['วันที่บันทึก'],
+              technician: tech,
+              team: getRowTeam(row, tech),
+              jobType: row['ประเภทงาน / สาเหตุการคืน'] || row['ประเภทงาน'],
+              model: row['ประเภทอุปกรณ์'],
+              serialNumber: row['Serial Number (S/N)'],
+              remarks: row['หมายเหตุ'],
+              imageUrl: getImgUrl(row)
+            };
+          });
+
+          const transRows = (json.transferData || []).map(row => {
+            const fTech = row['ช่างผู้โอน (เดิม)'];
+            const tTech = row['ช่างผู้รับโอน (ใหม่)'];
+            const fTeam = row['ทีมช่างผู้โอน'] || row['ทีม (ผู้โอน)'] || getTechTeam(fTech);
+            const tTeam = row['ทีมช่างผู้รับโอน'] || row['ทีม (ผู้รับโอน)'] || getTechTeam(tTech);
+            const tCombined = row['ทีม'] || (fTeam && tTeam ? `${fTeam} -> ${tTeam}` : (tTeam || fTeam || ''));
+            return {
+              ...row,
+              recordType: 'TRANSFER',
+              syncedToSheet: true,
+              rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
+              requisitionDate: row['วันเวลาที่โอน'] || row['วันที่โอน'] || row['วันที่บันทึก'],
+              fromTech: fTech,
+              fromTeam: fTeam,
+              toTech: tTech,
+              toTeam: tTeam,
+              technician: tTech,
+              team: tCombined,
+              jobType: 'โอนย้ายอุปกรณ์',
+              model: row['ประเภทอุปกรณ์'] || row['ประเภท / รุ่นอุปกรณ์'] || '-',
+              serialNumber: row['Serial Number (S/N)'],
+              remarks: row['ผู้ทำรายการ / หมายเหตุ'] || row['หมายเหตุ'],
+              imageUrl: getImgUrl(row)
+            };
+          });
 
           localHistory = [...transRows, ...soRows, ...defRows, ...reqRows];
           saveLocalHistory();
@@ -5374,6 +5464,7 @@
           'ลำดับแถว / เลขสมาชิก': isStockOut ? (item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || '-') : (item.rowId || item['ลำดับแถว (Row ID)'] || (idx + 2)),
           'วันที่': item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || item['วันเวลาที่โอน'] || '',
           'ชื่อช่าง / ผู้ทำรายการ': techName,
+          'ทีม / สังกัด': item.team || item['ทีม'] || item['ทีมช่าง'] || (item.fromTeam && item.toTeam ? `${item.fromTeam} -> ${item.toTeam}` : '') || getTechTeam(item.technician) || '',
           'ประเภทงาน / สาเหตุ': item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || (isTransfer ? 'โอนย้ายอุปกรณ์' : ''),
           'ประเภทอุปกรณ์': item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || item['รุ่น / ประเภทอุปกรณ์'] || '',
           'Serial Number (S/N)': item.serialNumber || item['Serial Number (S/N)'] || '',
