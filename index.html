@@ -4916,10 +4916,10 @@
             title: 'โอนย้ายอุปกรณ์สำเร็จ!',
             html: `
               <div class="text-left text-xs text-slate-600 dark:text-slate-300 bg-teal-50 dark:bg-teal-950/40 p-3.5 rounded-xl border border-teal-200 dark:border-teal-800 space-y-1.5 mt-2">
-                <div><b>จาก:</b> <span class="text-rose-600 font-bold">${escapeHtml(payload.fromTech || '-')}</span> ${fromTeam ? `<span class="text-[11px] text-slate-500 font-normal">(${escapeHtml(fromTeam)})</span>` : ''}</div>
-                <div><b>ไปยัง:</b> <span class="text-teal-700 dark:text-teal-400 font-bold">${escapeHtml(payload.toTech || '-')}</span> ${toTeam ? `<span class="text-[11px] text-slate-500 font-normal">(${escapeHtml(toTeam)})</span>` : ''}</div>
+                <div><b>จาก:</b> <span class="text-rose-600 font-bold">${escapeHtml(payload.fromTech || '-')}</span></div>
+                <div><b>ไปยัง:</b> <span class="text-teal-700 dark:text-teal-400 font-bold">${escapeHtml(payload.toTech || '-')}</span></div>
                 <div><b>จำนวน:</b> <span class="font-bold">${(payload.items || []).length} เครื่อง</span></div>
-                <div class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium pt-1">✓ อัปเดตชื่อผู้ถือครองและทีมใน Google Sheet เรียบร้อยแล้ว</div>
+                <div class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium pt-1">✓ อัปเดตชื่อผู้ถือครองใน Google Sheet เรียบร้อยแล้ว</div>
               </div>
             `,
             confirmButtonText: 'ตกลง',
@@ -4947,7 +4947,7 @@
               });
             }
 
-            // เพิ่มรายการโอนย้ายลงในประวัติ (History Table) ทันที
+            // เพิ่มรายการโอนย้ายลงในประวัติ (History Table) ทันที (ไม่ใส่ทีมสำหรับรายการโอนย้าย)
             localHistory.unshift({
               id: 'LOC-TRANS-' + Date.now() + '-' + idx,
               recordType: 'TRANSFER',
@@ -4955,11 +4955,9 @@
               rowId: '-',
               requisitionDate: nowStr,
               fromTech: payload.fromTech,
-              fromTeam: fromTeam,
               toTech: payload.toTech,
-              toTeam: toTeam,
               technician: payload.toTech,
-              team: (fromTeam && toTeam) ? `${fromTeam} -> ${toTeam}` : (toTeam || fromTeam || ''),
+              team: '',
               jobType: 'โอนย้ายอุปกรณ์',
               model: it.model || '-',
               serialNumber: it.serialNumber || it.sn || '-',
@@ -5065,7 +5063,7 @@
       document.getElementById('slipRowId').textContent = (isStockOut ? (item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || item.rowId) : (item.rowId || item['ลำดับแถว (Row ID)'])) || '-';
       document.getElementById('slipDate').textContent = item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || item['วันเวลาที่โอน'] || '-';
       document.getElementById('slipTech').textContent = techName;
-      const teamVal = item.team || item['ทีม'] || item['ทีมช่าง'] || (item.fromTeam && item.toTeam ? `${item.fromTeam} -> ${item.toTeam}` : '') || getTechTeam(item.technician) || '-';
+      const teamVal = isTransfer ? '-' : (item.team || item['ทีม'] || item['ทีมช่าง'] || getTechTeam(item.technician) || '-');
       const slipTeamEl = document.getElementById('slipTeam');
       if (slipTeamEl) slipTeamEl.textContent = teamVal;
       document.getElementById('slipType').textContent = item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || (isTransfer ? 'โอนย้ายอุปกรณ์' : '-');
@@ -5169,7 +5167,7 @@
           }
         }
 
-        const teamText = item.team || item['ทีม'] || item['ทีมช่าง'] || (item.fromTeam && item.toTeam ? `${item.fromTeam} -> ${item.toTeam}` : '') || getTechTeam(item.technician) || '';
+        const teamText = isTransfer ? '' : (item.team || item['ทีม'] || item['ทีมช่าง'] || getTechTeam(item.technician) || '');
 
         const dateDisplay = item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || item['วันเวลาที่โอน'] || '-';
         const jobTypeDisplay = item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || (isTransfer ? 'โอนย้ายอุปกรณ์' : '-');
@@ -5393,9 +5391,6 @@
           const transRows = (json.transferData || []).map(row => {
             const fTech = row['ช่างผู้โอน (เดิม)'];
             const tTech = row['ช่างผู้รับโอน (ใหม่)'];
-            const fTeam = row['ทีมช่างผู้โอน'] || row['ทีม (ผู้โอน)'] || getTechTeam(fTech);
-            const tTeam = row['ทีมช่างผู้รับโอน'] || row['ทีม (ผู้รับโอน)'] || getTechTeam(tTech);
-            const tCombined = row['ทีม'] || (fTeam && tTeam ? `${fTeam} -> ${tTeam}` : (tTeam || fTeam || ''));
             return {
               ...row,
               recordType: 'TRANSFER',
@@ -5403,11 +5398,9 @@
               rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
               requisitionDate: row['วันเวลาที่โอน'] || row['วันที่โอน'] || row['วันที่บันทึก'],
               fromTech: fTech,
-              fromTeam: fTeam,
               toTech: tTech,
-              toTeam: tTeam,
               technician: tTech,
-              team: tCombined,
+              team: '',
               jobType: 'โอนย้ายอุปกรณ์',
               model: row['ประเภทอุปกรณ์'] || row['ประเภท / รุ่นอุปกรณ์'] || '-',
               serialNumber: row['Serial Number (S/N)'],
@@ -5464,7 +5457,7 @@
           'ลำดับแถว / เลขสมาชิก': isStockOut ? (item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || '-') : (item.rowId || item['ลำดับแถว (Row ID)'] || (idx + 2)),
           'วันที่': item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || item['วันเวลาที่โอน'] || '',
           'ชื่อช่าง / ผู้ทำรายการ': techName,
-          'ทีม / สังกัด': item.team || item['ทีม'] || item['ทีมช่าง'] || (item.fromTeam && item.toTeam ? `${item.fromTeam} -> ${item.toTeam}` : '') || getTechTeam(item.technician) || '',
+          'ทีม / สังกัด': isTransfer ? '-' : (item.team || item['ทีม'] || item['ทีมช่าง'] || getTechTeam(item.technician) || ''),
           'ประเภทงาน / สาเหตุ': item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || (isTransfer ? 'โอนย้ายอุปกรณ์' : ''),
           'ประเภทอุปกรณ์': item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || item['รุ่น / ประเภทอุปกรณ์'] || '',
           'Serial Number (S/N)': item.serialNumber || item['Serial Number (S/N)'] || '',
