@@ -4879,13 +4879,36 @@
             confirmButtonColor: '#0d9488'
           });
 
+          // บันทึกรายการโอนย้ายลง localHistory เพื่อให้แสดงในหน้าประวัติทันที
+          const nowStr = new Date().toISOString();
+          (payload.items || []).forEach(it => {
+            const snVal = it.serialNumber || it.sn || '';
+            const modelVal = it.model || '';
+            const imgVal = it.imageBase64 || it.imageUrl || '';
+            localHistory.unshift({
+              id: 'LOC-TR-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+              recordType: 'TRANSFER',
+              syncedToSheet: true,
+              rowId: '-',
+              requisitionDate: nowStr,
+              technician: payload.toTech,
+              fromTech: payload.fromTech,
+              toTech: payload.toTech,
+              jobType: 'โอนย้ายอุปกรณ์',
+              model: modelVal,
+              serialNumber: snVal,
+              remarks: payload.remarks || '',
+              imageUrl: imgVal
+            });
+          });
+
           // Update local history safely (cast serialNumber to String)
           (payload.items || []).forEach(it => {
             const snTarget = String(it.serialNumber || it.sn || '').toLowerCase().trim();
             if (!snTarget) return;
             localHistory.forEach(rec => {
               const recSn = String(rec.serialNumber || rec['Serial Number (S/N)'] || '').toLowerCase().trim();
-              if (recSn && recSn === snTarget) {
+              if (recSn && recSn === snTarget && rec.recordType === 'REQUISITION') {
                 rec.technician = payload.toTech;
                 rec['ชื่อผู้เบิก / ช่าง'] = payload.toTech;
                 const currentRemark = String(rec.remarks || rec['หมายเหตุ'] || '');
@@ -5281,13 +5304,29 @@
             imageUrl: getImgUrl(row)
           }));
 
-          localHistory = [...soRows, ...defRows, ...reqRows];
+          const transRows = (json.transferData || []).map(row => ({
+            ...row,
+            recordType: 'TRANSFER',
+            syncedToSheet: true,
+            rowId: row['ลำดับแถว (Row ID)'] || row['ลำดับ (Row ID)'] || row._rowIndex,
+            requisitionDate: row['วันเวลาที่โอน'] || row['วันที่โอน'],
+            technician: row['ช่างผู้รับโอน (ใหม่)'],
+            fromTech: row['ช่างผู้โอน (เดิม)'],
+            toTech: row['ช่างผู้รับโอน (ใหม่)'],
+            jobType: 'โอนย้ายอุปกรณ์',
+            model: row['ประเภทอุปกรณ์'] || row['ประเภท / รุ่นอุปกรณ์'],
+            serialNumber: row['Serial Number (S/N)'],
+            remarks: row['ผู้ทำรายการ / หมายเหตุ'] || row['หมายเหตุ'],
+            imageUrl: getImgUrl(row)
+          }));
+
+          localHistory = [...transRows, ...soRows, ...defRows, ...reqRows];
           saveLocalHistory();
           updateDashboard();
           updateNextRowDisplay();
           
           if (!isSilent) {
-            Swal.fire('รีเฟรชสำเร็จ', `ดึงข้อมูลเบิก ${reqRows.length} รายการ, ตัดสต็อก ${soRows.length} รายการ, และคืนของเสีย ${defRows.length} รายการ`, 'success');
+            Swal.fire('รีเฟรชสำเร็จ', `ดึงข้อมูลเบิก ${reqRows.length} รายการ, ตัดสต็อก ${soRows.length} รายการ, คืนของเสีย ${defRows.length} รายการ, และโอนย้าย ${transRows.length} รายการ`, 'success');
           }
         }
       } catch (err) {
@@ -5310,20 +5349,29 @@
       const exportData = localHistory.map((item, idx) => {
         const isStockOut = item.recordType === 'STOCK_OUT';
         const isDefective = item.recordType === 'DEFECTIVE';
+        const isTransfer = item.recordType === 'TRANSFER';
         
         let typeStr = 'เบิกอุปกรณ์';
         if (isStockOut) typeStr = 'ตัดสต็อก';
         if (isDefective) typeStr = 'คืนของเสีย';
+        if (isTransfer) typeStr = 'โอนย้ายอุปกรณ์';
+
+        let techStr = item.technician || item['ชื่อผู้เบิก / ช่าง'] || item['ชื่อผู้ตัดสต็อก / ช่าง'] || item['ชื่อผู้คืน / ช่าง'] || '';
+        if (isTransfer) {
+          const fromT = item['ช่างผู้โอน (เดิม)'] || item.fromTech || '';
+          const toT = item['ช่างผู้รับโอน (ใหม่)'] || item.toTech || item.technician || '';
+          techStr = fromT && toT ? `${fromT} -> ${toT}` : (toT || fromT);
+        }
 
         return {
           'ประเภทรายการ': typeStr,
-          'ลำดับแถว / เลขสมาชิก': isStockOut ? (item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || '-') : (item.rowId || item['ลำดับแถว (Row ID)'] || (idx + 2)),
-          'วันที่': item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || '',
-          'ชื่อช่าง / ผู้ทำรายการ': item.technician || item['ชื่อผู้เบิก / ช่าง'] || item['ชื่อผู้ตัดสต็อก / ช่าง'] || item['ชื่อผู้คืน / ช่าง'] || '',
-          'ประเภทงาน / สาเหตุ': item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || '',
+          'ลำดับแถว / เลขสมาชิก': isStockOut ? (item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || '-') : (item.rowId || item['ลำดับแถว (Row ID)'] || item['ลำดับ (Row ID)'] || (idx + 2)),
+          'วันที่': item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || item['วันเวลาที่โอน'] || '',
+          'ชื่อช่าง / ผู้ทำรายการ': techStr,
+          'ประเภทงาน / สาเหตุ': item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || (isTransfer ? 'โอนย้ายอุปกรณ์' : ''),
           'ประเภทอุปกรณ์': item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || '',
           'Serial Number (S/N)': item.serialNumber || item['Serial Number (S/N)'] || '',
-          'หมายเหตุ': item.remarks || item['หมายเหตุ'] || '',
+          'หมายเหตุ': item.remarks || item['หมายเหตุ'] || item['ผู้ทำรายการ / หมายเหตุ'] || '',
           'ลิงก์รูปภาพ': item.imageUrl || item['ลิงก์รูปภาพ (Google Drive)'] || ''
         };
       });
