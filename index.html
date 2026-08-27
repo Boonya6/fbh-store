@@ -5106,6 +5106,8 @@
           }
         }
 
+        const teamSub = (!isTransfer && (item.team || item['ทีมช่าง'])) ? `<div class="text-[10px] text-slate-500 font-normal truncate max-w-[200px]">${escapeHtml(item.team || item['ทีมช่าง'])}</div>` : '';
+
         const dateDisplay = item.requisitionDate || item.usageDate || item['วันที่เบิก'] || item['วันที่ตัดสต็อก'] || item['วันที่คืนของเสีย'] || item['วันเวลาที่โอน'] || '-';
         const jobTypeDisplay = item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || (isTransfer ? 'โอนย้ายอุปกรณ์' : '-');
         const modelDisplay = item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || item['รุ่น / ประเภทอุปกรณ์'] || '-';
@@ -5116,7 +5118,7 @@
             <td class="px-4 py-3 whitespace-nowrap">${typeBadge}</td>
             <td class="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">${dateDisplay}</td>
             <td class="px-4 py-3 text-xs whitespace-nowrap">${idDisplay}</td>
-            <td class="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">${techDisplay}</td>
+            <td class="px-4 py-3 text-xs font-medium text-slate-800 whitespace-nowrap">${techDisplay}${teamSub}</td>
             <td class="px-4 py-3 text-xs text-slate-600 whitespace-nowrap">${escapeHtml(jobTypeDisplay)}</td>
             <td class="px-4 py-3 text-xs font-semibold text-slate-800 whitespace-nowrap">${escapeHtml(modelDisplay)}</td>
             <td class="px-4 py-3 text-xs font-mono font-bold text-slate-900 uppercase whitespace-nowrap">${escapeHtml(snDisplay)}</td>
@@ -5201,6 +5203,7 @@
         const sn = String(item.serialNumber || item['Serial Number (S/N)'] || '').toLowerCase();
         const sub = String(item.subscriberNo || item['เลขสมาชิกที่ใช้งาน'] || '').toLowerCase();
         const tech = String(item.technician || item['ชื่อผู้เบิก / ช่าง'] || item['ชื่อผู้ตัดสต็อก / ช่าง'] || item['ชื่อผู้คืน / ช่าง'] || item['ช่างผู้โอน (เดิม)'] || item['ช่างผู้รับโอน (ใหม่)'] || '').toLowerCase();
+        const team = String(item.team || item['ทีมช่าง'] || item['ทีม'] || '').toLowerCase();
         const row = String(item.rowId || item['ลำดับแถว (Row ID)'] || item['ลำดับ (Row ID)'] || '').toLowerCase();
         const model = String(item.model || item['ประเภทอุปกรณ์'] || item['ประเภท / รุ่นอุปกรณ์'] || item['รุ่น / ประเภทอุปกรณ์'] || '').toLowerCase();
         const jobType = String(item.jobType || item['ประเภทงาน'] || item['ประเภทงาน / สาเหตุการคืน'] || '').toLowerCase();
@@ -5211,6 +5214,7 @@
                            sn.includes(q) || 
                            sub.includes(q) || 
                            tech.includes(q) || 
+                           team.includes(q) || 
                            row.includes(q) || 
                            model.includes(q) || 
                            jobType.includes(q) || 
@@ -5269,6 +5273,7 @@
             rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
             requisitionDate: row['วันที่เบิก'],
             technician: row['ชื่อผู้เบิก / ช่าง'],
+            team: row['ทีมช่าง'] || row['ทีม'] || row['สังกัด'] || '',
             jobType: row['ประเภทงาน'],
             model: row['ประเภทอุปกรณ์'] || row['ประเภท / รุ่นอุปกรณ์'],
             serialNumber: row['Serial Number (S/N)'],
@@ -5283,6 +5288,7 @@
             subscriberNo: row['เลขสมาชิกที่ใช้งาน'],
             requisitionDate: row['วันที่ตัดสต็อก'],
             technician: row['ชื่อผู้ตัดสต็อก / ช่าง'],
+            team: row['ทีมช่าง'] || row['ทีม'] || row['สังกัด'] || '',
             jobType: row['ประเภทงาน'],
             model: row['ประเภทอุปกรณ์'],
             serialNumber: row['Serial Number (S/N)'],
@@ -5297,6 +5303,7 @@
             rowId: row['ลำดับแถว (Row ID)'] || row._rowIndex,
             requisitionDate: row['วันที่คืนของเสีย'] || row['วันที่บันทึก'],
             technician: row['ชื่อผู้คืน / ช่าง'],
+            team: row['ทีมช่าง'] || row['ทีม'] || row['สังกัด'] || '',
             jobType: row['ประเภทงาน / สาเหตุการคืน'] || row['ประเภทงาน'],
             model: row['ประเภทอุปกรณ์'],
             serialNumber: row['Serial Number (S/N)'],
