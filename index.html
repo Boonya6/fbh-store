@@ -409,9 +409,9 @@
         </button>
 
         <button onclick="switchTab('consumables')" id="tabBtn-consumables" class="tab-btn px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition whitespace-nowrap">
-          <i class="fa-solid fa-cart-flatbed text-violet-400"></i>
-          <span>เบิกของสิ้นเปลือง</span>
-          <span id="consumablesPendingBadge" class="hidden ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">0</span>
+          <i class="fa-solid fa-boxes-packing text-indigo-400"></i>
+          <span>เบิกอุปกรณ์สิ้นเปลือง</span>
+          <span id="consumablesPendingBadge" class="hidden ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">0</span>
         </button>
 
         <button onclick="switchTab('history')" id="tabBtn-history" class="tab-btn px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 border-b-2 border-transparent flex items-center gap-2 transition whitespace-nowrap">
@@ -1394,211 +1394,291 @@
     <!-- ======================================================== -->
     <section id="tab-consumables" class="tab-content hidden space-y-6">
       
-      <!-- Top Banner -->
-      <div class="bg-gradient-to-r from-violet-600 via-purple-700 to-indigo-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-purple-900/10 relative overflow-hidden">
-        <div class="absolute right-0 top-0 w-80 h-80 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
-        <div class="relative z-10 max-w-3xl">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-purple-200 mb-3 border border-white/10">
-            <i class="fa-solid fa-cart-flatbed"></i> ระบบเบิกอุปกรณ์สิ้นเปลือง & ติดตามสถานะ
-          </div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">เบิกอุปกรณ์สิ้นเปลือง (Consumables Order)</h2>
-          <p class="text-purple-100 text-xs sm:text-sm mt-1 leading-relaxed">
-            สร้างออเดอร์ขอเบิกอุปกรณ์สิ้นเปลือง (กำหนดลิมิตต่อรายการ) พร้อมระบบ Tracking ตรวจสอบสถานะการจัดเตรียมของแอดมินแบบ Real-time
-          </p>
-        </div>
-      </div>
-
-      <!-- Segmented Control (สลับระหว่าง "สร้างออเดอร์เบิก" และ "ติดตามสถานะ Tracking") -->
-      <div class="bg-white p-2 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col sm:flex-row gap-2">
-        <button type="button" id="csmSubTabBtn-order" onclick="switchConsumablesSubView('order')" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-violet-600 text-white shadow-sm">
-          <i class="fa-solid fa-file-pen"></i>
-          <span>1. สั่งเบิกอุปกรณ์สิ้นเปลือง (New Order)</span>
-        </button>
-
-        <button type="button" id="csmSubTabBtn-tracking" onclick="switchConsumablesSubView('tracking')" class="flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-slate-100 hover:bg-slate-200/70 text-slate-700">
-          <i class="fa-solid fa-truck-fast text-indigo-600"></i>
-          <span>2. ติดตามสถานะออเดอร์ (Tracking & Status)</span>
-          <span id="csmSubTrackingPendingBadge" class="ml-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-            0 รายการ
-          </span>
-        </button>
-      </div>
-
-      <!-- ================= VIEW 1: ORDER FORM (แบบฟอร์มสั่งเบิก) ================= -->
-      <div id="consumablesOrderFormView" class="space-y-6">
-        
-        <!-- Technician Info & Order Details Card -->
-        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-5">
-          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center font-bold text-lg">
-                <i class="fa-solid fa-user-gear"></i>
+      <!-- Top Banner & Sub-View Switcher -->
+      <div class="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-800 rounded-3xl p-6 sm:p-7 text-white shadow-xl shadow-indigo-900/15 relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div class="space-y-1.5 max-w-xl">
+            <div class="flex items-center gap-2.5">
+              <div class="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white border border-white/20 shadow-inner">
+                <i class="fa-solid fa-boxes-packing text-lg"></i>
               </div>
               <div>
-                <h3 class="text-sm sm:text-base font-bold text-slate-800">ข้อมูลผู้ขอเบิก & วัตถุประสงค์</h3>
-                <p class="text-xs text-slate-400">ระบบจะผูกชื่อและทีมช่างที่เข้าสู่ระบบให้อัตโนมัติ</p>
-              </div>
-            </div>
-            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-violet-50 text-violet-700 border border-violet-200">
-              สถานะเริ่มต้น: <b class="text-amber-600">กำลังดำเนินการ</b>
-            </span>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- 1. ชื่อช่างผู้เบิก -->
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                <i class="fa-solid fa-id-card text-violet-600 mr-1"></i> ชื่อผู้เบิก / ช่าง
-              </label>
-              <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  <span id="csmTechDisplayName" class="text-xs font-bold text-slate-800">-</span>
+                  <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white">เบิกอุปกรณ์สิ้นเปลือง & ติดตามสถานะ</h2>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30 backdrop-blur-sm">Consumables</span>
                 </div>
-                <span id="csmTechTeamName" class="text-[11px] text-slate-500 font-medium truncate max-w-[150px]">-</span>
+                <p class="text-xs text-indigo-100/80">ระบบสร้างออเดอร์เบิกอุปกรณ์สิ้นเปลืองและติดตามสถานะการจัดเตรียม (GID: 2029525640)</p>
               </div>
             </div>
-
-            <!-- 2. วันเวลาที่สั่งเบิก -->
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                <i class="fa-solid fa-calendar-day text-violet-600 mr-1"></i> วันเวลาที่สั่งเบิก
-              </label>
-              <input type="text" id="csmOrderDateTimeDisplay" readonly class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-mono font-semibold text-slate-700 focus:outline-none">
-            </div>
-
-            <!-- 3. หมายเหตุ / งานที่นำไปใช้ -->
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                <i class="fa-solid fa-comment-dots text-violet-600 mr-1"></i> หมายเหตุ / งานที่นำไปใช้ (ถ้ามี)
-              </label>
-              <input type="text" id="csmOrderRemarks" placeholder="เช่น งานติดตั้งบ้านลูกค้า, ซ่อมด่วน..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-violet-500 focus:outline-none bg-white">
-            </div>
-          </div>
-        </div>
-
-        <!-- 16 Consumables Items Cards Grid -->
-        <div class="space-y-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-violet-600"></span>
-              <h3 class="text-sm font-bold text-slate-800">รายการอุปกรณ์สิ้นเปลือง (เลือกจำนวนที่ต้องการเบิก)</h3>
-            </div>
-            <span class="text-xs text-slate-500">มีทั้งหมด 16 รายการ (ระบบคุมลิมิตอัตโนมัติ)</span>
           </div>
 
-          <!-- Dynamic Cards Container -->
-          <div id="consumablesCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <!-- Rendered by JavaScript -->
-          </div>
-        </div>
-
-        <!-- Sticky Bottom Summary & Submit Action Bar -->
-        <div class="sticky bottom-16 md:bottom-4 z-20 bg-white/95 backdrop-blur-md rounded-2xl p-4 sm:p-5 shadow-lg border border-violet-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center font-black text-xl shadow-xs">
-              <i class="fa-solid fa-boxes-packing"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs text-slate-500 font-semibold">สรุปรายการที่เลือก:</span>
-                <span id="csmSummaryItemsCountBadge" class="text-xs font-bold font-mono px-2.5 py-0.5 rounded-full bg-violet-100 text-violet-800">0 ชนิด</span>
-              </div>
-              <p id="csmSummaryTotalPiecesText" class="text-xs font-bold text-slate-800 mt-0.5">รวมทั้งหมด: 0 ชิ้น/หน่วย</p>
-            </div>
-          </div>
-
-          <div class="flex items-center gap-2.5 w-full sm:w-auto">
-            <button type="button" onclick="resetConsumablesForm()" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold transition">
-              <i class="fa-solid fa-rotate-left mr-1"></i> ล้างรายการ
+          <!-- Sub-View Switcher Tabs -->
+          <div class="flex items-center gap-2 bg-slate-950/40 p-1.5 rounded-2xl border border-white/15 backdrop-blur-md self-start md:self-auto">
+            <button type="button" id="btnConsumablesViewForm" onclick="toggleConsumablesView('form')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-white text-indigo-950 shadow-md">
+              <i class="fa-solid fa-file-pen text-indigo-600"></i>
+              <span>สร้างออเดอร์เบิก</span>
             </button>
-
-            <button type="button" id="csmSubmitOrderBtn" onclick="submitConsumableOrder()" class="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-violet-500/25 transition flex items-center justify-center gap-2">
-              <i class="fa-solid fa-paper-plane"></i>
-              <span id="csmSubmitOrderBtnText">ยืนยันสั่งเบิกอุปกรณ์</span>
+            <button type="button" id="btnConsumablesViewTracking" onclick="toggleConsumablesView('tracking')" class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-white/90 hover:text-white hover:bg-white/10">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>ติดตามสถานะ (Tracking)</span>
+              <span id="consumablesTrackingCountBadge" class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">0</span>
             </button>
           </div>
         </div>
-
       </div>
 
-      <!-- ================= VIEW 2: TRACKING & STATUS VIEW (หน้าติดตามสถานะ) ================= -->
+      <!-- ========================================================== -->
+      <!-- VIEW 1: ฟอร์มสร้างออเดอร์เบิกอุปกรณ์สิ้นเปลือง (ORDER FORM) -->
+      <!-- ========================================================== -->
+      <div id="consumablesFormView" class="space-y-6">
+        <form id="consumablesOrderForm" onsubmit="handleSubmitConsumablesOrder(event)" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Left Column (8 cols): Tech Info + 15 Preset Items + Custom Items -->
+          <div class="lg:col-span-8 space-y-6">
+
+            <!-- 1. ข้อมูลผู้เบิก & วันที่ทำรายการ -->
+            <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-slate-200/80 space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                    <i class="fa-solid fa-user-gear"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-slate-800">1. ข้อมูลผู้เบิก & วันที่บันทึก</h3>
+                    <p class="text-[11px] text-slate-500">ระบบจะผูกชื่อและทีมช่างที่เข้าสู่ระบบให้อัตโนมัติ</p>
+                  </div>
+                </div>
+                <span class="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100">
+                  <i class="fa-solid fa-shield-check mr-1"></i> ยืนยันตัวตน
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- ช่างผู้เบิก -->
+                <div class="sm:col-span-2">
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                    <i class="fa-solid fa-user mr-1 text-indigo-600"></i> ชื่อผู้เบิก / ช่าง <span class="text-rose-500">*</span>
+                  </label>
+                  <div class="relative">
+                    <input type="text" id="consumableTechnicianInput" required readonly placeholder="ชื่อผู้เบิก..." class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-xs font-bold focus:outline-none">
+                    <i class="fa-solid fa-id-badge absolute left-3 top-3 text-slate-400 text-xs"></i>
+                  </div>
+                  <p id="consumableTeamDisplay" class="text-[11px] font-medium text-indigo-600 mt-1 pl-1 truncate">สังกัดทีม: -</p>
+                </div>
+
+                <!-- วันที่เบิก -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                    <i class="fa-solid fa-calendar-day mr-1 text-indigo-600"></i> วันที่เบิก <span class="text-rose-500">*</span>
+                  </label>
+                  <input type="date" id="consumableDateInput" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white">
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. ตารางรายการอุปกรณ์สิ้นเปลือง 15 รายการหลัก (พร้อมระบุลิมิต) -->
+            <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-slate-200/80 space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-sm">
+                    <i class="fa-solid fa-list-check"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-slate-800">2. รายการอุปกรณ์สิ้นเปลืองมาตรฐาน (15 รายการ)</h3>
+                    <p class="text-[11px] text-slate-500">เลือกจำนวนอุปกรณ์ที่ต้องการเบิกตามเกณฑ์ลิมิตที่กำหนด</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                    <i class="fa-solid fa-triangle-exclamation mr-1 text-amber-600"></i> มีการจำกัดจำนวนเบิก
+                  </span>
+                </div>
+              </div>
+
+              <!-- Grid of 15 preset items -->
+              <div id="consumablesItemsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                <!-- Dynamic Items will be rendered here by JS -->
+              </div>
+            </div>
+
+            <!-- 3. รายการอื่นๆ (16. อื่นๆ) -->
+            <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-xs border border-slate-200/80 space-y-4">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-sm">
+                    <i class="fa-solid fa-plus-circle"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm font-bold text-slate-800">3. รายการอื่นๆ (ระบุเพิ่มเติม)</h3>
+                    <p class="text-[11px] text-slate-500">กรณีมีอุปกรณ์หรือวัสดุอื่นนอกเหนือจาก 15 รายการหลัก</p>
+                  </div>
+                </div>
+                <button type="button" onclick="addCustomConsumableRow()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition shadow-xs cursor-pointer">
+                  <i class="fa-solid fa-plus"></i> เพิ่มรายการ
+                </button>
+              </div>
+
+              <!-- Custom Items Container -->
+              <div id="customConsumablesList" class="space-y-3">
+                <div id="noCustomItemsMsg" class="text-center py-4 text-xs text-slate-400 bg-slate-50/60 rounded-xl border border-dashed border-slate-200">
+                  <i class="fa-solid fa-inbox mr-1"></i> ยังไม่มีรายการอื่นๆ เพิ่มเติม (คลิกปุ่ม <b>"เพิ่มรายการ"</b> ด้านบนหากต้องการระบุ)
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right Column (4 cols): Sticky Order Summary & Submission -->
+          <div class="lg:col-span-4 space-y-6">
+            <div class="sticky top-20 space-y-5">
+              
+              <!-- Summary Card -->
+              <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-md border border-indigo-100 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div class="flex items-center gap-2">
+                    <div class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-xs">
+                      <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-800">สรุปรายการออเดอร์</h3>
+                  </div>
+                  <span id="consumablesSummaryBadge" class="text-xs font-bold font-mono text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">0 รายการ</span>
+                </div>
+
+                <!-- Selected Items List -->
+                <div id="consumablesSummaryItems" class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                  <div class="text-center py-8 text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-100">
+                    <i class="fa-solid fa-basket-shopping text-2xl text-slate-300 block mb-2"></i>
+                    ยังไม่ได้เลือกอุปกรณ์ใดๆ<br>
+                    <span class="text-[11px] text-slate-400">กรุณาเพิ่มจำนวนในรายการด้านซ้าย</span>
+                  </div>
+                </div>
+
+                <!-- Total Count Row -->
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-700">
+                  <span>จำนวนรวมทั้งหมด:</span>
+                  <span id="consumablesTotalUnits" class="text-base font-black text-indigo-600 font-mono">0 ชิ้น/หน่วย</span>
+                </div>
+
+                <!-- Remarks Textarea -->
+                <div class="pt-2">
+                  <label class="block text-xs font-bold text-slate-700 mb-1">
+                    <i class="fa-solid fa-comment-dots mr-1 text-indigo-500"></i> หมายเหตุเพิ่มเติม (ถ้ามี)
+                  </label>
+                  <textarea id="consumableRemarksInput" rows="2" placeholder="ระบุเหตุผล เช่น งานติดตั้งด่วน, นำไปใช้ในไซต์งาน..." class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/50 focus:bg-white transition resize-none"></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="btnSubmitConsumablesOrder" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-indigo-600/20 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                  <i class="fa-solid fa-paper-plane"></i>
+                  <span>บันทึกสร้างออเดอร์เบิก</span>
+                </button>
+
+                <!-- Reset Button -->
+                <button type="button" onclick="resetConsumablesForm()" class="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer">
+                  <i class="fa-solid fa-rotate-left"></i>
+                  <span>ล้างฟอร์ม / เริ่มใหม่</span>
+                </button>
+              </div>
+
+              <!-- Workflow Notice Card -->
+              <div class="bg-indigo-50/80 rounded-2xl p-4 border border-indigo-200/70 text-xs text-indigo-950 space-y-2">
+                <div class="font-bold flex items-center gap-1.5 text-indigo-900">
+                  <i class="fa-solid fa-circle-info text-indigo-600"></i>
+                  <span>ขั้นตอนการทำงาน (Workflow)</span>
+                </div>
+                <ol class="list-decimal list-inside space-y-1 text-[11px] text-indigo-900/80 pl-1 leading-relaxed">
+                  <li>หลังกดบันทึก ออเดอร์จะมีสถานะเป็น <b class="text-amber-700 font-bold">"กำลังดำเนินการ"</b></li>
+                  <li>ข้อมูลจะถูกส่งเข้า Google Sheet (GID: 2029525640)</li>
+                  <li>เมื่อแอดมินจัดของเรียบร้อย จะเปลี่ยนสถานะเป็น <b class="text-emerald-700 font-bold">"สำเร็จ"</b> ในชีต</li>
+                  <li>ช่างสามารถตรวจสอบความคืบหน้าได้ในแท็บ <b>"ติดตามสถานะ"</b></li>
+                </ol>
+              </div>
+
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- ========================================================== -->
+      <!-- VIEW 2: หน้าติดตามสถานะออเดอร์ (ORDER TRACKING VIEW) -->
+      <!-- ========================================================== -->
       <div id="consumablesTrackingView" class="hidden space-y-6">
-        
-        <!-- Tracking Filter & Action Bar -->
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-4">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            
-            <!-- 1. Search Box -->
-            <div class="relative flex-1">
-              <input type="text" id="csmTrackingSearchInput" oninput="filterConsumableTracking()" placeholder="ค้นหาด้วยรหัสออเดอร์ (Order ID), ชื่อช่าง, หรือชื่ออุปกรณ์..." class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
-              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+
+        <!-- Tracking Stat Metrics -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <!-- Total Orders -->
+          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div>
+              <span class="text-xs text-slate-500 font-medium block">ออเดอร์ทั้งหมด</span>
+              <span id="trackingTotalCount" class="text-2xl font-black text-slate-800 font-mono mt-0.5 block">0</span>
             </div>
-
-            <!-- 2. Status & Tech Filters -->
-            <div class="flex items-center gap-2 flex-wrap">
-              <!-- Status Filter -->
-              <select id="csmTrackingStatusFilter" onchange="filterConsumableTracking()" class="px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white text-slate-700 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="ALL">สถานะทั้งหมด</option>
-                <option value="PENDING">🟡 กำลังดำเนินการ</option>
-                <option value="COMPLETED">🟢 สำเร็จ</option>
-              </select>
-
-              <!-- Scope Filter (My orders / All) -->
-              <select id="csmTrackingScopeFilter" onchange="filterConsumableTracking()" class="px-3 py-2 rounded-xl border border-slate-200 text-xs bg-indigo-50 text-indigo-900 font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="MY">👤 ออเดอร์ของฉัน</option>
-                <option value="ALL">👥 ช่างทุกคน</option>
-              </select>
-
-              <!-- Refresh Button -->
-              <button type="button" id="csmTrackingRefreshBtn" onclick="fetchConsumableTracking(false)" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-arrows-rotate"></i>
-                <span>รีเฟรชสถานะ</span>
-              </button>
-            </div>
-
-          </div>
-
-          <!-- Quick Stats Cards (3 Metric Cards) -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
-            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 flex items-center justify-between">
-              <div>
-                <span class="text-[11px] font-semibold text-slate-500 block">ออเดอร์ทั้งหมด</span>
-                <span id="csmStatTotalCount" class="text-xl font-black text-slate-800">0</span>
-              </div>
-              <div class="w-9 h-9 rounded-xl bg-slate-200/80 text-slate-600 flex items-center justify-center text-sm">
-                <i class="fa-solid fa-list-check"></i>
-              </div>
-            </div>
-
-            <div class="bg-amber-50/70 p-3.5 rounded-xl border border-amber-200 flex items-center justify-between">
-              <div>
-                <span class="text-[11px] font-semibold text-amber-700 block">กำลังดำเนินการ (รอแอดมินจัดของ)</span>
-                <span id="csmStatPendingCount" class="text-xl font-black text-amber-600">0</span>
-              </div>
-              <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-sm">
-                <i class="fa-solid fa-clock-rotate-left"></i>
-              </div>
-            </div>
-
-            <div class="bg-emerald-50/70 p-3.5 rounded-xl border border-emerald-200 flex items-center justify-between">
-              <div>
-                <span class="text-[11px] font-semibold text-emerald-700 block">จัดเตรียมสำเร็จแล้ว</span>
-                <span id="csmStatCompletedCount" class="text-xl font-black text-emerald-600">0</span>
-              </div>
-              <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm">
-                <i class="fa-solid fa-circle-check"></i>
-              </div>
+            <div class="w-11 h-11 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-boxes-stacked"></i>
             </div>
           </div>
 
+          <!-- Pending Orders -->
+          <div class="bg-white p-5 rounded-2xl border border-amber-200 shadow-xs flex items-center justify-between bg-gradient-to-br from-white to-amber-50/40">
+            <div>
+              <span class="text-xs text-amber-800 font-medium block">กำลังดำเนินการ (รอดำเนินการ)</span>
+              <span id="trackingPendingCount" class="text-2xl font-black text-amber-600 font-mono mt-0.5 block">0</span>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-hourglass-half animate-spin-slow"></i>
+            </div>
+          </div>
+
+          <!-- Completed Orders -->
+          <div class="bg-white p-5 rounded-2xl border border-emerald-200 shadow-xs flex items-center justify-between bg-gradient-to-br from-white to-emerald-50/40">
+            <div>
+              <span class="text-xs text-emerald-800 font-medium block">จัดเตรียมสำเร็จ (พร้อมรับ)</span>
+              <span id="trackingCompletedCount" class="text-2xl font-black text-emerald-600 font-mono mt-0.5 block">0</span>
+            </div>
+            <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+          </div>
         </div>
 
-        <!-- Tracking Cards List Container -->
-        <div id="csmTrackingCardsList" class="space-y-4">
-          <div class="bg-white rounded-2xl p-10 text-center border border-slate-200/80 text-slate-400 space-y-2">
-            <i class="fa-solid fa-box-open text-3xl text-slate-300"></i>
-            <p class="text-xs">กำลังโหลดข้อมูลออเดอร์...</p>
+        <!-- Filter & Search Bar -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-200/80 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          
+          <!-- Search Input -->
+          <div class="relative flex-1">
+            <input type="text" id="consumablesSearchInput" oninput="filterConsumablesTracking()" placeholder="ค้นหาด้วยเลขที่ออเดอร์, ชื่อช่าง, ทีม, หรือรายการอุปกรณ์..." class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 bg-slate-50/50 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          </div>
+
+          <!-- Filter Dropdowns & Refresh -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- Status Filter -->
+            <select id="consumablesStatusFilter" onchange="filterConsumablesTracking()" class="px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="ALL">สถานะทั้งหมด</option>
+              <option value="PENDING">🟡 กำลังดำเนินการ</option>
+              <option value="COMPLETED">🟢 สำเร็จ</option>
+            </select>
+
+            <!-- Scope Filter -->
+            <select id="consumablesScopeFilter" onchange="filterConsumablesTracking()" class="px-3 py-2 rounded-xl border border-indigo-200 text-xs font-bold bg-indigo-50 text-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="MY">👤 เฉพาะออเดอร์ของฉัน</option>
+              <option value="ALL">🌐 ออเดอร์ทั้งหมด</option>
+            </select>
+
+            <!-- Refresh Button -->
+            <button type="button" onclick="fetchConsumablesOrders()" class="p-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="ดึงข้อมูลสถานะล่าสุดจาก Google Sheet">
+              <i id="consumablesSyncSpinner" class="fa-solid fa-arrows-rotate"></i>
+              <span class="hidden sm:inline">รีเฟรช</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Orders Container -->
+        <div id="consumablesOrdersList" class="space-y-3">
+          <div class="text-center py-12 text-xs text-slate-400 bg-white rounded-2xl border border-slate-200">
+            <i class="fa-solid fa-spinner fa-spin text-2xl text-indigo-600 block mb-2"></i>
+            กำลังโหลดรายการออเดอร์จาก Google Sheet...
           </div>
         </div>
 
@@ -1929,9 +2009,10 @@
     </button>
 
     <!-- 4.6. Consumables Tab -->
-    <button onclick="switchTab('consumables')" id="tabBtnMob-consumables" class="mob-nav-btn flex flex-col items-center justify-center flex-1 py-1 px-0.5 text-slate-500 dark:text-slate-400 font-medium transition">
-      <div class="w-8 h-8 rounded-xl flex items-center justify-center text-base mb-0.5">
-        <i class="fa-solid fa-cart-flatbed text-violet-500"></i>
+    <button onclick="switchTab('consumables')" id="tabBtnMob-consumables" class="mob-nav-btn flex flex-col items-center justify-center flex-1 py-1 px-0.5 text-slate-500 dark:text-slate-400 font-medium transition relative">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center text-base mb-0.5 relative">
+        <i class="fa-solid fa-boxes-packing text-indigo-500"></i>
+        <span id="mobConsumablesPendingBadge" class="hidden absolute -top-1 -right-1 px-1 py-0.2 rounded-full text-[8px] font-bold bg-amber-500 text-white">0</span>
       </div>
       <span class="text-[10px] tracking-tight">สิ้นเปลือง</span>
     </button>
@@ -2213,6 +2294,95 @@
     </div>
   </div>
 
+  <!-- ================= CONSUMABLES ORDER DETAIL MODAL ================= -->
+  <div id="consumablesDetailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-lg shadow-xs">
+            <i class="fa-solid fa-file-invoice"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 id="csmModalOrderId" class="font-bold text-sm sm:text-base text-slate-800 dark:text-white">รายละเอียดออเดอร์</h3>
+              <span id="csmModalStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">กำลังดำเนินการ</span>
+            </div>
+            <p id="csmModalTimestamp" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">วันเวลาที่สั่งเบิก: -</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeConsumableDetailModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-2 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition cursor-pointer">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto space-y-4">
+        
+        <!-- Tech & Team Info Banner -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 text-xs">
+          <div>
+            <span class="text-slate-500 dark:text-slate-400 block font-medium">ชื่อผู้เบิก / ช่าง:</span>
+            <span id="csmModalTechName" class="font-bold text-slate-800 dark:text-slate-200 text-sm">-</span>
+          </div>
+          <div>
+            <span class="text-slate-500 dark:text-slate-400 block font-medium">สังกัดทีม:</span>
+            <span id="csmModalTeamName" class="font-bold text-indigo-700 dark:text-indigo-300 text-sm">-</span>
+          </div>
+        </div>
+
+        <!-- Items Table -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center justify-between">
+            <span>รายการอุปกรณ์สิ้นเปลืองที่เบิก</span>
+            <span id="csmModalTotalUnits" class="text-indigo-600 dark:text-indigo-400 font-mono font-bold">0 รายการ</span>
+          </h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold border-b border-slate-200 dark:border-slate-700">
+                <tr>
+                  <th class="py-2.5 px-3 text-center w-10">#</th>
+                  <th class="py-2.5 px-3">รายการอุปกรณ์</th>
+                  <th class="py-2.5 px-3 text-center">จำนวน</th>
+                  <th class="py-2.5 px-3 text-center">หน่วย</th>
+                  <th class="py-2.5 px-3">หมายเหตุย่อย</th>
+                </tr>
+              </thead>
+              <tbody id="csmModalItemsTbody" class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                <!-- Injected by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- User Remarks -->
+        <div id="csmModalRemarksBox" class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs">
+          <span class="font-bold text-slate-700 dark:text-slate-300 block mb-0.5">หมายเหตุจากผู้เบิก:</span>
+          <p id="csmModalRemarksText" class="text-slate-600 dark:text-slate-400">-</p>
+        </div>
+
+        <!-- Admin Remarks / Completion Info -->
+        <div id="csmModalAdminBox" class="p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs hidden">
+          <span class="font-bold text-emerald-800 dark:text-emerald-300 block mb-0.5">ข้อมูลการจัดเตรียมจากแอดมิน:</span>
+          <p id="csmModalAdminText" class="text-emerald-700 dark:text-emerald-400">-</p>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-between gap-3">
+        <button type="button" id="csmModalPrintBtn" onclick="printCurrentConsumableOrder()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+          <i class="fa-solid fa-print"></i> พิมพ์ใบเบิกอุปกรณ์
+        </button>
+        <button type="button" onclick="closeConsumableDetailModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition cursor-pointer">
+          ปิด
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ================= PRINTABLE SLIP TEMPLATE (Hidden) ================= -->
   <div id="printArea" class="hidden p-8 bg-white text-slate-900 max-w-lg mx-auto font-sans">
     <div class="border-2 border-slate-800 p-6 rounded-lg space-y-4">
@@ -2424,7 +2594,6 @@
       switchTab('dashboard');
 
       loadHistory();
-      loadCachedConsumableOrders();
       updateStatusBadge();
       updateNextRowDisplay();
 
@@ -2441,7 +2610,6 @@
         fetchLatestRowFromSheet();
         fetchTechniciansFromSheet(true); // ซิงค์รายชื่อช่าง Real-time จาก Google Sheet
         fetchEquipmentDashboard(true); // ดึงข้อมูล Dashboard สรุปอุปกรณ์ Real-time จาก 3 Sheet
-        fetchConsumableTracking(true); // ซิงค์สถานะออเดอร์เบิกของสิ้นเปลือง Real-time
       }
 
       // ตรวจสอบและอัปเดตข้อมูลแถว และรายชื่อช่างล่าสุดแบบ Real-time เสมอเมื่อผู้ใช้สลับหน้าจอเข้ามา
@@ -2739,10 +2907,10 @@
       if (soTechSelect) soTechSelect.value = user.name;
 
       // Consumables Form
-      const csmTechDisplayName = document.getElementById('csmTechDisplayName');
-      const csmTechTeamName = document.getElementById('csmTechTeamName');
-      if (csmTechDisplayName) csmTechDisplayName.textContent = user.name;
-      if (csmTechTeamName) csmTechTeamName.textContent = user.team ? `รหัส: ${user.id} • ${user.team}` : `รหัส: ${user.id}`;
+      const consumableTechInput = document.getElementById('consumableTechnicianInput');
+      const consumableTeamDisplay = document.getElementById('consumableTeamDisplay');
+      if (consumableTechInput) consumableTechInput.value = user.name;
+      if (consumableTeamDisplay) consumableTeamDisplay.textContent = user.team ? `สังกัดทีม: ${user.team} (รหัส: ${user.id})` : `รหัสช่าง: ${user.id}`;
     }
 
     function handleLogout() {
@@ -3412,7 +3580,8 @@
         populateTransferTechDropdowns();
         setTodayDate('transferDate');
       } else if (tabId === 'consumables') {
-        initConsumablesTab();
+        initConsumablesModule();
+        fetchConsumablesOrders(true);
       }
     }
 
@@ -5228,6 +5397,8 @@
         if (invContainer) invContainer.classList.add('hidden');
         const badge = document.getElementById('transferFromTechBadge');
         if (badge) badge.classList.add('hidden');
+      } else if (formType === 'consumables') {
+        resetConsumablesForm();
       }
     }
 
@@ -6615,755 +6786,749 @@
       }
     }
 
-    // =========================================================================
-    // CONSUMABLES REQUISITION & TRACKING MODULE (ระบบเบิกอุปกรณ์สิ้นเปลือง & Tracking)
-    // =========================================================================
-    const STORAGE_KEY_CONSUMABLES_ORDERS = 'fbh_consumables_orders';
+    // ==============================================================================
+    // CONSUMABLES REQUISITION & TRACKING MODULE (เบิกอุปกรณ์สิ้นเปลือง & ติดตามสถานะ)
+    // GID: 2029525640 (https://docs.google.com/spreadsheets/d/1_nSY_1BOj9muJPQrHdMMdPlhisiwGuRoVZEcrG6KImk/edit?gid=2029525640#gid=2029525640)
+    // ==============================================================================
 
-    // 16 รายการอุปกรณ์สิ้นเปลือง พร้อมหน่วย และลิมิตการเบิกสูงสุด
-    const CONSUMABLE_ITEMS_DEF = [
-      { id: 'dropwire', name: '[สาย] DropWire', unit: 'ม้วน', limit: 5, icon: 'fa-solid fa-network-wired', color: 'violet' },
-      { id: 'cable3m', name: '[สาย 3 เมตร]', unit: 'เส้น', limit: 20, icon: 'fa-solid fa-ethernet', color: 'blue' },
-      { id: 'clamp', name: '[แคลมป์] Clamp', unit: 'ตัว', limit: 250, icon: 'fa-solid fa-wrench', color: 'amber' },
-      { id: 'heatshrink', name: '[ท่อหด] Heat shrink', unit: 'ถุง', limit: 5, icon: 'fa-solid fa-fire-burner', color: 'rose' },
-      { id: 'tiecable', name: '[เคเบิ้ลไทร์] TIE,CABLE', unit: 'ถุง', limit: 2, icon: 'fa-solid fa-lines-leaning', color: 'indigo' },
-      { id: 'clipblack', name: '[กิ๊ฟดำ] CABLE CLIP', unit: 'ถุง', limit: 1, icon: 'fa-solid fa-paperclip', color: 'slate' },
-      { id: 'plate', name: '[เพลท] PLATE', unit: 'ถุง', limit: 1, icon: 'fa-solid fa-square', color: 'teal' },
-      { id: 'bolt8', name: '[โบลท์] BOLT-8', unit: 'ตัว', limit: 15, icon: 'fa-solid fa-screwdriver', color: 'emerald' },
-      { id: 'bolt10', name: '[โบลท์] BOLT-10', unit: 'ตัว', limit: 15, icon: 'fa-solid fa-screwdriver', color: 'emerald' },
-      { id: 'bolt12', name: '[โบลท์] BOLT-12', unit: 'ตัว', limit: 15, icon: 'fa-solid fa-screwdriver', color: 'emerald' },
-      { id: 'wireharness', name: '[ลวด] Wire harness', unit: 'ม้วน', limit: 1, icon: 'fa-solid fa-circle-notch', color: 'cyan' },
-      { id: 'househook', name: '[ฮุกเฮ้า] HOUSE HOOK', unit: 'ถุง', limit: 1, icon: 'fa-solid fa-anchor', color: 'sky' },
-      { id: 'tapeblack', name: '[เทปดำ] TAPE ELECTRICAL', unit: 'อัน', limit: 4, icon: 'fa-solid fa-tape', color: 'slate' },
-      { id: 'clipwhite', name: '[กิ๊ฟขาว] CABLE CLIP', unit: 'ถุง', limit: 1, icon: 'fa-solid fa-paperclip', color: 'slate' },
-      { id: 'closurel3', name: '[L3] Closure', unit: 'ถุง', limit: 3, icon: 'fa-solid fa-box-archive', color: 'orange' },
-      { id: 'custom', name: 'อื่นๆ (ระบุเอง)', unit: 'ตามระบุ', limit: 9999, icon: 'fa-solid fa-circle-plus', color: 'purple', isCustom: true }
+    const CONSUMABLE_ITEMS = [
+      { id: 'csm_dropwire', name: '[สาย] DropWire', category: 'สายสัญญาณ', unit: 'ม้วน', limit: 5, icon: 'fa-network-wired', color: 'blue' },
+      { id: 'csm_cable_3m', name: '[สาย 3 เมตร]', category: 'สายสัญญาณ', unit: 'เส้น', limit: 20, icon: 'fa-ethernet', color: 'indigo' },
+      { id: 'csm_clamp', name: '[แคลมป์] Clamp', category: 'ฟิตติ้ง & ยึดโยง', unit: 'ตัว', limit: 250, icon: 'fa-paperclip', color: 'amber' },
+      { id: 'csm_heat_shrink', name: '[ท่อหด] Heat shrink', category: 'อุปกรณ์ประกอบ', unit: 'ถุง', limit: 5, icon: 'fa-compress', color: 'purple' },
+      { id: 'csm_cable_tie', name: '[เคเบิ้ลไทร์] TIE,CABLE', category: 'อุปกรณ์ประกอบ', unit: 'ถุง', limit: 2, icon: 'fa-link', color: 'teal' },
+      { id: 'csm_cable_clip_black', name: '[กิ๊ฟดำ] CABLE CLIP', category: 'ฟิตติ้ง & ยึดโยง', unit: 'ถุง', limit: 1, icon: 'fa-thumbtack', color: 'slate' },
+      { id: 'csm_plate', name: '[เพลท] PLATE', category: 'ฟิตติ้ง & ยึดโยง', unit: 'ถุง', limit: 1, icon: 'fa-square', color: 'sky' },
+      { id: 'csm_bolt_8', name: '[โบลท์] BOLT-8', category: 'น็อต & โบลท์', unit: 'ตัว', limit: 15, icon: 'fa-bolt', color: 'rose' },
+      { id: 'csm_bolt_10', name: '[โบลท์] BOLT-10', category: 'น็อต & โบลท์', unit: 'ตัว', limit: 15, icon: 'fa-bolt', color: 'rose' },
+      { id: 'csm_bolt_12', name: '[โบลท์] BOLT-12', category: 'น็อต & โบลท์', unit: 'ตัว', limit: 15, icon: 'fa-bolt', color: 'rose' },
+      { id: 'csm_wire_harness', name: '[ลวด] Wire harness', category: 'สายสัญญาณ', unit: 'ม้วน', limit: 1, icon: 'fa-lines-leaning', color: 'emerald' },
+      { id: 'csm_house_hook', name: '[ฮุกเฮ้า] HOUSE HOOK', category: 'ฟิตติ้ง & ยึดโยง', unit: 'ถุง', limit: 1, icon: 'fa-anchor', color: 'orange' },
+      { id: 'csm_tape_electrical', name: '[เทปดำ] TAPE ELECTRICAL', category: 'อุปกรณ์ประกอบ', unit: 'อัน', limit: 4, icon: 'fa-tape', color: 'slate' },
+      { id: 'csm_cable_clip_white', name: '[กิ๊ฟขาว] CABLE CLIP', category: 'ฟิตติ้ง & ยึดโยง', unit: 'ถุง', limit: 1, icon: 'fa-thumbtack', color: 'zinc' },
+      { id: 'csm_closure_l3', name: '[L3] Closure', category: 'ตลับ & กล่องต่อสาย', unit: 'อัน', limit: 3, icon: 'fa-box', color: 'cyan' }
     ];
 
     let consumableQuantities = {};
-    let consumableCustomItems = [];
-    let consumableOrdersCache = [];
+    let customConsumableItems = [];
+    let localConsumableOrders = [];
+    let currentViewingConsumableOrder = null;
+    let consumablesActiveView = 'form'; // 'form' | 'tracking'
 
-    function initConsumablesTab() {
-      // Set current date/time in display
-      const now = new Date();
-      const dtEl = document.getElementById('csmOrderDateTimeDisplay');
-      if (dtEl) {
-        const yyyy = now.getFullYear();
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const dd = String(now.getDate()).padStart(2, '0');
-        const hh = String(now.getHours()).padStart(2, '0');
-        const min = String(now.getMinutes()).padStart(2, '0');
-        dtEl.value = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
-      }
-
-      // Fill user info if logged in
+    function initConsumablesModule() {
+      setTodayDate('consumableDateInput');
       if (currentUser) {
-        applyLoggedInUser(currentUser);
+        const nameInput = document.getElementById('consumableTechnicianInput');
+        const teamText = document.getElementById('consumableTeamDisplay');
+        if (nameInput) nameInput.value = currentUser.name || '';
+        if (teamText) teamText.textContent = currentUser.team ? `สังกัดทีม: ${currentUser.team} (รหัส: ${currentUser.id})` : `รหัสช่าง: ${currentUser.id}`;
       }
-
-      // Render cards
-      renderConsumablesOrderCards();
-
-      // Load cached tracking orders & fetch latest
-      loadCachedConsumableOrders();
-      fetchConsumableTracking(true);
+      renderConsumablesItemsContainer();
+      renderCustomConsumablesList();
+      updateConsumablesSummary();
     }
 
-    function switchConsumablesSubView(viewName) {
-      const orderView = document.getElementById('consumablesOrderFormView');
-      const trackingView = document.getElementById('consumablesTrackingView');
-      const orderBtn = document.getElementById('csmSubTabBtn-order');
-      const trackingBtn = document.getElementById('csmSubTabBtn-tracking');
-
-      if (viewName === 'order') {
-        if (orderView) orderView.classList.remove('hidden');
-        if (trackingView) trackingView.classList.add('hidden');
-
-        if (orderBtn) {
-          orderBtn.className = 'flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-violet-600 text-white shadow-sm';
-        }
-        if (trackingBtn) {
-          trackingBtn.className = 'flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-slate-100 hover:bg-slate-200/70 text-slate-700';
-        }
-      } else {
-        if (orderView) orderView.classList.add('hidden');
-        if (trackingView) trackingView.classList.remove('hidden');
-
-        if (orderBtn) {
-          orderBtn.className = 'flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-slate-100 hover:bg-slate-200/70 text-slate-700';
-        }
-        if (trackingBtn) {
-          trackingBtn.className = 'flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition bg-indigo-600 text-white shadow-sm';
-        }
-        fetchConsumableTracking(true);
-      }
-    }
-
-    function renderConsumablesOrderCards() {
-      const container = document.getElementById('consumablesCardsContainer');
+    function renderConsumablesItemsContainer() {
+      const container = document.getElementById('consumablesItemsContainer');
       if (!container) return;
 
-      let html = '';
-      CONSUMABLE_ITEMS_DEF.forEach((item, index) => {
-        const itemNum = index + 1;
-        const isCustom = item.isCustom;
-        const currentQty = consumableQuantities[item.id] || 0;
-        const isSelected = currentQty > 0;
+      const colorClasses = {
+        blue: { bg: 'bg-blue-50 text-blue-700 border-blue-200', iconBg: 'bg-blue-100 text-blue-600', active: 'border-blue-500 ring-2 ring-blue-400/20 bg-blue-50/20' },
+        indigo: { bg: 'bg-indigo-50 text-indigo-700 border-indigo-200', iconBg: 'bg-indigo-100 text-indigo-600', active: 'border-indigo-500 ring-2 ring-indigo-400/20 bg-indigo-50/20' },
+        amber: { bg: 'bg-amber-50 text-amber-700 border-amber-200', iconBg: 'bg-amber-100 text-amber-600', active: 'border-amber-500 ring-2 ring-amber-400/20 bg-amber-50/20' },
+        purple: { bg: 'bg-purple-50 text-purple-700 border-purple-200', iconBg: 'bg-purple-100 text-purple-600', active: 'border-purple-500 ring-2 ring-purple-400/20 bg-purple-50/20' },
+        teal: { bg: 'bg-teal-50 text-teal-700 border-teal-200', iconBg: 'bg-teal-100 text-teal-600', active: 'border-teal-500 ring-2 ring-teal-400/20 bg-teal-50/20' },
+        slate: { bg: 'bg-slate-100 text-slate-700 border-slate-300', iconBg: 'bg-slate-200 text-slate-600', active: 'border-slate-500 ring-2 ring-slate-400/20 bg-slate-50/40' },
+        sky: { bg: 'bg-sky-50 text-sky-700 border-sky-200', iconBg: 'bg-sky-100 text-sky-600', active: 'border-sky-500 ring-2 ring-sky-400/20 bg-sky-50/20' },
+        rose: { bg: 'bg-rose-50 text-rose-700 border-rose-200', iconBg: 'bg-rose-100 text-rose-600', active: 'border-rose-500 ring-2 ring-rose-400/20 bg-rose-50/20' },
+        emerald: { bg: 'bg-emerald-50 text-emerald-700 border-emerald-200', iconBg: 'bg-emerald-100 text-emerald-600', active: 'border-emerald-500 ring-2 ring-emerald-400/20 bg-emerald-50/20' },
+        orange: { bg: 'bg-orange-50 text-orange-700 border-orange-200', iconBg: 'bg-orange-100 text-orange-600', active: 'border-orange-500 ring-2 ring-orange-400/20 bg-orange-50/20' },
+        zinc: { bg: 'bg-zinc-100 text-zinc-700 border-zinc-300', iconBg: 'bg-zinc-200 text-zinc-600', active: 'border-zinc-500 ring-2 ring-zinc-400/20 bg-zinc-50/40' },
+        cyan: { bg: 'bg-cyan-50 text-cyan-700 border-cyan-200', iconBg: 'bg-cyan-100 text-cyan-600', active: 'border-cyan-500 ring-2 ring-cyan-400/20 bg-cyan-50/20' }
+      };
 
-        if (isCustom) {
-          // Custom Item Card (Card 16)
-          let customRowsHtml = '';
-          consumableCustomItems.forEach((cItem, cIdx) => {
-            customRowsHtml += `
-              <div class="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2 relative">
-                <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-bold text-purple-700 dark:text-purple-300">รายการเพิ่มเติม #${cIdx + 1}</span>
-                  <button type="button" onclick="removeCustomConsumableItem(${cIdx})" class="p-1 text-rose-500 hover:text-rose-700 text-xs cursor-pointer" title="ลบรายการนี้">
-                    <i class="fa-solid fa-trash-can"></i>
-                  </button>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  <div class="sm:col-span-1">
-                    <input type="text" placeholder="ชื่ออุปกรณ์..." value="${escapeHtml(cItem.name || '')}" oninput="updateCustomConsumableItem(${cIdx}, 'name', this.value)" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                  </div>
-                  <div>
-                    <input type="number" min="1" max="999" placeholder="จำนวน" value="${cItem.qty || 1}" oninput="updateCustomConsumableItem(${cIdx}, 'qty', this.value)" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 text-center font-bold focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                  </div>
-                  <div>
-                    <input type="text" placeholder="หน่วย (เช่น ชิ้น/เมตร)" value="${escapeHtml(cItem.unit || 'ชิ้น')}" oninput="updateCustomConsumableItem(${cIdx}, 'unit', this.value)" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-xs bg-white dark:bg-slate-900 focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                  </div>
-                </div>
-              </div>
-            `;
-          });
+      container.innerHTML = CONSUMABLE_ITEMS.map((item, idx) => {
+        const qty = consumableQuantities[item.id] || 0;
+        const color = colorClasses[item.color] || colorClasses.indigo;
+        const isSelected = qty > 0;
 
-          html += `
-            <div class="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border ${consumableCustomItems.length > 0 ? 'border-purple-400 dark:border-purple-500 bg-purple-50/10' : 'border-slate-200 dark:border-slate-800'} shadow-xs space-y-3 transition">
-              <div class="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">
-                    <i class="fa-solid fa-circle-plus"></i>
-                  </div>
-                  <div>
-                    <h4 class="text-sm font-bold text-slate-800 dark:text-white">16. ${item.name}</h4>
-                    <span class="text-[11px] text-slate-400">ระบุชื่ออุปกรณ์สิ้นเปลืองอื่นๆ นอกเหนือจากรายการด้านบน</span>
-                  </div>
-                </div>
-                <button type="button" onclick="addCustomConsumableItem()" class="px-3 py-1.5 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-700 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
-                  <i class="fa-solid fa-plus"></i>
-                  <span>+ เพิ่มรายการอื่น</span>
-                </button>
-              </div>
-
-              <div id="csmCustomItemsList" class="space-y-2">
-                ${customRowsHtml || '<p class="text-xs text-slate-400 text-center py-2">ยังไม่มีรายการอื่นๆ ที่เพิ่ม (กดปุ่ม "+ เพิ่มรายการอื่น" หากต้องการระบุอุปกรณ์พิเศษ)</p>'}
-              </div>
-            </div>
-          `;
-          return;
-        }
-
-        // Standard 15 Items
-        html += `
-          <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border ${isSelected ? 'border-violet-500 ring-2 ring-violet-500/20 bg-violet-50/20' : 'border-slate-200 dark:border-slate-800'} shadow-xs hover:shadow-md transition space-y-3 flex flex-col justify-between">
+        return `
+          <div id="csmCard_${item.id}" class="p-3.5 rounded-2xl border ${isSelected ? color.active : 'border-slate-200 bg-white hover:border-slate-300'} transition flex flex-col justify-between space-y-3 shadow-xs">
             
-            <!-- Card Header -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-mono">
-                  #${itemNum}
-                </span>
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-800 dark:bg-violet-950/80 dark:text-violet-300 border border-violet-200 dark:border-violet-800">
-                  ลิมิต: ${item.limit} ${item.unit}
-                </span>
+            <!-- Top Row: Icon & Item Info -->
+            <div class="flex items-start gap-2.5">
+              <div class="w-9 h-9 rounded-xl ${color.iconBg} flex items-center justify-center text-sm shrink-0">
+                <i class="fa-solid ${item.icon}"></i>
               </div>
-
-              <div class="flex items-start gap-2.5 pt-1">
-                <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center text-sm shrink-0">
-                  <i class="${item.icon}"></i>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${color.bg} border truncate max-w-[100px]">${item.category}</span>
+                  <span class="text-[10px] font-semibold text-slate-400 font-mono">#${idx + 1}</span>
                 </div>
-                <div>
-                  <h4 class="text-xs font-bold text-slate-800 dark:text-white leading-tight">${item.name}</h4>
-                  <span class="text-[11px] text-slate-400">หน่วย: ${item.unit}</span>
+                <h4 class="text-xs font-bold text-slate-800 truncate mt-1" title="${item.name}">${item.name}</h4>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="text-[11px] font-bold text-amber-700">สูงสุด: ${item.limit} ${item.unit}</span>
                 </div>
               </div>
             </div>
 
-            <!-- Stepper Controls -->
-            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-              <div class="flex items-center gap-1.5 w-full">
-                <!-- Minus Button -->
-                <button type="button" onclick="changeConsumableQty('${item.id}', -1)" class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold flex items-center justify-center text-sm transition active:scale-95 cursor-pointer disabled:opacity-40" ${currentQty <= 0 ? 'disabled' : ''}>
-                  <i class="fa-solid fa-minus text-xs"></i>
+            <!-- Bottom Row: Stepper Controls -->
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-[11px] font-medium text-slate-500">หน่วย: <b>${item.unit}</b></span>
+              
+              <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                <button type="button" onclick="changeConsumableQty('${item.id}', -1)" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-700 hover:bg-rose-50 hover:text-rose-600 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-center transition shadow-xs cursor-pointer">
+                  <i class="fa-solid fa-minus"></i>
                 </button>
-
-                <!-- Input Quantity -->
-                <div class="flex-1 relative">
-                  <input type="number" min="0" max="${item.limit}" value="${currentQty}" onchange="setConsumableQty('${item.id}', this.value)" class="w-full py-1.5 px-2 text-center text-sm font-bold font-mono rounded-xl border ${isSelected ? 'border-violet-500 bg-violet-50/40 text-violet-900 dark:bg-violet-950/40 dark:text-violet-200' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-white'} focus:outline-none focus:ring-2 focus:ring-violet-500">
-                </div>
-
-                <!-- Plus Button -->
-                <button type="button" onclick="changeConsumableQty('${item.id}', 1)" class="w-8 h-8 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold flex items-center justify-center text-sm transition active:scale-95 cursor-pointer disabled:opacity-40" ${currentQty >= item.limit ? 'disabled' : ''}>
-                  <i class="fa-solid fa-plus text-xs"></i>
+                <input type="number" id="csmInput_${item.id}" min="0" max="${item.limit}" value="${qty}" onchange="setConsumableQty('${item.id}', this.value)" class="w-12 text-center text-xs font-black font-mono bg-transparent border-0 focus:outline-none text-slate-800 dark:text-white" />
+                <button type="button" onclick="changeConsumableQty('${item.id}', 1)" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-700 hover:bg-emerald-50 hover:text-emerald-600 text-slate-700 dark:text-slate-200 font-bold text-xs flex items-center justify-center transition shadow-xs cursor-pointer">
+                  <i class="fa-solid fa-plus"></i>
                 </button>
               </div>
             </div>
 
           </div>
         `;
-      });
-
-      container.innerHTML = html;
-      updateConsumablesSummary();
+      }).join('');
     }
 
     function changeConsumableQty(itemId, delta) {
-      const itemDef = CONSUMABLE_ITEMS_DEF.find(i => i.id === itemId);
-      if (!itemDef) return;
+      const item = CONSUMABLE_ITEMS.find(it => it.id === itemId);
+      if (!item) return;
 
       const current = consumableQuantities[itemId] || 0;
       let next = current + delta;
       if (next < 0) next = 0;
-      if (next > itemDef.limit) {
-        next = itemDef.limit;
+      if (next > item.limit) {
+        next = item.limit;
         Swal.fire({
+          toast: true,
+          position: 'top-end',
           icon: 'warning',
-          title: 'เกินลิมิตการเบิก',
-          text: `${itemDef.name} เบิกได้สูงสุดไม่เกิน ${itemDef.limit} ${itemDef.unit}`,
-          timer: 2000,
-          showConfirmButton: false
+          title: `ลิมิตไม่เกิน ${item.limit} ${item.unit}`,
+          showConfirmButton: false,
+          timer: 2000
         });
       }
 
       consumableQuantities[itemId] = next;
-      renderConsumablesOrderCards();
+      const input = document.getElementById(`csmInput_${itemId}`);
+      if (input) input.value = next;
+
+      const card = document.getElementById(`csmCard_${itemId}`);
+      if (card) {
+        if (next > 0) {
+          card.classList.add('border-indigo-500', 'bg-indigo-50/20', 'ring-2', 'ring-indigo-400/20');
+          card.classList.remove('border-slate-200', 'bg-white');
+        } else {
+          card.classList.remove('border-indigo-500', 'bg-indigo-50/20', 'ring-2', 'ring-indigo-400/20');
+          card.classList.add('border-slate-200', 'bg-white');
+        }
+      }
+
+      updateConsumablesSummary();
     }
 
-    function setConsumableQty(itemId, value) {
-      const itemDef = CONSUMABLE_ITEMS_DEF.find(i => i.id === itemId);
-      if (!itemDef) return;
+    function setConsumableQty(itemId, rawVal) {
+      const item = CONSUMABLE_ITEMS.find(it => it.id === itemId);
+      if (!item) return;
 
-      let val = parseInt(value, 10);
+      let val = parseInt(rawVal, 10);
       if (isNaN(val) || val < 0) val = 0;
-      if (val > itemDef.limit) {
-        val = itemDef.limit;
+      if (val > item.limit) {
+        val = item.limit;
         Swal.fire({
+          toast: true,
+          position: 'top-end',
           icon: 'warning',
-          title: 'เกินลิมิตการเบิก',
-          text: `${itemDef.name} เบิกได้สูงสุดไม่เกิน ${itemDef.limit} ${itemDef.unit}`,
-          timer: 2000,
-          showConfirmButton: false
+          title: `ลิมิตไม่เกิน ${item.limit} ${item.unit}`,
+          showConfirmButton: false,
+          timer: 2000
         });
       }
 
       consumableQuantities[itemId] = val;
-      renderConsumablesOrderCards();
+      const input = document.getElementById(`csmInput_${itemId}`);
+      if (input) input.value = val;
+
+      const card = document.getElementById(`csmCard_${itemId}`);
+      if (card) {
+        if (val > 0) {
+          card.classList.add('border-indigo-500', 'bg-indigo-50/20', 'ring-2', 'ring-indigo-400/20');
+          card.classList.remove('border-slate-200', 'bg-white');
+        } else {
+          card.classList.remove('border-indigo-500', 'bg-indigo-50/20', 'ring-2', 'ring-indigo-400/20');
+          card.classList.add('border-slate-200', 'bg-white');
+        }
+      }
+
+      updateConsumablesSummary();
     }
 
-    function addCustomConsumableItem() {
-      consumableCustomItems.push({
-        id: Date.now(),
+    function addCustomConsumableRow() {
+      customConsumableItems.push({
         name: '',
-        qty: 1,
-        unit: 'ชิ้น'
+        quantity: 1,
+        unit: 'ชิ้น',
+        remarks: ''
       });
-      renderConsumablesOrderCards();
+      renderCustomConsumablesList();
+      updateConsumablesSummary();
     }
 
-    function removeCustomConsumableItem(idx) {
-      consumableCustomItems.splice(idx, 1);
-      renderConsumablesOrderCards();
+    function removeCustomConsumableRow(idx) {
+      customConsumableItems.splice(idx, 1);
+      renderCustomConsumablesList();
+      updateConsumablesSummary();
     }
 
-    function updateCustomConsumableItem(idx, field, val) {
-      if (!consumableCustomItems[idx]) return;
-      if (field === 'qty') {
-        const parsed = parseInt(val, 10);
-        consumableCustomItems[idx].qty = isNaN(parsed) || parsed < 1 ? 1 : parsed;
+    function updateCustomConsumableField(idx, field, value) {
+      if (!customConsumableItems[idx]) return;
+      if (field === 'quantity') {
+        const q = parseInt(value, 10);
+        customConsumableItems[idx].quantity = (isNaN(q) || q < 1) ? 1 : q;
       } else {
-        consumableCustomItems[idx][field] = val;
+        customConsumableItems[idx][field] = value;
       }
       updateConsumablesSummary();
     }
 
-    function updateConsumablesSummary() {
-      let activeTypesCount = 0;
-      let totalPieces = 0;
-
-      // Standard items
-      CONSUMABLE_ITEMS_DEF.forEach(item => {
-        if (!item.isCustom) {
-          const q = consumableQuantities[item.id] || 0;
-          if (q > 0) {
-            activeTypesCount++;
-            totalPieces += q;
-          }
-        }
-      });
-
-      // Custom items
-      consumableCustomItems.forEach(c => {
-        if (c.name && c.name.trim() && (c.qty > 0)) {
-          activeTypesCount++;
-          totalPieces += c.qty;
-        }
-      });
-
-      const countBadge = document.getElementById('csmSummaryItemsCountBadge');
-      const totalPiecesText = document.getElementById('csmSummaryTotalPiecesText');
-
-      if (countBadge) countBadge.textContent = `${activeTypesCount} ชนิด`;
-      if (totalPiecesText) totalPiecesText.textContent = `รวมทั้งหมด: ${totalPieces} ชิ้น/หน่วย`;
-    }
-
-    function resetConsumablesForm() {
-      consumableQuantities = {};
-      consumableCustomItems = [];
-      const remarksInput = document.getElementById('csmOrderRemarks');
-      if (remarksInput) remarksInput.value = '';
-      renderConsumablesOrderCards();
-    }
-
-    async function submitConsumableOrder() {
-      if (!currentUser) {
-        Swal.fire('กรุณาเข้าสู่ระบบ', 'กรุณาเข้าสู่ระบบด้วยรหัสช่างของท่านก่อนทำรายการ', 'warning');
-        showLoginModal();
-        return;
-      }
-
-      // Collect selected items
-      const selectedItems = [];
-
-      CONSUMABLE_ITEMS_DEF.forEach(item => {
-        if (!item.isCustom) {
-          const q = consumableQuantities[item.id] || 0;
-          if (q > 0) {
-            selectedItems.push({
-              name: item.name,
-              qty: q,
-              unit: item.unit
-            });
-          }
-        }
-      });
-
-      consumableCustomItems.forEach(c => {
-        const cName = String(c.name || '').trim();
-        const cQty = Number(c.qty || 1);
-        const cUnit = String(c.unit || 'ชิ้น').trim();
-        if (cName && cQty > 0) {
-          selectedItems.push({
-            name: cName,
-            qty: cQty,
-            unit: cUnit
-          });
-        }
-      });
-
-      if (selectedItems.length === 0) {
-        Swal.fire({
-          icon: 'info',
-          title: 'ยังไม่ได้เลือกอุปกรณ์',
-          text: 'กรุณาระบุจำนวนอุปกรณ์ที่ต้องการเบิกอย่างน้อย 1 รายการ'
-        });
-        return;
-      }
-
-      const remarks = (document.getElementById('csmOrderRemarks')?.value || '').trim();
-
-      // Show confirmation dialog with summary
-      let itemsListHtml = '<ul class="text-left text-xs space-y-1.5 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 max-h-48 overflow-y-auto">';
-      selectedItems.forEach((it, idx) => {
-        itemsListHtml += `<li class="flex justify-between items-center"><span class="font-bold text-slate-800 dark:text-white">${idx + 1}. ${escapeHtml(it.name)}</span> <span class="font-bold text-violet-600 dark:text-violet-400">${it.qty} ${escapeHtml(it.unit)}</span></li>`;
-      });
-      itemsListHtml += '</ul>';
-
-      const confirmRes = await Swal.fire({
-        title: 'ยืนยันสั่งเบิกอุปกรณ์?',
-        html: `
-          <div class="space-y-3">
-            <p class="text-xs text-slate-500">ผู้ขอเบิก: <b class="text-slate-800 dark:text-white">${escapeHtml(currentUser.name)}</b> (${escapeHtml(currentUser.team || '-')})</p>
-            ${itemsListHtml}
-            ${remarks ? `<p class="text-xs text-slate-500 text-left">หมายเหตุ: <span class="text-slate-700 dark:text-slate-300 font-medium">${escapeHtml(remarks)}</span></p>` : ''}
-          </div>
-        `,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: '<i class="fa-solid fa-paper-plane mr-1"></i> ยืนยันสั่งเบิก',
-        cancelButtonText: 'ยกเลิก',
-        confirmButtonColor: '#7c3aed',
-        cancelButtonColor: '#64748b'
-      });
-
-      if (!confirmRes.isConfirmed) return;
-
-      const submitBtn = document.getElementById('csmSubmitOrderBtn');
-      const submitBtnText = document.getElementById('csmSubmitOrderBtnText');
-      if (submitBtn) submitBtn.disabled = true;
-      if (submitBtnText) submitBtnText.textContent = 'กำลังบันทึกออเดอร์...';
-
-      const gasUrl = getGasUrl();
-      const payload = {
-        action: 'saveConsumableOrder',
-        technician: currentUser.name,
-        teamFullName: currentUser.team ? `${currentUser.team} ${currentUser.name}` : getTechTeamFullName(currentUser.name),
-        remarks: remarks,
-        status: 'กำลังดำเนินการ',
-        items: selectedItems
-      };
-
-      try {
-        let orderResult = null;
-
-        if (gasUrl) {
-          const resp = await fetch(gasUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-          });
-          orderResult = await resp.json();
-        }
-
-        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
-        const orderId = (orderResult && orderResult.orderId) ? orderResult.orderId : `CSM-${Date.now().toString().slice(-6)}`;
-
-        // Prepend new order locally to cache
-        const localNewOrder = {
-          rowId: orderResult?.rowNumber || consumableOrdersCache.length + 1,
-          orderId: orderId,
-          orderDate: nowStr,
-          technician: currentUser.name,
-          team: payload.teamFullName,
-          itemsSummary: selectedItems.map(i => `• ${i.name}: ${i.qty} ${i.unit}`).join('\n'),
-          itemsCount: selectedItems.length,
-          remarks: remarks,
-          status: 'กำลังดำเนินการ',
-          adminRemarks: '',
-          finishDate: ''
-        };
-
-        consumableOrdersCache.unshift(localNewOrder);
-        saveLocalConsumableOrders();
-
-        // Reset form
-        resetConsumablesForm();
-
-        // Success Alert
-        Swal.fire({
-          icon: 'success',
-          title: 'สั่งเบิกอุปกรณ์สำเร็จ! 🎉',
-          html: `
-            <div class="text-xs space-y-2 bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-left">
-              <p><b>รหัสออเดอร์ (Order ID):</b> <span class="text-violet-600 font-mono font-bold">${escapeHtml(orderId)}</span></p>
-              <p><b>สถานะ:</b> <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[11px]">🟡 กำลังดำเนินการ</span></p>
-              <p class="text-slate-500 pt-1">แอดมินจะได้รับรายการและจัดเตรียมอุปกรณ์ให้ท่าน ท่านสามารถติดตามสถานะได้ที่หน้า <b>Tracking</b></p>
-            </div>
-          `,
-          confirmButtonColor: '#7c3aed',
-          confirmButtonText: 'ไปที่หน้าติดตามสถานะ (Tracking)'
-        }).then(() => {
-          switchConsumablesSubView('tracking');
-        });
-
-      } catch (err) {
-        console.error("Error submitting consumable order:", err);
-        Swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกออเดอร์ได้: ' + err.message, 'error');
-      } finally {
-        if (submitBtn) submitBtn.disabled = false;
-        if (submitBtnText) submitBtnText.textContent = 'ยืนยันสั่งเบิกอุปกรณ์';
-      }
-    }
-
-    function saveLocalConsumableOrders() {
-      try {
-        localStorage.setItem(STORAGE_KEY_CONSUMABLES_ORDERS, JSON.stringify(consumableOrdersCache));
-        updateConsumablePendingBadges();
-      } catch (e) {}
-    }
-
-    function loadCachedConsumableOrders() {
-      try {
-        const cached = localStorage.getItem(STORAGE_KEY_CONSUMABLES_ORDERS);
-        if (cached) {
-          consumableOrdersCache = JSON.parse(cached);
-          renderConsumableTrackingCards();
-          updateConsumablePendingBadges();
-        }
-      } catch (e) {}
-    }
-
-    async function fetchConsumableTracking(isSilent = false) {
-      const gasUrl = getGasUrl();
-      if (!gasUrl) {
-        renderConsumableTrackingCards();
-        return;
-      }
-
-      const refreshBtn = document.getElementById('csmTrackingRefreshBtn');
-      if (refreshBtn && !isSilent) {
-        refreshBtn.disabled = true;
-        refreshBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังรีเฟรช...';
-      }
-
-      try {
-        const resp = await fetch(`${gasUrl}?action=getConsumableOrders`, { cache: 'no-store' });
-        const json = await resp.json();
-
-        if (json.status === 'success' && Array.isArray(json.orders)) {
-          consumableOrdersCache = json.orders;
-          saveLocalConsumableOrders();
-          renderConsumableTrackingCards();
-
-          if (!isSilent) {
-            const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
-            Toast.fire({ icon: 'success', title: `อัปเดตสถานะล่าสุด ${json.orders.length} ออเดอร์แล้ว` });
-          }
-        }
-      } catch (err) {
-        console.warn("fetchConsumableTracking failed:", err);
-        if (!isSilent) {
-          Swal.fire('เกิดข้อผิดพลาด', 'ไม่สามารถดึงข้อมูลสถานะออเดอร์ได้: ' + err.message, 'error');
-        }
-      } finally {
-        if (refreshBtn && !isSilent) {
-          refreshBtn.disabled = false;
-          refreshBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> <span>รีเฟรชสถานะ</span>';
-        }
-      }
-    }
-
-    function updateConsumablePendingBadges() {
-      const pendingCount = consumableOrdersCache.filter(o => String(o.status || '').trim() === 'กำลังดำเนินการ').length;
-      
-      const subBadge = document.getElementById('csmSubTrackingPendingBadge');
-      const topBadge = document.getElementById('consumablesPendingBadge');
-
-      if (subBadge) {
-        subBadge.textContent = `กำลังดำเนินการ ${pendingCount}`;
-        subBadge.className = pendingCount > 0 ? 'ml-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300 animate-pulse' : 'ml-1.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200';
-      }
-
-      if (topBadge) {
-        topBadge.textContent = pendingCount;
-        if (pendingCount > 0) {
-          topBadge.classList.remove('hidden');
-        } else {
-          topBadge.classList.add('hidden');
-        }
-      }
-
-      // Update Metric Stats Cards
-      const totalEl = document.getElementById('csmStatTotalCount');
-      const pendingEl = document.getElementById('csmStatPendingCount');
-      const completedEl = document.getElementById('csmStatCompletedCount');
-
-      if (totalEl) totalEl.textContent = consumableOrdersCache.length;
-      if (pendingEl) pendingEl.textContent = pendingCount;
-      if (completedEl) completedEl.textContent = consumableOrdersCache.filter(o => String(o.status || '').trim() === 'สำเร็จ').length;
-    }
-
-    function filterConsumableTracking() {
-      renderConsumableTrackingCards();
-    }
-
-    function renderConsumableTrackingCards() {
-      const container = document.getElementById('csmTrackingCardsList');
+    function renderCustomConsumablesList() {
+      const container = document.getElementById('customConsumablesList');
       if (!container) return;
 
-      const q = (document.getElementById('csmTrackingSearchInput')?.value || '').toLowerCase().trim();
-      const statusFilter = document.getElementById('csmTrackingStatusFilter')?.value || 'ALL';
-      const scopeFilter = document.getElementById('csmTrackingScopeFilter')?.value || 'MY';
-
-      let filtered = consumableOrdersCache.filter(o => {
-        const orderId = String(o.orderId || '').toLowerCase();
-        const tech = String(o.technician || '').toLowerCase();
-        const team = String(o.team || '').toLowerCase();
-        const items = String(o.itemsSummary || '').toLowerCase();
-        const remarks = String(o.remarks || '').toLowerCase();
-        const status = String(o.status || 'กำลังดำเนินการ').trim();
-
-        // Query Match
-        const matchQ = !q || orderId.includes(q) || tech.includes(q) || team.includes(q) || items.includes(q) || remarks.includes(q);
-
-        // Status Match
-        let matchStatus = true;
-        if (statusFilter === 'PENDING') matchStatus = (status === 'กำลังดำเนินการ');
-        if (statusFilter === 'COMPLETED') matchStatus = (status === 'สำเร็จ');
-
-        // Scope Match
-        let matchScope = true;
-        if (scopeFilter === 'MY' && currentUser) {
-          matchScope = tech.includes(currentUser.name.toLowerCase()) || (currentUser.id && tech.includes(currentUser.id.toLowerCase()));
-        }
-
-        return matchQ && matchStatus && matchScope;
-      });
-
-      updateConsumablePendingBadges();
-
-      if (filtered.length === 0) {
+      if (customConsumableItems.length === 0) {
         container.innerHTML = `
-          <div class="bg-white dark:bg-slate-900 rounded-3xl p-10 text-center border border-slate-200 dark:border-slate-800 text-slate-400 space-y-2">
-            <i class="fa-solid fa-box-open text-4xl text-slate-300 dark:text-slate-700"></i>
-            <h4 class="text-sm font-bold text-slate-600 dark:text-slate-300">ไม่พบรายการออเดอร์</h4>
-            <p class="text-xs text-slate-400">ยังไม่มีออเดอร์ที่ตรงกับเงื่อนไขการค้นหา หรือยังไม่มีการสั่งเบิกอุปกรณ์</p>
+          <div id="noCustomItemsMsg" class="text-center py-4 text-xs text-slate-400 bg-slate-50/60 rounded-xl border border-dashed border-slate-200">
+            <i class="fa-solid fa-inbox mr-1"></i> ยังไม่มีรายการอื่นๆ เพิ่มเติม (คลิกปุ่ม <b>"เพิ่มรายการ"</b> ด้านบนหากต้องการระบุ)
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = customConsumableItems.map((csm, idx) => `
+        <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5 transition">
+          <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+            <span class="flex items-center gap-1.5 text-teal-700 font-bold">
+              <i class="fa-solid fa-tag text-[10px]"></i> รายการอื่น #${idx + 1}
+            </span>
+            <button type="button" onclick="removeCustomConsumableRow(${idx})" class="text-xs text-rose-500 hover:text-rose-700 font-medium flex items-center gap-1 cursor-pointer">
+              <i class="fa-solid fa-trash-can"></i> ลบรายการนี้
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+            <!-- ชื่ออุปกรณ์ -->
+            <div class="sm:col-span-5">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">ชื่ออุปกรณ์ / วัสดุ <span class="text-rose-500">*</span></label>
+              <input type="text" value="${escapeHtml(csm.name)}" oninput="updateCustomConsumableField(${idx}, 'name', this.value)" placeholder="เช่น ข้อต่อตรง, ท่อร้อยสาย..." class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <!-- จำนวน -->
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">จำนวน <span class="text-rose-500">*</span></label>
+              <input type="number" min="1" value="${csm.quantity}" oninput="updateCustomConsumableField(${idx}, 'quantity', this.value)" class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-mono font-bold bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-center">
+            </div>
+
+            <!-- หน่วย -->
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">หน่วย</label>
+              <input type="text" value="${escapeHtml(csm.unit)}" oninput="updateCustomConsumableField(${idx}, 'unit', this.value)" placeholder="เช่น ชิ้น, อัน, กล่อง" class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <!-- หมายเหตุ -->
+            <div class="sm:col-span-3">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">หมายเหตุเฉพาะรายการ</label>
+              <input type="text" value="${escapeHtml(csm.remarks)}" oninput="updateCustomConsumableField(${idx}, 'remarks', this.value)" placeholder="เช่น ขนาด 20mm..." class="w-full px-3 py-1.5 rounded-xl border border-slate-200 text-xs bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateConsumablesSummary() {
+      const selectedPresets = CONSUMABLE_ITEMS.filter(it => (consumableQuantities[it.id] || 0) > 0);
+      const validCustoms = customConsumableItems.filter(it => String(it.name || '').trim().length > 0 && it.quantity > 0);
+
+      const totalItemsCount = selectedPresets.length + validCustoms.length;
+      let totalUnits = 0;
+
+      selectedPresets.forEach(it => { totalUnits += (consumableQuantities[it.id] || 0); });
+      validCustoms.forEach(it => { totalUnits += (parseInt(it.quantity, 10) || 0); });
+
+      const badge = document.getElementById('consumablesSummaryBadge');
+      const totalUnitsEl = document.getElementById('consumablesTotalUnits');
+      const listContainer = document.getElementById('consumablesSummaryItems');
+      const submitBtn = document.getElementById('btnSubmitConsumablesOrder');
+
+      if (badge) badge.textContent = `${totalItemsCount} รายการ`;
+      if (totalUnitsEl) totalUnitsEl.textContent = `${totalUnits.toLocaleString()} ชิ้น/หน่วย`;
+      if (submitBtn) submitBtn.disabled = (totalItemsCount === 0);
+
+      if (!listContainer) return;
+
+      if (totalItemsCount === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-8 text-xs text-slate-400 bg-slate-50 rounded-2xl border border-slate-100">
+            <i class="fa-solid fa-basket-shopping text-2xl text-slate-300 block mb-2"></i>
+            ยังไม่ได้เลือกอุปกรณ์ใดๆ<br>
+            <span class="text-[11px] text-slate-400">กรุณาเพิ่มจำนวนในรายการด้านซ้าย</span>
           </div>
         `;
         return;
       }
 
       let html = '';
-      filtered.forEach((order, idx) => {
-        const isCompleted = String(order.status || '').trim() === 'สำเร็จ';
-        const isPending = !isCompleted;
-
-        // Parse items summary lines into bullet badges
-        const lines = String(order.itemsSummary || '').split('\n').filter(l => l.trim().length > 0);
-        let itemsBadgeHtml = '';
-        lines.forEach(l => {
-          itemsBadgeHtml += `
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-medium text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700">
-              <i class="fa-solid fa-circle-dot text-[8px] text-violet-500"></i>
-              <span>${escapeHtml(l.replace(/^[•\-\*]\s*/, ''))}</span>
-            </div>
-          `;
-        });
-
+      selectedPresets.forEach(it => {
+        const qty = consumableQuantities[it.id] || 0;
         html += `
-          <div class="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border ${isPending ? 'border-amber-300 dark:border-amber-700/80 shadow-md shadow-amber-500/5' : 'border-emerald-200 dark:border-emerald-800 shadow-sm'} space-y-4 transition">
-            
-            <!-- Order Header -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-2xl ${isPending ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/80 dark:text-amber-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/80 dark:text-emerald-300'} flex items-center justify-center font-bold text-lg shadow-xs">
-                  <i class="${isPending ? 'fa-solid fa-clock-rotate-left' : 'fa-solid fa-circle-check'}"></i>
-                </div>
-                <div>
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-mono font-bold text-sm text-slate-900 dark:text-white">#${escapeHtml(order.orderId || '-')}</span>
-                    <span class="text-[11px] text-slate-400">• ${escapeHtml(order.orderDate || '-')}</span>
-                  </div>
-                  <p class="text-xs text-slate-600 dark:text-slate-300 font-semibold mt-0.5">
-                    👤 ${escapeHtml(order.technician || '-')} ${order.team ? `<span class="text-slate-400 font-normal">(${escapeHtml(order.team)})</span>` : ''}
-                  </p>
-                </div>
-              </div>
-
-              <!-- Status Badge & Action -->
-              <div class="flex items-center gap-2 self-start sm:self-auto">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${isPending ? 'bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700' : 'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700'}">
-                  <span class="w-2 h-2 rounded-full ${isPending ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'}"></span>
-                  ${isPending ? '🟡 กำลังดำเนินการ (รอจัดของ)' : '🟢 จัดเตรียมสำเร็จแล้ว'}
-                </span>
-
-                <button type="button" onclick="printConsumableSlip(${JSON.stringify(order).replace(/"/g, '&quot;')})" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold transition cursor-pointer" title="พิมพ์ใบเบิกออเดอร์">
-                  <i class="fa-solid fa-print"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- Items List Badges -->
-            <div class="space-y-2">
-              <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
-                📦 รายการอุปกรณ์ที่ขอเบิก (${order.itemsCount || lines.length} ชนิด):
-              </span>
-              <div class="flex flex-wrap gap-2">
-                ${itemsBadgeHtml || '<span class="text-xs text-slate-400">-</span>'}
-              </div>
-            </div>
-
-            <!-- Remarks & Admin Note -->
-            ${order.remarks || order.adminRemarks ? `
-              <div class="pt-2 text-xs text-slate-500 dark:text-slate-400 space-y-1 bg-slate-50 dark:bg-slate-800/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
-                ${order.remarks ? `<p><b>หมายเหตุช่าง:</b> ${escapeHtml(order.remarks)}</p>` : ''}
-                ${order.adminRemarks ? `<p class="text-emerald-600 dark:text-emerald-400"><b>แอดมินจัดเตรียม:</b> ${escapeHtml(order.adminRemarks)} ${order.finishDate ? `(${order.finishDate})` : ''}</p>` : ''}
-              </div>
-            ` : ''}
-
+          <div class="flex items-center justify-between p-2 rounded-xl bg-indigo-50/60 border border-indigo-100 text-xs">
+            <span class="font-bold text-slate-800 truncate max-w-[150px]" title="${it.name}">${it.name}</span>
+            <span class="font-black text-indigo-700 font-mono">${qty.toLocaleString()} ${it.unit}</span>
           </div>
         `;
       });
 
-      container.innerHTML = html;
-    }
-
-    function printConsumableSlip(order) {
-      if (!order) return;
-      const printWindow = window.open('', '_blank', 'width=700,height=800');
-      const lines = String(order.itemsSummary || '').split('\n').filter(l => l.trim().length > 0);
-      
-      let itemsListHtml = '';
-      lines.forEach((l, idx) => {
-        itemsListHtml += `<tr><td style="padding:8px;border-bottom:1px solid #e2e8f0;text-align:center;">${idx+1}</td><td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:bold;">${escapeHtml(l.replace(/^[•\-\*]\s*/, ''))}</td></tr>`;
+      validCustoms.forEach(it => {
+        html += `
+          <div class="flex items-center justify-between p-2 rounded-xl bg-teal-50/60 border border-teal-100 text-xs">
+            <span class="font-bold text-slate-800 truncate max-w-[150px]" title="${it.name}">[อื่นๆ] ${it.name}</span>
+            <span class="font-black text-teal-700 font-mono">${(it.quantity || 1).toLocaleString()} ${it.unit || 'ชิ้น'}</span>
+          </div>
+        `;
       });
 
-      const isCompleted = String(order.status || '').trim() === 'สำเร็จ';
+      listContainer.innerHTML = html;
+    }
 
-      printWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="th">
-        <head>
-          <meta charset="UTF-8">
-          <title>ใบเบิกอุปกรณ์สิ้นเปลือง - #${order.orderId}</title>
-          <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
-          <style>
-            body { font-family: 'Prompt', sans-serif; padding: 30px; color: #1e293b; line-height: 1.5; font-size: 13px; }
-            .header { text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px; }
-            .badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: bold; background: ${isCompleted ? '#d1fae5; color:#065f46;' : '#fef3c7; color:#92400e;'}; }
-            table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-            th { background: #f1f5f9; padding: 8px; border-bottom: 2px solid #cbd5e1; text-align: left; }
-            .signature-grid { display: flex; justify-content: space-between; margin-top: 50px; text-align: center; }
-            .sig-box { width: 45%; border-top: 1px dashed #94a3b8; padding-top: 8px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h2 style="margin:0;font-size:20px;">ใบเบิกอุปกรณ์สิ้นเปลือง (FBH Store)</h2>
-            <p style="margin:4px 0 0 0;color:#64748b;font-size:12px;">ศูนย์กระจายอุปกรณ์และระบบบันทึกสต็อก</p>
+    function resetConsumablesForm() {
+      consumableQuantities = {};
+      customConsumableItems = [];
+      const remarks = document.getElementById('consumableRemarksInput');
+      if (remarks) remarks.value = '';
+      initConsumablesModule();
+    }
+
+    async function handleSubmitConsumablesOrder(event) {
+      if (event) event.preventDefault();
+
+      const techNameInput = document.getElementById('consumableTechnicianInput');
+      const dateInput = document.getElementById('consumableDateInput');
+      const remarksInput = document.getElementById('consumableRemarksInput');
+
+      const tech = String((currentUser && currentUser.name) || (techNameInput ? techNameInput.value : '')).trim();
+      const reqDate = dateInput ? dateInput.value : '';
+      const remarks = remarksInput ? String(remarksInput.value || '').trim() : '';
+
+      if (!tech) {
+        Swal.fire('ข้อผิดพลาด', 'กรุณาระบุชื่อผู้เบิก / เข้าสู่ระบบก่อนทำรายการ', 'warning');
+        return;
+      }
+
+      // Collect items
+      const selectedPresets = CONSUMABLE_ITEMS
+        .filter(it => (consumableQuantities[it.id] || 0) > 0)
+        .map(it => ({
+          name: it.name,
+          quantity: consumableQuantities[it.id],
+          unit: it.unit,
+          limit: it.limit,
+          remarks: ''
+        }));
+
+      const validCustoms = customConsumableItems
+        .filter(it => String(it.name || '').trim().length > 0 && it.quantity > 0)
+        .map(it => ({
+          name: `[อื่นๆ] ${String(it.name).trim()}`,
+          quantity: parseInt(it.quantity, 10) || 1,
+          unit: String(it.unit || 'ชิ้น').trim(),
+          limit: 0,
+          remarks: String(it.remarks || '').trim()
+        }));
+
+      const allItems = [...selectedPresets, ...validCustoms];
+
+      if (allItems.length === 0) {
+        Swal.fire('แจ้งเตือน', 'กรุณาเลือกอุปกรณ์ที่ต้องการเบิกอย่างน้อย 1 รายการ', 'warning');
+        return;
+      }
+
+      // Check limits
+      for (const it of selectedPresets) {
+        if (it.limit > 0 && it.quantity > it.limit) {
+          Swal.fire('เกินลิมิตที่กำหนด', `รายการ '${it.name}' เบิกได้ไม่เกิน ${it.limit} ${it.unit}`, 'error');
+          return;
+        }
+      }
+
+      const confirmResult = await Swal.fire({
+        title: 'ยืนยันสร้างออเดอร์เบิก?',
+        html: `
+          <div class="text-xs text-slate-600 text-left space-y-2 bg-slate-50 p-3 rounded-2xl border border-slate-200 mt-2">
+            <p><b>ผู้เบิก:</b> ${tech}</p>
+            <p><b>จำนวนรายการ:</b> ${allItems.length} รายการ</p>
+            <p><b>สถานะเริ่มต้น:</b> <span class="text-amber-600 font-bold">กำลังดำเนินการ</span></p>
           </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'ยืนยันบันทึก',
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: '#4f46e5'
+      });
 
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-            <div><b>รหัสออเดอร์:</b> <span style="font-family:monospace;font-weight:bold;font-size:15px;color:#7c3aed;">#${order.orderId}</span></div>
-            <div><b>สถานะ:</b> <span class="badge">${isCompleted ? 'จัดเตรียมสำเร็จแล้ว' : 'กำลังดำเนินการ'}</span></div>
+      if (!confirmResult.isConfirmed) return;
+
+      const gasUrl = getGasUrl();
+      if (!gasUrl) {
+        Swal.fire('ข้อผิดพลาด', 'ยังไม่ได้ตั้งค่า Google Apps Script Web App URL ในหน้าตั้งค่า', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'กำลังสร้างออเดอร์...',
+        html: '<span class="text-xs text-slate-500">กำลังบันทึกข้อมูลเข้า Google Sheet GID: 2029525640</span>',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      try {
+        const payload = {
+          action: 'saveConsumablesOrder',
+          technician: tech,
+          teamFullName: (currentUser && currentUser.team) ? `${currentUser.team} ${tech}` : '',
+          requisitionDate: reqDate,
+          remarks: remarks,
+          items: allItems
+        };
+
+        const res = await fetch(gasUrl, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        const json = await res.json();
+
+        if (json.status === 'success') {
+          Swal.fire({
+            icon: 'success',
+            title: 'สร้างออเดอร์สำเร็จ! 🎉',
+            html: `
+              <div class="text-xs text-slate-600 text-left space-y-2 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 mt-2">
+                <p class="font-bold text-indigo-700 text-sm">เลขที่ออเดอร์: ${json.orderId}</p>
+                <p><b>สถานะ:</b> <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-bold">🟡 กำลังดำเนินการ</span></p>
+                <p class="text-[11px] text-slate-500">ข้อมูลถูกบันทึกลง Google Sheet แล้ว แอดมินจะจัดเตรียมอุปกรณ์และอัปเดตสถานะเป็น "สำเร็จ"</p>
+              </div>
+            `,
+            confirmButtonText: 'ไปที่หน้าติดตามสถานะ (Tracking)',
+            confirmButtonColor: '#4f46e5'
+          }).then(() => {
+            resetConsumablesForm();
+            toggleConsumablesView('tracking');
+            fetchConsumablesOrders();
+          });
+        } else {
+          throw new Error(json.message || 'เกิดข้อผิดพลาดในการบันทึกออเดอร์');
+        }
+      } catch (err) {
+        Swal.fire('ข้อผิดพลาด', err.message, 'error');
+      }
+    }
+
+    function toggleConsumablesView(viewName) {
+      consumablesActiveView = viewName;
+      const formView = document.getElementById('consumablesFormView');
+      const trackingView = document.getElementById('consumablesTrackingView');
+      const btnForm = document.getElementById('btnConsumablesViewForm');
+      const btnTracking = document.getElementById('btnConsumablesViewTracking');
+
+      if (viewName === 'form') {
+        if (formView) formView.classList.remove('hidden');
+        if (trackingView) trackingView.classList.add('hidden');
+        if (btnForm) {
+          btnForm.className = 'px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-white text-indigo-950 shadow-md';
+        }
+        if (btnTracking) {
+          btnTracking.className = 'px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-white/90 hover:text-white hover:bg-white/10';
+        }
+      } else {
+        if (formView) formView.classList.add('hidden');
+        if (trackingView) trackingView.classList.remove('hidden');
+        if (btnForm) {
+          btnForm.className = 'px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-white/90 hover:text-white hover:bg-white/10';
+        }
+        if (btnTracking) {
+          btnTracking.className = 'px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-white text-indigo-950 shadow-md';
+        }
+        fetchConsumablesOrders();
+      }
+    }
+
+    async function fetchConsumablesOrders(isSilent = false) {
+      const gasUrl = getGasUrl();
+      if (!gasUrl) return;
+
+      const spinner = document.getElementById('consumablesSyncSpinner');
+      if (spinner) spinner.classList.add('fa-spin');
+
+      try {
+        const res = await fetch(`${gasUrl}${gasUrl.includes('?') ? '&' : '?'}action=getConsumablesOrders&t=${Date.now()}`);
+        const json = await res.json();
+
+        if (json.status === 'success') {
+          localConsumableOrders = json.data || [];
+          localStorage.setItem('fbh_consumables_orders', JSON.stringify(localConsumableOrders));
+          
+          // Update Badges
+          const pendingCount = json.pendingCount || 0;
+          const completedCount = json.completedCount || 0;
+          const totalCount = json.total || localConsumableOrders.length;
+
+          const deskBadge = document.getElementById('consumablesPendingBadge');
+          const mobBadge = document.getElementById('mobConsumablesPendingBadge');
+          const trackBadge = document.getElementById('consumablesTrackingCountBadge');
+
+          if (deskBadge) {
+            deskBadge.textContent = pendingCount;
+            if (pendingCount > 0) deskBadge.classList.remove('hidden');
+            else deskBadge.classList.add('hidden');
+          }
+          if (mobBadge) {
+            mobBadge.textContent = pendingCount;
+            if (pendingCount > 0) mobBadge.classList.remove('hidden');
+            else mobBadge.classList.add('hidden');
+          }
+          if (trackBadge) trackBadge.textContent = pendingCount;
+
+          const totalEl = document.getElementById('trackingTotalCount');
+          const pendEl = document.getElementById('trackingPendingCount');
+          const compEl = document.getElementById('trackingCompletedCount');
+
+          if (totalEl) totalEl.textContent = totalCount;
+          if (pendEl) pendEl.textContent = pendingCount;
+          if (compEl) compEl.textContent = completedCount;
+
+          filterConsumablesTracking();
+
+          if (!isSilent) {
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'ซิงค์สถานะออเดอร์ล่าสุดแล้ว',
+              showConfirmButton: false,
+              timer: 1500
+            });
+          }
+        }
+      } catch (e) {
+        console.warn('Error fetching consumables orders:', e);
+      } finally {
+        if (spinner) spinner.classList.remove('fa-spin');
+      }
+    }
+
+    function filterConsumablesTracking() {
+      const qInput = document.getElementById('consumablesSearchInput');
+      const statusInput = document.getElementById('consumablesStatusFilter');
+      const scopeInput = document.getElementById('consumablesScopeFilter');
+
+      const q = qInput ? String(qInput.value || '').toLowerCase().trim() : '';
+      const statusFilter = statusInput ? statusInput.value : 'ALL';
+      const scopeFilter = scopeInput ? scopeInput.value : 'MY';
+
+      const myName = (currentUser && currentUser.name) ? currentUser.name.toLowerCase().trim() : '';
+
+      const filtered = localConsumableOrders.filter(ord => {
+        const orderId = String(ord.orderId || '').toLowerCase();
+        const tech = String(ord.technician || '').toLowerCase();
+        const team = String(ord.team || '').toLowerCase();
+        const items = String(ord.itemsSummary || '').toLowerCase();
+        const status = String(ord.status || '').toLowerCase();
+
+        // Scope filter
+        if (scopeFilter === 'MY' && myName) {
+          if (!tech.includes(myName) && !team.includes(myName)) return false;
+        }
+
+        // Status filter
+        const isComp = status.includes('สำเร็จ') || status.includes('complete');
+        if (statusFilter === 'PENDING' && isComp) return false;
+        if (statusFilter === 'COMPLETED' && !isComp) return false;
+
+        // Query search
+        if (q) {
+          const match = orderId.includes(q) || tech.includes(q) || team.includes(q) || items.includes(q) || status.includes(q);
+          if (!match) return false;
+        }
+
+        return true;
+      });
+
+      renderConsumablesTrackingList(filtered);
+    }
+
+    function renderConsumablesTrackingList(orders) {
+      const container = document.getElementById('consumablesOrdersList');
+      if (!container) return;
+
+      if (!orders || orders.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-xs text-slate-400 bg-white rounded-2xl border border-slate-200">
+            <i class="fa-solid fa-inbox text-3xl text-slate-300 block mb-2"></i>
+            ไม่พบรายการออเดอร์ตามเงื่อนไขที่ค้นหา
           </div>
+        `;
+        return;
+      }
 
-          <div style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:15px;">
-            <div style="margin-bottom:4px;"><b>ผู้ขอเบิก / ช่าง:</b> ${escapeHtml(order.technician)} ${order.team ? `(${escapeHtml(order.team)})` : ''}</div>
-            <div style="margin-bottom:4px;"><b>วันเวลาที่สั่งเบิก:</b> ${escapeHtml(order.orderDate)}</div>
-            ${order.remarks ? `<div><b>หมายเหตุ:</b> ${escapeHtml(order.remarks)}</div>` : ''}
-          </div>
+      container.innerHTML = orders.map(ord => {
+        const isComp = String(ord.status || '').includes('สำเร็จ') || String(ord.status || '').toLowerCase().includes('complete');
+        const statusBadge = isComp 
+          ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs"><i class="fa-solid fa-circle-check text-emerald-600"></i> สำเร็จ (พร้อมรับ)</span>`
+          : `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-xs animate-pulse"><i class="fa-solid fa-clock text-amber-600"></i> กำลังดำเนินการ</span>`;
 
-          <table>
-            <thead>
-              <tr>
-                <th style="width:50px;text-align:center;">ลำดับ</th>
-                <th>รายการอุปกรณ์และจำนวนที่ขอเบิก</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsListHtml}
-            </tbody>
-          </table>
+        const cardBorder = isComp ? 'border-emerald-200 bg-emerald-50/10' : 'border-amber-200 bg-amber-50/10';
 
-          <div class="signature-grid">
-            <div class="sig-box">
-              <p style="margin:0;">(....................................................)</p>
-              <p style="margin:4px 0 0 0;font-size:11px;color:#64748b;">ผู้ขอเบิก / ช่าง</p>
+        return `
+          <div class="bg-white rounded-2xl p-4 sm:p-5 border ${cardBorder} shadow-xs space-y-3 hover:shadow-md transition">
+            
+            <!-- Header Row: Order ID, Date & Status -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                  <i class="fa-solid fa-receipt"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs sm:text-sm font-black text-slate-800 font-mono">${escapeHtml(ord.orderId)}</h4>
+                  <p class="text-[11px] text-slate-400">สั่งเมื่อ: ${escapeHtml(ord.timestamp || ord.date || '-')}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                ${statusBadge}
+              </div>
             </div>
-            <div class="sig-box">
-              <p style="margin:0;">(....................................................)</p>
-              <p style="margin:4px 0 0 0;font-size:11px;color:#64748b;">ผู้จัดเตรียม / เจ้าหน้าที่สโตร์</p>
-            </div>
-          </div>
 
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
-        </body>
-        </html>
-      `);
-      printWindow.document.close();
+            <!-- Content Row: Tech Info & Items Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 text-xs">
+              <div class="sm:col-span-4 space-y-0.5">
+                <span class="text-[11px] text-slate-400 block font-medium">ผู้เบิก:</span>
+                <span class="font-bold text-slate-800 block">${escapeHtml(ord.technician || '-')}</span>
+                ${ord.team ? `<span class="text-[10px] font-medium text-indigo-600 block truncate max-w-[200px]">${escapeHtml(ord.team)}</span>` : ''}
+              </div>
+
+              <div class="sm:col-span-8 space-y-1">
+                <span class="text-[11px] text-slate-400 block font-medium">รายการอุปกรณ์ (${(ord.totalQuantity || 0).toLocaleString()} ชิ้น/หน่วย):</span>
+                <div class="text-xs font-semibold text-slate-700 bg-slate-50 p-2 rounded-xl border border-slate-100 leading-relaxed">
+                  ${escapeHtml(ord.itemsSummary || '-')}
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer: Actions & Remarks -->
+            <div class="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 text-xs">
+              <div class="text-[11px] text-slate-500 truncate">
+                ${ord.remarks ? `<i class="fa-solid fa-comment-dots mr-1 text-slate-400"></i> หมายเหตุ: ${escapeHtml(ord.remarks)}` : ''}
+              </div>
+
+              <div class="flex items-center gap-2 self-end sm:self-auto">
+                <button type="button" onclick="showConsumableOrderDetail('${escapeHtml(ord.orderId)}')" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                  <i class="fa-solid fa-eye"></i> ดูรายละเอียด
+                </button>
+              </div>
+            </div>
+
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showConsumableOrderDetail(orderId) {
+      const ord = localConsumableOrders.find(o => String(o.orderId) === String(orderId));
+      if (!ord) return;
+
+      currentViewingConsumableOrder = ord;
+
+      document.getElementById('csmModalOrderId').textContent = `ออเดอร์: ${ord.orderId}`;
+      document.getElementById('csmModalTimestamp').textContent = `วันเวลาที่สั่งเบิก: ${ord.timestamp || ord.date || '-'}`;
+      document.getElementById('csmModalTechName').textContent = ord.technician || '-';
+      document.getElementById('csmModalTeamName').textContent = ord.team || '-';
+      document.getElementById('csmModalTotalUnits').textContent = `รวม ${(ord.totalQuantity || 0).toLocaleString()} ชิ้น/หน่วย`;
+
+      const isComp = String(ord.status || '').includes('สำเร็จ') || String(ord.status || '').toLowerCase().includes('complete');
+      const badge = document.getElementById('csmModalStatusBadge');
+      if (badge) {
+        if (isComp) {
+          badge.textContent = '🟢 สำเร็จ (จัดเตรียมแล้ว)';
+          badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+        } else {
+          badge.textContent = '🟡 กำลังดำเนินการ (รอดำเนินการ)';
+          badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300';
+        }
+      }
+
+      // Remarks
+      const remarksText = document.getElementById('csmModalRemarksText');
+      if (remarksText) remarksText.textContent = ord.remarks || 'ไม่มีหมายเหตุ';
+
+      // Admin Box
+      const adminBox = document.getElementById('csmModalAdminBox');
+      const adminText = document.getElementById('csmModalAdminText');
+      if (adminBox && adminText) {
+        if (ord.adminRemarks || ord.completedTimestamp) {
+          adminBox.classList.remove('hidden');
+          adminText.innerHTML = `${ord.completedTimestamp ? `<b>เวลาจัดเตรียม:</b> ${ord.completedTimestamp}<br>` : ''}${ord.adminRemarks ? `<b>ข้อความแอดมิน:</b> ${ord.adminRemarks}` : ''}`;
+        } else {
+          adminBox.classList.add('hidden');
+        }
+      }
+
+      // Table of items
+      const tbody = document.getElementById('csmModalItemsTbody');
+      if (tbody) {
+        if (Array.isArray(ord.items) && ord.items.length > 0) {
+          tbody.innerHTML = ord.items.map((it, idx) => `
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+              <td class="py-2.5 px-3 text-center text-slate-400 font-mono">${idx + 1}</td>
+              <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-slate-200">${escapeHtml(it.name || it.itemName || '-')}</td>
+              <td class="py-2.5 px-3 text-center font-bold text-indigo-600 dark:text-indigo-400 font-mono">${(it.quantity || it.qty || 0).toLocaleString()}</td>
+              <td class="py-2.5 px-3 text-center text-slate-500">${escapeHtml(it.unit || '-')}</td>
+              <td class="py-2.5 px-3 text-slate-500">${escapeHtml(it.remarks || '-')}</td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="5" class="py-4 px-3 text-center text-slate-600 font-medium">
+                ${escapeHtml(ord.itemsSummary || 'ไม่มีรายการ')}
+              </td>
+            </tr>
+          `;
+        }
+      }
+
+      document.getElementById('consumablesDetailModal').classList.remove('hidden');
+    }
+
+    function closeConsumableDetailModal() {
+      document.getElementById('consumablesDetailModal').classList.add('hidden');
+    }
+
+    function printCurrentConsumableOrder() {
+      if (!currentViewingConsumableOrder) return;
+      const ord = currentViewingConsumableOrder;
+
+      document.getElementById('slipTitle').textContent = 'ใบเบิกอุปกรณ์สิ้นเปลือง (FBH Store)';
+      document.getElementById('slipIdLabel').textContent = 'เลขที่ออเดอร์ (Order ID):';
+      document.getElementById('slipRowId').textContent = ord.orderId || '-';
+      document.getElementById('slipDate').textContent = ord.timestamp || ord.date || '-';
+      document.getElementById('slipTech').textContent = `${ord.technician || '-'} ${ord.team ? `(${ord.team})` : ''}`;
+      document.getElementById('slipType').textContent = 'เบิกอุปกรณ์สิ้นเปลือง (Consumables)';
+      document.getElementById('slipModel').textContent = `รวม ${(ord.totalQuantity || 0).toLocaleString()} ชิ้น/หน่วย`;
+      document.getElementById('slipSn').textContent = ord.itemsSummary || '-';
+      document.getElementById('slipRemarks').textContent = `สถานะ: ${ord.status || 'กำลังดำเนินการ'} ${ord.remarks ? `| หมายเหตุ: ${ord.remarks}` : ''}`;
+
+      window.print();
     }
 
     function updateStatusBadge() {
