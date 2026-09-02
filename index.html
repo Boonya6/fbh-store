@@ -7618,14 +7618,26 @@
           updatedBy: (currentUser && currentUser.name) ? currentUser.name : ''
         };
 
-        const res = await fetch(gasUrl, {
-          method: 'POST',
-          body: JSON.stringify(payload)
-        });
+        let json = null;
 
-        const json = await res.json();
+        try {
+          const res = await fetch(gasUrl, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+          });
+          json = await res.json();
+        } catch (postErr) {
+          console.warn("POST failed, trying GET fallback...", postErr);
+        }
 
-        if (json.status === 'success') {
+        // ถ้า POST ไม่สำเร็จ หรือตอบกลับว่า Unknown action ให้ลองเรียกผ่าน GET
+        if (!json || json.status !== 'success') {
+          const getUrl = `${gasUrl}${gasUrl.includes('?') ? '&' : '?'}action=updateConsumableOrderStatus&orderId=${encodeURIComponent(orderId)}&status=${encodeURIComponent(targetStatus)}&adminRemarks=${encodeURIComponent(userNote)}&updatedBy=${encodeURIComponent((currentUser && currentUser.name) || '')}&t=${Date.now()}`;
+          const getRes = await fetch(getUrl);
+          json = await getRes.json();
+        }
+
+        if (json && json.status === 'success') {
           Swal.fire({
             toast: true,
             position: 'top-end',
@@ -7643,7 +7655,33 @@
             showConsumableOrderDetail(orderId);
           }
         } else {
-          throw new Error(json.message || 'เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+          const errMsg = json ? (json.message || '') : 'ไม่ได้รับการตอบกลับจากเซิร์ฟเวอร์';
+          
+          if (errMsg.includes('Unknown') || errMsg.includes('action')) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'ต้องอัปเดต Apps Script เป็นเวอร์ชันใหม่',
+              html: `
+                <div class="text-xs text-slate-600 text-left space-y-2.5 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 mt-2">
+                  <p class="font-bold text-rose-600">⚠️ เซิร์ฟเวอร์แจ้งเตือน: "${escapeHtml(errMsg)}"</p>
+                  <p>สาเหตุเกิดจาก <b>Google Apps Script ยังใช้งานเวอร์ชันเก่าอยู่</b> (ยังไม่มีฟังก์ชันเปลี่ยนสถานะใหม่)</p>
+                  <div class="p-2.5 bg-blue-50 text-blue-900 rounded-xl border border-blue-200 space-y-1">
+                    <p class="font-bold">วิธีแก้ไขง่ายๆ ใน 1 นาที:</p>
+                    <ol class="list-decimal list-inside space-y-1 text-[11px] pl-1">
+                      <li>เปิดหน้า Google Apps Script แล้วคัดลอกโค้ดจาก <code>google-apps-script.js</code> ไปวางทับ</li>
+                      <li>กดปุ่ม <b>บันทึก (Ctrl+S)</b></li>
+                      <li>กดปุ่มสีน้ำเงิน <b>การทำให้ใช้งานได้ (Deploy) > จัดการการทำให้ใช้งานได้ (Manage deployments)</b></li>
+                      <li>กด <b>รูปดินสอ (แก้ไข) > เวอร์ชัน: สร้างเวอร์ชันใหม่ (New version) > ใช้งานได้ (Deploy)</b></li>
+                    </ol>
+                  </div>
+                </div>
+              `,
+              confirmButtonText: 'รับทราบ',
+              confirmButtonColor: '#2563eb'
+            });
+          } else {
+            throw new Error(errMsg || 'เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+          }
         }
       } catch (err) {
         Swal.fire('ข้อผิดพลาด', err.message, 'error');
