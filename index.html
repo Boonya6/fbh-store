@@ -1606,38 +1606,49 @@
       <!-- ========================================================== -->
       <div id="consumablesTrackingView" class="hidden space-y-6">
 
-        <!-- Tracking Stat Metrics -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Tracking Stat Metrics (4 Cards) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-4">
           <!-- Total Orders -->
-          <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
             <div>
-              <span class="text-xs text-slate-500 font-medium block">ออเดอร์ทั้งหมด</span>
-              <span id="trackingTotalCount" class="text-2xl font-black text-slate-800 font-mono mt-0.5 block">0</span>
+              <span class="text-[11px] sm:text-xs text-slate-500 font-medium block">ออเดอร์ทั้งหมด</span>
+              <span id="trackingTotalCount" class="text-xl sm:text-2xl font-black text-slate-800 font-mono mt-0.5 block">0</span>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-lg">
+            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-base sm:text-lg shrink-0">
               <i class="fa-solid fa-boxes-stacked"></i>
             </div>
           </div>
 
           <!-- Pending Orders -->
-          <div class="bg-white p-5 rounded-2xl border border-amber-200 shadow-xs flex items-center justify-between bg-gradient-to-br from-white to-amber-50/40">
+          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-amber-200 shadow-xs flex items-center justify-between bg-gradient-to-br from-white to-amber-50/40">
             <div>
-              <span class="text-xs text-amber-800 font-medium block">กำลังดำเนินการ (รอดำเนินการ)</span>
-              <span id="trackingPendingCount" class="text-2xl font-black text-amber-600 font-mono mt-0.5 block">0</span>
+              <span class="text-[11px] sm:text-xs text-amber-800 font-medium block">กำลังดำเนินการ</span>
+              <span id="trackingPendingCount" class="text-xl sm:text-2xl font-black text-amber-600 font-mono mt-0.5 block">0</span>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
+            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-base sm:text-lg shrink-0">
               <i class="fa-solid fa-hourglass-half animate-spin-slow"></i>
             </div>
           </div>
 
           <!-- Completed Orders -->
-          <div class="bg-white p-5 rounded-2xl border border-emerald-200 shadow-xs flex items-center justify-between bg-gradient-to-br from-white to-emerald-50/40">
+          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-xs flex items-center justify-between bg-gradient-to-br from-white to-emerald-50/40">
             <div>
-              <span class="text-xs text-emerald-800 font-medium block">จัดเตรียมสำเร็จ (พร้อมรับ)</span>
-              <span id="trackingCompletedCount" class="text-2xl font-black text-emerald-600 font-mono mt-0.5 block">0</span>
+              <span class="text-[11px] sm:text-xs text-emerald-800 font-medium block">จัดเตรียมสำเร็จ</span>
+              <span id="trackingCompletedCount" class="text-xl sm:text-2xl font-black text-emerald-600 font-mono mt-0.5 block">0</span>
             </div>
-            <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg">
+            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-base sm:text-lg shrink-0">
               <i class="fa-solid fa-circle-check"></i>
+            </div>
+          </div>
+
+          <!-- Cancelled Orders -->
+          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-rose-200 shadow-xs flex items-center justify-between bg-gradient-to-br from-white to-rose-50/40">
+            <div>
+              <span class="text-[11px] sm:text-xs text-rose-800 font-medium block">ยกเลิกแล้ว</span>
+              <span id="trackingCancelledCount" class="text-xl sm:text-2xl font-black text-rose-600 font-mono mt-0.5 block">0</span>
+            </div>
+            <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-base sm:text-lg shrink-0">
+              <i class="fa-solid fa-ban"></i>
             </div>
           </div>
         </div>
@@ -1658,6 +1669,7 @@
               <option value="ALL">สถานะทั้งหมด</option>
               <option value="PENDING">🟡 กำลังดำเนินการ</option>
               <option value="COMPLETED">🟢 สำเร็จ</option>
+              <option value="CANCELLED">🔴 ยกเลิก</option>
             </select>
 
             <!-- Scope Filter -->
@@ -2366,6 +2378,27 @@
         <div id="csmModalAdminBox" class="p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs hidden">
           <span class="font-bold text-emerald-800 dark:text-emerald-300 block mb-0.5">ข้อมูลการจัดเตรียมจากแอดมิน:</span>
           <p id="csmModalAdminText" class="text-emerald-700 dark:text-emerald-400">-</p>
+        </div>
+
+        <!-- Status Action Control Box (จัดการและเปลี่ยนสถานะออเดอร์) -->
+        <div class="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-sliders text-indigo-500"></i> เปลี่ยนสถานะออเดอร์:
+            </span>
+            <span id="csmModalCurrentStatusText" class="text-[11px] font-bold text-slate-500">-</span>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button type="button" id="csmModalBtnComplete" onclick="handleModalStatusUpdate('สำเร็จ')" class="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
+              <i class="fa-solid fa-circle-check"></i> ทำเครื่องหมาย "สำเร็จ" (พร้อมรับ)
+            </button>
+            <button type="button" id="csmModalBtnCancel" onclick="handleModalStatusUpdate('ยกเลิก')" class="flex-1 py-2 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
+              <i class="fa-solid fa-ban"></i> "ยกเลิก" ออเดอร์
+            </button>
+            <button type="button" id="csmModalBtnPending" onclick="handleModalStatusUpdate('กำลังดำเนินการ')" class="py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer hidden">
+              <i class="fa-solid fa-rotate-left"></i> คืนสถานะ "กำลังดำเนินการ"
+            </button>
+          </div>
         </div>
 
       </div>
@@ -7279,10 +7312,23 @@
           localConsumableOrders = json.data || [];
           localStorage.setItem('fbh_consumables_orders', JSON.stringify(localConsumableOrders));
           
-          // Update Badges
-          const pendingCount = json.pendingCount || 0;
-          const completedCount = json.completedCount || 0;
-          const totalCount = json.total || localConsumableOrders.length;
+          // Calculate Counts
+          let pendingCount = 0;
+          let completedCount = 0;
+          let cancelledCount = 0;
+
+          localConsumableOrders.forEach(ord => {
+            const s = String(ord.status || '').trim().toLowerCase();
+            if (s.includes('สำเร็จ') || s.includes('complete')) {
+              completedCount++;
+            } else if (s.includes('ยกเลิก') || s.includes('cancel')) {
+              cancelledCount++;
+            } else {
+              pendingCount++;
+            }
+          });
+
+          const totalCount = localConsumableOrders.length;
 
           const deskBadge = document.getElementById('consumablesPendingBadge');
           const mobBadge = document.getElementById('mobConsumablesPendingBadge');
@@ -7303,10 +7349,12 @@
           const totalEl = document.getElementById('trackingTotalCount');
           const pendEl = document.getElementById('trackingPendingCount');
           const compEl = document.getElementById('trackingCompletedCount');
+          const cancEl = document.getElementById('trackingCancelledCount');
 
           if (totalEl) totalEl.textContent = totalCount;
           if (pendEl) pendEl.textContent = pendingCount;
           if (compEl) compEl.textContent = completedCount;
+          if (cancEl) cancEl.textContent = cancelledCount;
 
           filterConsumablesTracking();
 
@@ -7353,8 +7401,12 @@
 
         // Status filter
         const isComp = status.includes('สำเร็จ') || status.includes('complete');
-        if (statusFilter === 'PENDING' && isComp) return false;
+        const isCanc = status.includes('ยกเลิก') || status.includes('cancel');
+        const isPend = !isComp && !isCanc;
+
+        if (statusFilter === 'PENDING' && !isPend) return false;
         if (statusFilter === 'COMPLETED' && !isComp) return false;
+        if (statusFilter === 'CANCELLED' && !isCanc) return false;
 
         // Query search
         if (q) {
@@ -7383,12 +7435,52 @@
       }
 
       container.innerHTML = orders.map(ord => {
-        const isComp = String(ord.status || '').includes('สำเร็จ') || String(ord.status || '').toLowerCase().includes('complete');
-        const statusBadge = isComp 
-          ? `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs"><i class="fa-solid fa-circle-check text-emerald-600"></i> สำเร็จ (พร้อมรับ)</span>`
-          : `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-xs animate-pulse"><i class="fa-solid fa-clock text-amber-600"></i> กำลังดำเนินการ</span>`;
+        const rawStatus = String(ord.status || '').trim();
+        const isComp = rawStatus.includes('สำเร็จ') || rawStatus.toLowerCase().includes('complete');
+        const isCanc = rawStatus.includes('ยกเลิก') || rawStatus.toLowerCase().includes('cancel');
 
-        const cardBorder = isComp ? 'border-emerald-200 bg-emerald-50/10' : 'border-amber-200 bg-amber-50/10';
+        let statusBadge = '';
+        let cardBorder = '';
+        let actionButtonsHtml = '';
+
+        if (isComp) {
+          statusBadge = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-xs"><i class="fa-solid fa-circle-check text-emerald-600"></i> สำเร็จ (พร้อมรับ)</span>`;
+          cardBorder = 'border-emerald-200 bg-emerald-50/10';
+          actionButtonsHtml = `
+            <button type="button" onclick="quickUpdateConsumableStatus('${escapeHtml(ord.orderId)}', 'ยกเลิก')" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition flex items-center gap-1 cursor-pointer" title="เปลี่ยนสถานะเป็นยกเลิก">
+              <i class="fa-solid fa-ban"></i> ยกเลิก
+            </button>
+            <button type="button" onclick="showConsumableOrderDetail('${escapeHtml(ord.orderId)}')" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+              <i class="fa-solid fa-eye"></i> ดูรายละเอียด
+            </button>
+          `;
+        } else if (isCanc) {
+          statusBadge = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300 shadow-xs"><i class="fa-solid fa-ban text-rose-600"></i> ยกเลิกแล้ว</span>`;
+          cardBorder = 'border-rose-200 bg-rose-50/10 opacity-85';
+          actionButtonsHtml = `
+            <button type="button" onclick="quickUpdateConsumableStatus('${escapeHtml(ord.orderId)}', 'กำลังดำเนินการ')" class="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-xs transition flex items-center gap-1 cursor-pointer" title="กู้คืนสถานะกลับมาเป็นกำลังดำเนินการ">
+              <i class="fa-solid fa-rotate-left"></i> คืนสถานะ
+            </button>
+            <button type="button" onclick="showConsumableOrderDetail('${escapeHtml(ord.orderId)}')" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+              <i class="fa-solid fa-eye"></i> ดูรายละเอียด
+            </button>
+          `;
+        } else {
+          // กำลังดำเนินการ
+          statusBadge = `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-xs animate-pulse"><i class="fa-solid fa-clock text-amber-600"></i> กำลังดำเนินการ</span>`;
+          cardBorder = 'border-amber-200 bg-amber-50/10';
+          actionButtonsHtml = `
+            <button type="button" onclick="quickUpdateConsumableStatus('${escapeHtml(ord.orderId)}', 'สำเร็จ')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs shadow-emerald-600/20" title="ทำเครื่องหมายจัดเตรียมอุปกรณ์สำเร็จ">
+              <i class="fa-solid fa-circle-check"></i> สำเร็จ
+            </button>
+            <button type="button" onclick="quickUpdateConsumableStatus('${escapeHtml(ord.orderId)}', 'ยกเลิก')" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs transition flex items-center gap-1 cursor-pointer" title="ยกเลิกออเดอร์นี้">
+              <i class="fa-solid fa-ban"></i> ยกเลิก
+            </button>
+            <button type="button" onclick="showConsumableOrderDetail('${escapeHtml(ord.orderId)}')" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+              <i class="fa-solid fa-eye"></i> ดูรายละเอียด
+            </button>
+          `;
+        }
 
         return `
           <div class="bg-white rounded-2xl p-4 sm:p-5 border ${cardBorder} shadow-xs space-y-3 hover:shadow-md transition">
@@ -7396,7 +7488,7 @@
             <!-- Header Row: Order ID, Date & Status -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
               <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs shrink-0">
                   <i class="fa-solid fa-receipt"></i>
                 </div>
                 <div>
@@ -7431,16 +7523,136 @@
                 ${ord.remarks ? `<i class="fa-solid fa-comment-dots mr-1 text-slate-400"></i> หมายเหตุ: ${escapeHtml(ord.remarks)}` : ''}
               </div>
 
-              <div class="flex items-center gap-2 self-end sm:self-auto">
-                <button type="button" onclick="showConsumableOrderDetail('${escapeHtml(ord.orderId)}')" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs">
-                  <i class="fa-solid fa-eye"></i> ดูรายละเอียด
-                </button>
+              <div class="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+                ${actionButtonsHtml}
               </div>
             </div>
 
           </div>
         `;
       }).join('');
+    }
+
+    /**
+     * เปลี่ยนสถานะออเดอร์โดยตรงจากหน้าเว็บ (สำเร็จ / ยกเลิก / กำลังดำเนินการ)
+     * ส่งคำขอไปยัง Google Apps Script เพื่อแก้ไขลงใน Google Sheet
+     */
+    async function quickUpdateConsumableStatus(orderId, targetStatus) {
+      if (!orderId || !targetStatus) return;
+
+      let titleText = '';
+      let confirmBtnText = '';
+      let confirmBtnColor = '#2563eb';
+      let placeholderText = 'ระบุหมายเหตุเพิ่มเติม (ถ้ามี)...';
+      let promptHtml = '';
+
+      if (targetStatus === 'สำเร็จ') {
+        titleText = `ยืนยันเปลี่ยนสถานะเป็น "สำเร็จ"?`;
+        confirmBtnText = '✓ ยืนยันสำเร็จ (จัดเตรียมแล้ว)';
+        confirmBtnColor = '#059669';
+        promptHtml = `
+          <div class="text-xs text-slate-600 text-left space-y-2 bg-emerald-50/60 p-3 rounded-2xl border border-emerald-200 mt-2">
+            <p><b>เลขที่ออเดอร์:</b> ${orderId}</p>
+            <p><b>สถานะใหม่:</b> <span class="font-bold text-emerald-700">🟢 สำเร็จ (พร้อมรับของ)</span></p>
+            <p class="text-[11px] text-slate-500">ระบบจะบันทึกวันเวลาที่จัดเตรียมสำเร็จและอัปเดตลง Google Sheet ทันที</p>
+          </div>
+        `;
+      } else if (targetStatus === 'ยกเลิก') {
+        titleText = `ยืนยัน "ยกเลิก" ออเดอร์นี้?`;
+        confirmBtnText = '✕ ยืนยันยกเลิกออเดอร์';
+        confirmBtnColor = '#e11d48';
+        promptHtml = `
+          <div class="text-xs text-slate-600 text-left space-y-2 bg-rose-50/60 p-3 rounded-2xl border border-rose-200 mt-2">
+            <p><b>เลขที่ออเดอร์:</b> ${orderId}</p>
+            <p><b>สถานะใหม่:</b> <span class="font-bold text-rose-700">🔴 ยกเลิก</span></p>
+            <p class="text-[11px] text-slate-500">สถานะใน Google Sheet จะเปลี่ยนเป็น "ยกเลิก"</p>
+          </div>
+        `;
+      } else {
+        titleText = `ยืนยันคืนสถานะเป็น "กำลังดำเนินการ"?`;
+        confirmBtnText = '↺ ยืนยันคืนสถานะ';
+        confirmBtnColor = '#d97706';
+        promptHtml = `
+          <div class="text-xs text-slate-600 text-left space-y-2 bg-amber-50/60 p-3 rounded-2xl border border-amber-200 mt-2">
+            <p><b>เลขที่ออเดอร์:</b> ${orderId}</p>
+            <p><b>สถานะใหม่:</b> <span class="font-bold text-amber-700">🟡 กำลังดำเนินการ</span></p>
+          </div>
+        `;
+      }
+
+      const result = await Swal.fire({
+        title: titleText,
+        html: promptHtml,
+        input: 'text',
+        inputPlaceholder: placeholderText,
+        icon: targetStatus === 'ยกเลิก' ? 'warning' : 'question',
+        showCancelButton: true,
+        confirmButtonText: confirmBtnText,
+        cancelButtonText: 'ยกเลิก',
+        confirmButtonColor: confirmBtnColor,
+        cancelButtonColor: '#64748b'
+      });
+
+      if (!result.isConfirmed) return;
+
+      const userNote = result.value || '';
+      const gasUrl = getGasUrl();
+      if (!gasUrl) {
+        Swal.fire('ข้อผิดพลาด', 'ยังไม่ได้เชื่อมต่อ Google Apps Script URL', 'error');
+        return;
+      }
+
+      Swal.fire({
+        title: 'กำลังอัปเดตสถานะ...',
+        html: '<span class="text-xs text-slate-500">กำลังบันทึกสถานะใหม่ลง Google Sheet (GID: 2029525640)</span>',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      try {
+        const payload = {
+          action: 'updateConsumableOrderStatus',
+          orderId: orderId,
+          status: targetStatus,
+          adminRemarks: userNote,
+          updatedBy: (currentUser && currentUser.name) ? currentUser.name : ''
+        };
+
+        const res = await fetch(gasUrl, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        const json = await res.json();
+
+        if (json.status === 'success') {
+          Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: `อัปเดตสถานะเป็น "${targetStatus}" สำเร็จ! 🎉`,
+            showConfirmButton: false,
+            timer: 2000
+          });
+
+          // รีเฟรชข้อมูลล่าสุด
+          await fetchConsumablesOrders(true);
+
+          // ถ้าเปิด Modal รายละเอียดอยู่ ให้อัปเดตข้อมูลใน Modal
+          if (currentViewingConsumableOrder && String(currentViewingConsumableOrder.orderId) === String(orderId)) {
+            showConsumableOrderDetail(orderId);
+          }
+        } else {
+          throw new Error(json.message || 'เกิดข้อผิดพลาดในการอัปเดตสถานะ');
+        }
+      } catch (err) {
+        Swal.fire('ข้อผิดพลาด', err.message, 'error');
+      }
+    }
+
+    function handleModalStatusUpdate(targetStatus) {
+      if (!currentViewingConsumableOrder) return;
+      quickUpdateConsumableStatus(currentViewingConsumableOrder.orderId, targetStatus);
     }
 
     function showConsumableOrderDetail(orderId) {
@@ -7455,16 +7667,43 @@
       document.getElementById('csmModalTeamName').textContent = ord.team || '-';
       document.getElementById('csmModalTotalUnits').textContent = `รวม ${(ord.totalQuantity || 0).toLocaleString()} ชิ้น/หน่วย`;
 
-      const isComp = String(ord.status || '').includes('สำเร็จ') || String(ord.status || '').toLowerCase().includes('complete');
+      const rawStatus = String(ord.status || '').trim();
+      const isComp = rawStatus.includes('สำเร็จ') || rawStatus.toLowerCase().includes('complete');
+      const isCanc = rawStatus.includes('ยกเลิก') || rawStatus.toLowerCase().includes('cancel');
+
       const badge = document.getElementById('csmModalStatusBadge');
-      if (badge) {
-        if (isComp) {
+      const statusText = document.getElementById('csmModalCurrentStatusText');
+      const btnComp = document.getElementById('csmModalBtnComplete');
+      const btnCanc = document.getElementById('csmModalBtnCancel');
+      const btnPend = document.getElementById('csmModalBtnPending');
+
+      if (isComp) {
+        if (badge) {
           badge.textContent = '🟢 สำเร็จ (จัดเตรียมแล้ว)';
           badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
-        } else {
+        }
+        if (statusText) statusText.innerHTML = '<span class="text-emerald-600 font-bold">🟢 สำเร็จ</span>';
+        if (btnComp) btnComp.classList.add('hidden');
+        if (btnCanc) btnCanc.classList.remove('hidden');
+        if (btnPend) btnPend.classList.remove('hidden');
+      } else if (isCanc) {
+        if (badge) {
+          badge.textContent = '🔴 ยกเลิกแล้ว';
+          badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300';
+        }
+        if (statusText) statusText.innerHTML = '<span class="text-rose-600 font-bold">🔴 ยกเลิก</span>';
+        if (btnComp) btnComp.classList.remove('hidden');
+        if (btnCanc) btnCanc.classList.add('hidden');
+        if (btnPend) btnPend.classList.remove('hidden');
+      } else {
+        if (badge) {
           badge.textContent = '🟡 กำลังดำเนินการ (รอดำเนินการ)';
           badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300';
         }
+        if (statusText) statusText.innerHTML = '<span class="text-amber-600 font-bold">🟡 กำลังดำเนินการ</span>';
+        if (btnComp) btnComp.classList.remove('hidden');
+        if (btnCanc) btnCanc.classList.remove('hidden');
+        if (btnPend) btnPend.classList.add('hidden');
       }
 
       // Remarks
@@ -7477,7 +7716,7 @@
       if (adminBox && adminText) {
         if (ord.adminRemarks || ord.completedTimestamp) {
           adminBox.classList.remove('hidden');
-          adminText.innerHTML = `${ord.completedTimestamp ? `<b>เวลาจัดเตรียม:</b> ${ord.completedTimestamp}<br>` : ''}${ord.adminRemarks ? `<b>ข้อความแอดมิน:</b> ${ord.adminRemarks}` : ''}`;
+          adminText.innerHTML = `${ord.completedTimestamp ? `<b>เวลาจัดเตรียม:</b> ${ord.completedTimestamp}<br>` : ''}${ord.adminRemarks ? `<b>ข้อความแอดมิน / ประวัติ:</b><br><span class="whitespace-pre-line">${escapeHtml(ord.adminRemarks)}</span>` : ''}`;
         } else {
           adminBox.classList.add('hidden');
         }
