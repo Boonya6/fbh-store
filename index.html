@@ -3436,7 +3436,7 @@
       });
 
       try {
-        const compressedBase64 = await compressImage(file, 1280, 0.75);
+        const compressedBase64 = await compressImage(file, 960, 0.72);
         const photoKey = `${catKey}_${slotIndex}`;
         soCategoryPhotos[photoKey] = compressedBase64;
 
@@ -3488,7 +3488,7 @@
       });
 
       try {
-        const compressedBase64 = await compressImage(file, 1280, 0.75);
+        const compressedBase64 = await compressImage(file, 960, 0.72);
         if (type === 'req') reqPhotos[slotIndex] = compressedBase64;
         else if (type === 'def') defPhotos[slotIndex] = compressedBase64;
         else if (type === 'trans') transPhotos[slotIndex] = compressedBase64;
@@ -3942,7 +3942,7 @@
     async function confirmLiveSnapshot() {
       if (!liveCameraCapturedBase64) return;
 
-      const compressed = await compressImageBase64(liveCameraCapturedBase64, 1200, 0.78);
+      const compressed = await compressImageBase64(liveCameraCapturedBase64, 960, 0.72);
 
       if (liveCameraTargetType === 'req') {
         reqPhotos[liveCameraTargetKey] = compressed;
@@ -4468,53 +4468,74 @@
       let gasErrorMessage = '';
 
       if (gasUrl) {
-        try {
-          const response = await fetch(gasUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(batchPayload)
-          });
-          const result = await response.json();
-          if (result.status === 'success') {
-            isGasSuccess = true;
-            if (result.nextRowNumber) nextSheetRow = result.nextRowNumber;
-            newLocalRecords.forEach((rec, idx) => {
-              rec.syncedToSheet = true;
-              if (result.results && result.results[idx]) {
-                rec.rowId = result.results[idx].rowId;
-                rec.imageUrl = result.results[idx].imageUrl || rec.imageUrl;
-              }
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            const response = await fetch(gasUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify(batchPayload)
             });
-          } else {
-            gasErrorMessage = result.message || 'Google Apps Script ตอบกลับสถานะไม่สำเร็จ';
-            console.warn('GAS requisition error:', result);
+            const result = await response.json();
+            if (result.status === 'success') {
+              isGasSuccess = true;
+              if (result.nextRowNumber) nextSheetRow = result.nextRowNumber;
+              newLocalRecords.forEach((rec, idx) => {
+                rec.syncedToSheet = true;
+                if (result.results && result.results[idx]) {
+                  rec.rowId = result.results[idx].rowId;
+                  rec.imageUrl = result.results[idx].imageUrl || '';
+                }
+              });
+              break;
+            } else {
+              gasErrorMessage = result.message || 'Google Apps Script ตอบกลับสถานะไม่สำเร็จ';
+              console.warn(`GAS requisition attempt ${attempt} error:`, result);
+            }
+          } catch (err) {
+            gasErrorMessage = err.message || 'การเชื่อมต่อขัดข้อง';
+            console.warn(`Sync requisition attempt ${attempt} failed:`, err);
+            if (attempt < 2) await new Promise(r => setTimeout(r, 1200));
           }
-        } catch (err) {
-          gasErrorMessage = err.message || 'การเชื่อมต่อขัดข้อง';
-          console.warn('Sync requisition failed:', err);
         }
       }
 
+      submitBtn.disabled = false;
+      submitBtnText.textContent = 'บันทึกข้อมูลเบิกอุปกรณ์';
+
+      // ถ้าระบุ URL ไว้แต่ส่งเข้า Google Sheet ไม่สำเร็จ ห้ามล้างฟอร์มเด็ดขาด เพื่อให้ช่างกดส่งซ้ำได้ทันทีโดยข้อมูลไม่หาย
+      if (gasUrl && !isGasSuccess) {
+        Swal.fire({
+          icon: 'error',
+          title: 'ยังส่งข้อมูลเข้า Google Sheet ไม่สำเร็จ!',
+          html: `
+            <div class="text-sm text-slate-700 text-left space-y-2 bg-rose-50 p-3.5 rounded-xl border border-rose-200 mt-2">
+              <div class="font-bold text-rose-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i> สาเหตุ: ${escapeHtml(gasErrorMessage)}</div>
+              <div class="text-xs text-slate-600">ข้อมูล Serial Number และรูปถ่ายทั้ง <b>${validItems.length} เครื่อง</b> ยังคงอยู่ในหน้าจอนี้ (ระบบยังไม่ล้างฟอร์ม) กรุณาตรวจสอบสัญญาณอินเทอร์เน็ตแล้วกดปุ่ม <b>"บันทึกข้อมูลเบิกอุปกรณ์"</b> อีกครั้งครับ</div>
+            </div>
+          `,
+          confirmButtonText: 'ตกลง (ลองกดบันทึกอีกครั้ง)',
+          confirmButtonColor: '#e11d48'
+        });
+        return;
+      }
+
       newLocalRecords.reverse().forEach(rec => localHistory.unshift(rec));
-      if (!gasUrl || !isGasSuccess) nextSheetRow += validItems.length;
+      if (!gasUrl) nextSheetRow += validItems.length;
 
       saveLocalHistory();
       updateDashboard();
       updateNextRowDisplay();
 
-      submitBtn.disabled = false;
-      submitBtnText.textContent = 'บันทึกข้อมูลเบิกอุปกรณ์';
-
       Swal.fire({
-        icon: isGasSuccess ? 'success' : (gasUrl ? 'warning' : 'success'),
-        title: isGasSuccess ? `บันทึกการเบิกสำเร็จ! (${validItems.length} เครื่อง)` : (gasUrl ? `บันทึกข้อมูลแล้ว (${validItems.length} เครื่อง)` : `บันทึกการเบิกสำเร็จ! (${validItems.length} เครื่อง)`),
+        icon: 'success',
+        title: `บันทึกการเบิกสำเร็จ! (${validItems.length} เครื่อง)`,
         html: `
           <div class="text-sm text-slate-600 text-left space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-200 mt-2">
             <div><b>ผู้เบิก:</b> ${tech}</div>
             <div><b>ประเภทอุปกรณ์:</b> ${model}</div>
             <div><b>จำนวนที่บันทึก:</b> <span class="font-bold text-blue-600">${validItems.length} เครื่อง</span></div>
-            <div class="text-xs ${isGasSuccess ? 'text-emerald-600 font-bold' : (gasUrl ? 'text-rose-600 font-semibold' : 'text-amber-600 font-medium')} pt-1">
-              ${isGasSuccess ? '✓ บันทึกลง Google Sheet เบิกอุปกรณ์ (GID: 43495007) เรียบร้อยแล้ว' : (gasUrl ? `⚠ แจ้งเตือน: บันทึกในเครื่องแล้ว แต่ยังส่งไม่ถึง Google Sheet (${gasErrorMessage})` : '⚠ บันทึกในเครื่อง (ยังไม่ได้เชื่อมต่อ Google Sheet)')}
+            <div class="text-xs text-emerald-600 font-bold pt-1">
+              ✓ บันทึกลง Google Sheet เบิกอุปกรณ์ (GID: 43495007) เรียบร้อยแล้ว
             </div>
           </div>
         `,
@@ -4687,43 +4708,63 @@
       let gasErrorMessage = '';
 
       if (gasUrl) {
-        try {
-          const response = await fetch(gasUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(batchPayload)
-          });
-          const result = await response.json();
-          if (result.status === 'success') {
-            isGasSuccess = true;
-            newLocalRecords.forEach((rec, idx) => {
-              rec.syncedToSheet = true;
-              if (result.results && result.results[idx]) {
-                rec.imageUrl = result.results[idx].imageUrl || rec.imageUrl;
-              }
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            const response = await fetch(gasUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify(batchPayload)
             });
-          } else {
-            gasErrorMessage = result.message || 'Google Apps Script ตอบกลับสถานะไม่สำเร็จ';
-            console.warn('GAS stockout error:', result);
+            const result = await response.json();
+            if (result.status === 'success') {
+              isGasSuccess = true;
+              newLocalRecords.forEach((rec, idx) => {
+                rec.syncedToSheet = true;
+                if (result.results && result.results[idx]) {
+                  rec.imageUrl = result.results[idx].imageUrl || '';
+                }
+              });
+              break;
+            } else {
+              gasErrorMessage = result.message || 'Google Apps Script ตอบกลับสถานะไม่สำเร็จ';
+              console.warn(`GAS stockout attempt ${attempt} error:`, result);
+            }
+          } catch (err) {
+            gasErrorMessage = err.message || 'การเชื่อมต่อขัดข้อง';
+            console.warn(`Sync stockout attempt ${attempt} failed:`, err);
+            if (attempt < 2) await new Promise(r => setTimeout(r, 1200));
           }
-        } catch (err) {
-          gasErrorMessage = err.message || 'การเชื่อมต่อขัดข้อง';
-          console.warn('Sync stockout failed:', err);
         }
+      }
+
+      soSubmitBtn.disabled = false;
+      soSubmitBtnText.textContent = 'บันทึกตัดสต็อกอุปกรณ์';
+
+      if (gasUrl && !isGasSuccess) {
+        Swal.fire({
+          icon: 'error',
+          title: 'ยังส่งข้อมูลตัดสต็อกเข้า Google Sheet ไม่สำเร็จ!',
+          html: `
+            <div class="text-sm text-slate-700 text-left space-y-2 bg-rose-50 p-3.5 rounded-xl border border-rose-200 mt-2">
+              <div class="font-bold text-rose-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i> สาเหตุ: ${escapeHtml(gasErrorMessage)}</div>
+              <div class="text-xs text-slate-600">ข้อมูลตัดสต็อกและรูปถ่ายทั้ง <b>${validItems.length} รายการ</b> ยังคงอยู่ในหน้าจอนี้ (ระบบยังไม่ล้างฟอร์ม) กรุณาตรวจสอบสัญญาณอินเทอร์เน็ตแล้วกดปุ่ม <b>"บันทึกตัดสต็อกอุปกรณ์"</b> อีกครั้งครับ</div>
+            </div>
+          `,
+          confirmButtonText: 'ตกลง (ลองกดบันทึกอีกครั้ง)',
+          confirmButtonColor: '#e11d48'
+        });
+        return;
       }
 
       newLocalRecords.reverse().forEach(rec => localHistory.unshift(rec));
       saveLocalHistory();
       updateDashboard();
 
-      soSubmitBtn.disabled = false;
-      soSubmitBtnText.textContent = 'บันทึกตัดสต็อกอุปกรณ์';
-
       const summaryList = validItems.map(it => `• <b>${it.model}:</b> <span class="font-mono font-bold text-slate-800">${it.serialNumber}</span>`).join('<br>');
 
       Swal.fire({
-        icon: isGasSuccess ? 'success' : (gasUrl ? 'warning' : 'success'),
-        title: isGasSuccess ? `ตัดสต็อกสำเร็จ! (${validItems.length} รายการ)` : (gasUrl ? `บันทึกตัดสต็อกแล้ว (${validItems.length} รายการ)` : `ตัดสต็อกสำเร็จ! (${validItems.length} รายการ)`),
+        icon: 'success',
+        title: `ตัดสต็อกสำเร็จ! (${validItems.length} รายการ)`,
         html: `
           <div class="text-sm text-slate-600 text-left space-y-2 bg-amber-50/80 p-3.5 rounded-xl border border-amber-200 mt-2">
             <div><b>เลขสมาชิก:</b> <span class="font-mono font-bold text-amber-900">${subscriberNo}</span></div>
@@ -4735,8 +4776,8 @@
               <b class="block mb-1">รายการอุปกรณ์ที่ตัดสต็อก:</b>
               <div class="space-y-0.5">${summaryList}</div>
             </div>
-            <div class="text-xs ${isGasSuccess ? 'text-emerald-600 font-bold' : (gasUrl ? 'text-rose-600 font-semibold' : 'text-amber-600 font-medium')} pt-1.5 border-t border-amber-200/60">
-              ${isGasSuccess ? '✓ บันทึกลง Google Sheet ตัดสต็อก (GID: 1233950022) เรียบร้อยแล้ว' : (gasUrl ? `⚠ แจ้งเตือน: บันทึกในเครื่องแล้ว แต่ยังส่งไม่ถึง Google Sheet (${gasErrorMessage})` : '⚠ บันทึกในเครื่อง (ยังไม่ได้เชื่อมต่อ Google Sheet)')}
+            <div class="text-xs text-emerald-600 font-bold pt-1.5 border-t border-amber-200/60">
+              ✓ บันทึกลง Google Sheet ตัดสต็อก (GID: 1233950022) เรียบร้อยแล้ว
             </div>
           </div>
         `,
@@ -4849,53 +4890,73 @@
       let gasErrorMessage = '';
 
       if (gasUrl) {
-        try {
-          const response = await fetch(gasUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(batchPayload)
-          });
-          const result = await response.json();
-          if (result.status === 'success') {
-            isGasSuccess = true;
-            if (result.nextDefectiveRow) nextDefectiveRow = result.nextDefectiveRow;
-            newLocalRecords.forEach((rec, idx) => {
-              rec.syncedToSheet = true;
-              if (result.results && result.results[idx]) {
-                rec.rowId = result.results[idx].rowId;
-                rec.imageUrl = result.results[idx].imageUrl || rec.imageUrl;
-              }
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          try {
+            const response = await fetch(gasUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+              body: JSON.stringify(batchPayload)
             });
-          } else {
-            gasErrorMessage = result.message || 'Google Apps Script ตอบกลับสถานะไม่สำเร็จ';
-            console.warn('GAS defective error:', result);
+            const result = await response.json();
+            if (result.status === 'success') {
+              isGasSuccess = true;
+              if (result.nextDefectiveRow) nextDefectiveRow = result.nextDefectiveRow;
+              newLocalRecords.forEach((rec, idx) => {
+                rec.syncedToSheet = true;
+                if (result.results && result.results[idx]) {
+                  rec.rowId = result.results[idx].rowId;
+                  rec.imageUrl = result.results[idx].imageUrl || '';
+                }
+              });
+              break;
+            } else {
+              gasErrorMessage = result.message || 'Google Apps Script ตอบกลับสถานะไม่สำเร็จ';
+              console.warn(`GAS defective attempt ${attempt} error:`, result);
+            }
+          } catch (err) {
+            gasErrorMessage = err.message || 'การเชื่อมต่อขัดข้อง';
+            console.warn(`Sync defective return attempt ${attempt} failed:`, err);
+            if (attempt < 2) await new Promise(r => setTimeout(r, 1200));
           }
-        } catch (err) {
-          gasErrorMessage = err.message || 'การเชื่อมต่อขัดข้อง';
-          console.warn('Sync defective return failed:', err);
         }
       }
 
+      submitBtn.disabled = false;
+      submitBtnText.textContent = 'บันทึกข้อมูลคืนของเสีย';
+
+      if (gasUrl && !isGasSuccess) {
+        Swal.fire({
+          icon: 'error',
+          title: 'ยังส่งข้อมูลคืนของเสียเข้า Google Sheet ไม่สำเร็จ!',
+          html: `
+            <div class="text-sm text-slate-700 text-left space-y-2 bg-rose-50 p-3.5 rounded-xl border border-rose-200 mt-2">
+              <div class="font-bold text-rose-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i> สาเหตุ: ${escapeHtml(gasErrorMessage)}</div>
+              <div class="text-xs text-slate-600">ข้อมูลของเสียและรูปถ่ายทั้ง <b>${validItems.length} เครื่อง</b> ยังคงอยู่ในหน้าจอนี้ (ระบบยังไม่ล้างฟอร์ม) กรุณาตรวจสอบสัญญาณอินเทอร์เน็ตแล้วกดปุ่ม <b>"บันทึกข้อมูลคืนของเสีย"</b> อีกครั้งครับ</div>
+            </div>
+          `,
+          confirmButtonText: 'ตกลง (ลองกดบันทึกอีกครั้ง)',
+          confirmButtonColor: '#e11d48'
+        });
+        return;
+      }
+
       newLocalRecords.reverse().forEach(rec => localHistory.unshift(rec));
-      if (!gasUrl || !isGasSuccess) nextDefectiveRow += validItems.length;
+      if (!gasUrl) nextDefectiveRow += validItems.length;
 
       saveLocalHistory();
       updateDashboard();
       updateNextRowDisplay();
 
-      submitBtn.disabled = false;
-      submitBtnText.textContent = 'บันทึกข้อมูลคืนของเสีย';
-
       Swal.fire({
-        icon: isGasSuccess ? 'success' : (gasUrl ? 'warning' : 'success'),
-        title: isGasSuccess ? `บันทึกคืนของเสียสำเร็จ! (${validItems.length} เครื่อง)` : (gasUrl ? `บันทึกข้อมูลแล้ว (${validItems.length} เครื่อง)` : `บันทึกคืนของเสียสำเร็จ! (${validItems.length} เครื่อง)`),
+        icon: 'success',
+        title: `บันทึกคืนของเสียสำเร็จ! (${validItems.length} เครื่อง)`,
         html: `
           <div class="text-sm text-slate-600 text-left space-y-1 bg-rose-50 p-3 rounded-xl border border-rose-200 mt-2">
             <div><b>ผู้คืน:</b> ${tech}</div>
             <div><b>สาเหตุการคืน:</b> ${jobType}</div>
             <div><b>จำนวนที่บันทึก:</b> <span class="font-bold text-rose-600">${validItems.length} เครื่อง</span></div>
-            <div class="text-xs ${isGasSuccess ? 'text-emerald-600 font-bold' : (gasUrl ? 'text-rose-600 font-semibold' : 'text-amber-600 font-medium')} pt-1">
-              ${isGasSuccess ? '✓ บันทึกลง Sheet "รายการคืนของเสีย" เรียบร้อยแล้ว' : (gasUrl ? `⚠ แจ้งเตือน: บันทึกในเครื่องแล้ว แต่ยังส่งไม่ถึง Google Sheet (${gasErrorMessage})` : '⚠ บันทึกในเครื่อง (ยังไม่ได้เชื่อมต่อ Google Sheet)')}
+            <div class="text-xs text-emerald-600 font-bold pt-1">
+              ✓ บันทึกลง Sheet "รายการคืนของเสีย" เรียบร้อยแล้ว
             </div>
           </div>
         `,
